@@ -13,33 +13,41 @@ require('dotenv').config();
 class GeneradorDeActasSENA {
     constructor() {
         this.miClaveAPI = process.env.GEMINI_API_KEY;
-        this.configurarConexionConGemini();
+        this.modeloIA = null;
+    }
+
+    async init() {
+        return this.configurarConexionConGemini();
     }
 
     async configurarConexionConGemini() {
-        try {
-            // Importo la librería de Google (me costó entender cómo usarla al principio)
-            const { GoogleGenerativeAI } = require("@google/generative-ai");
-            this.clienteGemini = new GoogleGenerativeAI(this.miClaveAPI);
-            
-            // Uso el modelo que configuré en las variables de entorno
-            const modeloQueVoyAUsar = process.env.MODELO_GEMINI || 'gemini-2.5-flash';
-            
-            this.modeloIA = this.clienteGemini.getGenerativeModel({ 
-                model: modeloQueVoyAUsar,
-                generationConfig: {
-                    temperature: parseFloat(process.env.TEMPERATURA) || 0.3,  // No muy creativo, más formal
-                    topK: 20,
-                    topP: 0.8,
-                    maxOutputTokens: parseInt(process.env.MAX_TOKENS) || 6500,
-                }
-            });
-            console.log(`✅ ¡Logré conectar con Gemini! Usando modelo: ${modeloQueVoyAUsar}`);
-        } catch (error) {
-            console.error("❌ Tuve problemas configurando Gemini:", error.message);
-            console.log("💡 Necesito instalar: npm install @google/generative-ai");
-            console.log("💡 Y configurar mi GEMINI_API_KEY en el archivo .env");
-        }
+        return new Promise((resolve, reject) => {
+            try {
+                // Importo la librería de Google (me costó entender cómo usarla al principio)
+                const { GoogleGenerativeAI } = require("@google/generative-ai");
+                this.clienteGemini = new GoogleGenerativeAI(this.miClaveAPI);
+
+                // Uso el modelo que configuré en las variables de entorno
+                const modeloQueVoyAUsar = process.env.MODELO_GEMINI || 'gemini-2.5-flash';
+
+                this.modeloIA = this.clienteGemini.getGenerativeModel({
+                    model: modeloQueVoyAUsar,
+                    generationConfig: {
+                        temperature: parseFloat(process.env.TEMPERATURA) || 0.3,  // No muy creativo, más formal
+                        topK: 20,
+                        topP: 0.8,
+                        maxOutputTokens: parseInt(process.env.MAX_TOKENS) || 6500,
+                    }
+                });
+                console.log(`✅ ¡Logré conectar con Gemini! Usando modelo: ${modeloQueVoyAUsar}`);
+                resolve(true);
+            } catch (error) {
+                console.error("❌ Tuve problemas configurando Gemini:", error.message);
+                console.log("💡 Necesito instalar: npm install @google/generative-ai");
+                console.log("💡 Y configurar mi GEMINI_API_KEY en el archivo .env");
+                reject(error);
+            }
+        });
     }
 
     obtenerPlantillaDelActa() {
@@ -144,7 +152,7 @@ Ahora redacta el acta en formato Markdown con base en la siguiente transcripció
         const promptCompleto = `${this.obtenerPlantillaDelActa()}
 
 TRANSCRIPCIÓN DEL COMITÉ QUE NECESITO PROCESAR:
-${textoTranscripcion}
+${textoReducido}
 
 INFORMACIÓN ADICIONAL QUE DETECTÉ:
 - Programa Académico: ${informacionExtra.programaAcademico || 'Técnico en Asistencia Administrativa'}
@@ -380,8 +388,8 @@ async function procesarTranscripcionParaGenerarActa(archivoDeTranscripcion, info
         // Creo mi generador de actas
         const miGenerador = new GeneradorDeActasSENA();
         
-        // Le doy tiempo para que se configure
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        // Inicializo la conexión con Gemini
+        await miGenerador.init();
 
         // Extraigo información básica del nombre del archivo
         const nombreBase = path.basename(archivoDeTranscripcion, path.extname(archivoDeTranscripcion));
