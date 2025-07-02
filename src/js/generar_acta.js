@@ -31,7 +31,7 @@ class GeneradorDeActasSENA {
                     temperature: parseFloat(process.env.TEMPERATURA) || 0.3,  // No muy creativo, más formal
                     topK: 20,
                     topP: 0.8,
-                    maxOutputTokens: parseInt(process.env.MAX_TOKENS) || 8100,
+                    maxOutputTokens: parseInt(process.env.MAX_TOKENS) || 6500,
                 }
             });
             console.log(`✅ ¡Logré conectar con Gemini! Usando modelo: ${modeloQueVoyAUsar}`);
@@ -103,6 +103,8 @@ Verificada la asistencia y existiendo quórum para sesionar y decidir, se da ini
 
 ---
 
+De acuerdo con La Ley 1581 de 2012, Protección de Datos Personales, el Servicio Nacional de Aprendizaje SENA, se compromete a garantizar la seguridad y protección de los datos personales que se encuentran almacenados en este documento, y les dará el tratamiento correspondiente en cumplimiento de lo establecido legalmente.
+
 ## INSTRUCCIONES ADICIONALES:
 - Usa **tercera persona** y lenguaje formal.
 - **No inventes contenido** si no está en la transcripción.
@@ -135,8 +137,8 @@ Ahora redacta el acta en formato Markdown con base en la siguiente transcripció
 
         console.log("🤖 Generando acta con mi sistema de IA...");
 
-        const textoReducido = textoTranscripcion.length > 8100
-    ? textoTranscripcion.slice(0, 8100) + "\n[...transcripción truncada por longitud...]"
+        const textoReducido = textoTranscripcion.length > 6500
+    ? textoTranscripcion.slice(0, 6500) + "\n[...transcripción truncada por longitud...]"
     : textoTranscripcion;
 
         const promptCompleto = `${this.obtenerPlantillaDelActa()}
@@ -197,6 +199,61 @@ Por favor ayúdame a generar el acta formal completa siguiendo exactamente el fo
                 console.log("💡 Hay un problema con el modelo que estoy usando.");
             }
             
+            return null;
+        }
+    }
+    
+    async generarActaEnDosPartes(textoTranscripcion, informacionExtra = {}) {
+        if (!this.modeloIA) {
+            console.error("❌ No tengo Gemini configurado. Necesito verificar mi API key.");
+            return null;
+        }
+
+        console.log("🤖 Generando acta en dos llamadas a Gemini...");
+
+        const promptBase = `${this.obtenerPlantillaDelActa()}
+
+TRANSCRIPCIÓN DEL COMITÉ QUE NECESITO PROCESAR:
+${textoTranscripcion}
+
+INFORMACIÓN ADICIONAL QUE DETECTÉ:
+- Programa Académico: ${informacionExtra.programaAcademico || 'Técnico en Asistencia Administrativa'}
+- Número de Ficha: ${informacionExtra.numeroFicha || 'Por determinar'}
+- Fecha del Comité: ${informacionExtra.fechaDeHoy || new Date().toLocaleDateString('es-CO')}
+- Aprendiz Principal: ${informacionExtra.nombreAprendiz || 'Extraer de la transcripción'}
+
+Por favor escribe la primera mitad del acta. Finaliza con la etiqueta <<CONTINUAR>> si falta texto.`;
+
+        try {
+            const chat = this.modeloIA.startChat();
+            const primeraParte = await chat.sendMessage(promptBase);
+            const textoPrimera = (await primeraParte.response).text();
+
+            const segundaParte = await chat.sendMessage("Continúa la redacción del acta justo donde quedó la etiqueta <<CONTINUAR>> y termina el documento.");
+            const textoSegunda = (await segundaParte.response).text();
+
+            const actaFinal = (textoPrimera.replace('<<CONTINUAR>>', '') + '\n' + textoSegunda).trim();
+
+            const nombreProyecto = informacionExtra.nombreDelProyecto || 'acta_comite';
+            const carpetaDelProyecto = this.crearCarpetaParaElProyecto(nombreProyecto, informacionExtra.esVersionFinal);
+            const fechaHoy = new Date().toISOString().split('T')[0];
+            const nombreDelArchivo = informacionExtra.esVersionFinal ?
+                `${nombreProyecto}_final.md` :
+                `${nombreProyecto}_${fechaHoy}.md`;
+
+            const rutaCompletaDelActa = path.join(carpetaDelProyecto, nombreDelArchivo);
+            fs.writeFileSync(rutaCompletaDelActa, actaFinal, 'utf-8');
+
+            console.log(`✅ ¡Acta generada en dos partes! Se guardó en: ${rutaCompletaDelActa}`);
+            console.log(`📄 Tamaño del acta final: ${actaFinal.length} caracteres`);
+
+            return {
+                textoDelActa: actaFinal,
+                archivo: rutaCompletaDelActa,
+                carpetaDelProyecto: carpetaDelProyecto
+            };
+        } catch (error) {
+            console.error("❌ Ocurrió un problema en la generación por partes:", error.message);
             return null;
         }
     }
