@@ -182,6 +182,7 @@ async function generarActaConInteligenciaArtificial(textoTranscrito, informacion
 
     try {
         const generador = new GeneradorActasConIA();
+        await generador.init();
 
         const resultadoActa = await generador.generarActa(textoTranscrito, {
             nombreBase: informacion.nombreDelProyecto || "acta",
@@ -666,5 +667,6 @@ module.exports = {
     transcribirUnSoloArchivo,
     extraerInformacionDelAudio,
     generarActaConInteligenciaArtificial,
-    combinarTodasLasTranscripciones
+    combinarTodasLasTranscripciones,
+    generarDocumentoWord
 };
