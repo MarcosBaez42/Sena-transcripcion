@@ -21,33 +21,31 @@ class GeneradorDeActasSENA {
     }
 
     async configurarConexionConGemini() {
-        return new Promise((resolve, reject) => {
-            try {
-                // Importo la librería de Google (me costó entender cómo usarla al principio)
-                const { GoogleGenerativeAI } = require("@google/generative-ai");
-                this.clienteGemini = new GoogleGenerativeAI(this.miClaveAPI);
+        try {
+            // Importo la librería de Google (me costó entender cómo usarla al principio)
+            const { GoogleGenerativeAI } = require("@google/generative-ai");
+            this.clienteGemini = new GoogleGenerativeAI(this.miClaveAPI);
 
-                // Uso el modelo que configuré en las variables de entorno
-                const modeloQueVoyAUsar = process.env.MODELO_GEMINI || 'gemini-2.5-flash';
+            // Uso el modelo que configuré en las variables de entorno
+            const modeloQueVoyAUsar = process.env.MODELO_GEMINI || 'gemini-2.5-flash';
 
-                this.modeloIA = this.clienteGemini.getGenerativeModel({
-                    model: modeloQueVoyAUsar,
-                    generationConfig: {
-                        temperature: parseFloat(process.env.TEMPERATURA) || 0.3,  // No muy creativo, más formal
-                        topK: 20,
-                        topP: 0.8,
-                        maxOutputTokens: parseInt(process.env.MAX_TOKENS) || 6500,
-                    }
-                });
-                console.log(`✅ ¡Logré conectar con Gemini! Usando modelo: ${modeloQueVoyAUsar}`);
-                resolve(true);
-            } catch (error) {
-                console.error("❌ Tuve problemas configurando Gemini:", error.message);
-                console.log("💡 Necesito instalar: npm install @google/generative-ai");
-                console.log("💡 Y configurar mi GEMINI_API_KEY en el archivo .env");
-                reject(error);
-            }
-        });
+            this.modeloIA = this.clienteGemini.getGenerativeModel({
+                model: modeloQueVoyAUsar,
+                generationConfig: {
+                    temperature: parseFloat(process.env.TEMPERATURA) || 0.3,  // No muy creativo, más formal
+                    topK: 20,
+                    topP: 0.8,
+                    maxOutputTokens: parseInt(process.env.MAX_TOKENS) || 6500,
+                }
+            });
+            console.log(`✅ ¡Logré conectar con Gemini! Usando modelo: ${modeloQueVoyAUsar}`);
+            return true;
+        } catch (error) {
+            console.error("❌ Tuve problemas configurando Gemini:", error.message);
+            console.log("💡 Necesito instalar: npm install @google/generative-ai");
+            console.log("💡 Y configurar mi GEMINI_API_KEY en el archivo .env");
+            throw error;
+        }
     }
 
     obtenerPlantillaDelActa() {

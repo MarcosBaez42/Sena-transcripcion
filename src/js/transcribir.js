@@ -6,6 +6,8 @@
 const fs = require("fs");
 const path = require("path");
 const { exec } = require("child_process");
+const { promisify } = require("util");
+const execAsync = promisify(exec);
 
 // Librerías para generar documentos Word (aprendí esto en el proyecto)
 const PizZip = require("pizzip");
@@ -231,50 +233,49 @@ function buscarArchivosDeAudioProcesado() {
     }));
 }
 
-function transcribirUnaParte(archivoParteInfo) {
-    return new Promise((resolve, reject) => {
-        console.log(`🔊 Transcribiendo ${archivoParteInfo.nombreArchivo}...`);
-        
-        // Uso mi script de Python para transcribir
-        const comandoParaEjecutar = `python "${scriptPythonTranscribir}" "${archivoParteInfo.rutaCompleta}"`;
-        
-        exec(comandoParaEjecutar, { 
-            maxBuffer: 1024 * 1024 * 10,  // Buffer grande para archivos largos
-            cwd: directorioDelProyecto     // Ejecuto desde la raíz del proyecto
-        }, (error, salida, errores) => {
-            if (error && !errores.includes('Lightning automatically upgraded')) {
-                console.error(`❌ Error transcribiendo ${archivoParteInfo.nombreArchivo}:`, error.message);
-                console.error(`❌ Errores adicionales:`, errores);
-                console.error(`❌ Salida:`, salida);
-                reject(error);
-                return;
-            }
+async function transcribirUnaParte(archivoParteInfo) {
+    console.log(`🔊 Transcribiendo ${archivoParteInfo.nombreArchivo}...`);
 
-            if (errores && !errores.includes('Lightning automatically upgraded')) {
-                console.warn(`⚠️ Advertencias en ${archivoParteInfo.nombreArchivo}:`, errores);
-            }
-            
-            if (errores.includes('Lightning automatically upgraded')) {
-                console.log(`📦 PyTorch Lightning se actualizó automáticamente para ${archivoParteInfo.nombreArchivo}`);
-            }
+            const comandoParaEjecutar = `python "${scriptPythonTranscribir}" "${archivoParteInfo.rutaCompleta}"`;
 
-            console.log(salida);
-
-            const nombreBase = path.basename(archivoParteInfo.rutaCompleta, path.extname(archivoParteInfo.rutaCompleta));
-            const archivoTranscripcionEsperado = path.join(path.dirname(archivoParteInfo.rutaCompleta), `${nombreBase}_transcripcion.txt`);
-            
-            if (!fs.existsSync(archivoTranscripcionEsperado)) {
-                reject(new Error(`No encontré la transcripción: ${archivoTranscripcionEsperado}`));
-                return;
-            }
-
-            resolve({
-                parte: archivoParteInfo.numeroParte,
-                archivo: archivoTranscripcionEsperado,
-                contenido: fs.readFileSync(archivoTranscripcionEsperado, "utf-8")
-            });
+    try {
+        const { stdout, stderr } = await execAsync(comandoParaEjecutar, {
+            maxBuffer: 1024 * 1024 * 10,
+            cwd: directorioDelProyecto
         });
-    });
+
+            if (stderr && !stderr.includes('Lightning automatically upgraded')) {
+            console.warn(`⚠️ Advertencias en ${archivoParteInfo.nombreArchivo}:`, stderr);
+        }
+
+           if (stderr && stderr.includes('Lightning automatically upgraded')) {
+            console.log(`📦 PyTorch Lightning se actualizó automáticamente para ${archivoParteInfo.nombreArchivo}`);
+        }
+
+            console.log(stdout);
+
+        const nombreBase = path.basename(archivoParteInfo.rutaCompleta, path.extname(archivoParteInfo.rutaCompleta));
+        const archivoTranscripcionEsperado = path.join(path.dirname(archivoParteInfo.rutaCompleta), `${nombreBase}_transcripcion.txt`);
+
+        if (!fs.existsSync(archivoTranscripcionEsperado)) {
+            throw new Error(`No encontré la transcripción: ${archivoTranscripcionEsperado}`);
+        }
+
+        return {
+            parte: archivoParteInfo.numeroParte,
+            archivo: archivoTranscripcionEsperado,
+            contenido: fs.readFileSync(archivoTranscripcionEsperado, "utf-8")
+        };
+    } catch (error) {
+        if (error.stderr && !String(error.stderr).includes('Lightning automatically upgraded')) {
+            console.error(`❌ Error transcribiendo ${archivoParteInfo.nombreArchivo}:`, error.message);
+            console.error(`❌ Errores adicionales:`, error.stderr);
+            if (error.stdout) {
+                console.error(`❌ Salida:`, error.stdout);
+            }
+        }
+        throw error;
+    }
 }
 
 // Función para normalizar hablantes entre partes (esto me costó entender)
@@ -543,95 +544,80 @@ async function transcribirUnSoloArchivo(rutaDelAudio) {
     
     const tiempoDeInicio = Date.now();
     
-    return new Promise(async (resolve, reject) => {
-        // Uso mi script de Python con la ruta completa
-        const comandoCompleto = `python "${scriptPythonTranscribir}" "${rutaCompletaDelAudio}"`;
-        
-        exec(comandoCompleto, { 
-            maxBuffer: 1024 * 1024 * 10,  // Buffer grande por si el audio es largo
-            cwd: directorioDelProyecto     // Ejecuto desde la raíz
-        }, async (error, salida, errores) => {
-            if (error) {
-                console.error("❌ WhisperX me dio problemas:", error.message);
-                console.error("❌ Comando que intenté:", comandoCompleto);
-                console.error("❌ Directorio de trabajo:", directorioDelProyecto);
-                reject(error);
-                return;
-            }
-
-            if (errores && !errores.includes('Lightning automatically upgraded')) {
-                console.warn("⚠️ Algunas advertencias:", errores);
-            }
-
-            console.log(salida);
-
-            // Busco el archivo de transcripción en varias ubicaciones posibles
-            const posiblesUbicaciones = [
-                archivoTranscripcionEsperado,
-                path.join(directorioDelProyecto, `${nombreDelArchivo}_transcripcion.txt`),
-                path.join(carpetaDelArchivo, `${nombreDelArchivo}_transcripcion.txt`)
-            ];
-
-            let archivoEncontrado = null;
-            for (const ubicacion of posiblesUbicaciones) {
-                if (fs.existsSync(ubicacion)) {
-                    archivoEncontrado = ubicacion;
-                    break;
-                }
-            }
-
-            if (!archivoEncontrado) {
-                console.error(`❌ No encontré el archivo de transcripción`);
-                console.error(`❌ Busqué en estas ubicaciones:`);
-                posiblesUbicaciones.forEach(ubicacion => {
-                    console.error(`   - ${ubicacion}`);
-                });
-                reject(new Error(`No se encontró la transcripción`));
-                return;
-            }
-
-            console.log(`✅ ¡Encontré la transcripción! Está en: ${archivoEncontrado}`);
+    const comandoCompleto = `python "${scriptPythonTranscribir}" "${rutaCompletaDelAudio}"`;
 
             try {
-                const textoTranscrito = fs.readFileSync(archivoEncontrado, "utf-8");
-                const hablantesQueDetecte = Array.from(new Set([...textoTranscrito.matchAll(/HABLANTE (\w+|\d+)/g)].map(m => m[1])));
-                
-                const tiempoTotalSegundos = (Date.now() - tiempoDeInicio) / 1000;
-                console.log(`\n🎉 ¡TRANSCRIPCIÓN INDIVIDUAL COMPLETADA!`);
-                console.log(`⏱️ Me tomó: ${(tiempoTotalSegundos / 60).toFixed(1)} minutos`);
-                console.log(`👥 Detecté ${hablantesQueDetecte.length} hablantes diferentes`);
-                
-                // Detecto información y genero acta si puedo
-                const informacionDelAudio = extraerInformacionDelAudio(nombreDelArchivo, textoTranscrito);
-                let resultadoActa = null;
-                
-                if (puedeUsarGemini) {
-                    resultadoActa = await generarActaConInteligenciaArtificial(textoTranscrito, informacionDelAudio);
-                }
-                
-                // Verifico hablantes y genero documento Word
-                if (verificarSiHablantesEstanRegistrados(hablantesQueDetecte) && generarDocumentoWord(textoTranscrito, nombreDelArchivo)) {
-                    console.log(`✅ ¡Completé el procesamiento de: ${nombreDelArchivo}!`);
-                    console.log(`📄 Archivos que generé:`);
-                    console.log(`   - Transcripción: ${archivoEncontrado}`);
-                    console.log(`   - Documento Word: ${nombreDelArchivo}_acta_completa.docx`);
-                    
-                    if (resultadoActa) {
-                        console.log(`   - Acta con Gemini: ${resultadoActa.archivoGenerado}`);
-                    }
-                }
-                
-                resolve({
-                    transcripcion: archivoEncontrado,
-                    acta: resultadoActa,
-                    informacion: informacionDelAudio
-                });
-            } catch (e) {
-                console.error("❌ Tuve problemas procesando los archivos:", e);
-                reject(e);
-            }
+        const { stdout, stderr } = await execAsync(comandoCompleto, {
+            maxBuffer: 1024 * 1024 * 10,
+            cwd: directorioDelProyecto
         });
-    });
+
+            if (stderr && !stderr.includes('Lightning automatically upgraded')) {
+            console.warn("⚠️ Algunas advertencias:", stderr);
+        }
+
+        console.log(stdout);
+
+        const posiblesUbicaciones = [
+            archivoTranscripcionEsperado,
+            path.join(directorioDelProyecto, `${nombreDelArchivo}_transcripcion.txt`),
+            path.join(carpetaDelArchivo, `${nombreDelArchivo}_transcripcion.txt`)
+        ];
+
+            let archivoEncontrado = null;
+        for (const ubicacion of posiblesUbicaciones) {
+            if (fs.existsSync(ubicacion)) {
+                archivoEncontrado = ubicacion;
+                break;
+            }
+        }
+
+            if (!archivoEncontrado) {
+            console.error(`❌ No encontré el archivo de transcripción`);
+            console.error(`❌ Busqué en estas ubicaciones:`);
+            posiblesUbicaciones.forEach(ubicacion => {
+                console.error(`   - ${ubicacion}`);
+            });
+            throw new Error(`No se encontró la transcripción`);
+        }
+
+             console.log(`✅ ¡Encontré la transcripción! Está en: ${archivoEncontrado}`);
+
+        const textoTranscrito = fs.readFileSync(archivoEncontrado, "utf-8");
+        const hablantesQueDetecte = Array.from(new Set([...textoTranscrito.matchAll(/HABLANTE (\w+|\d+)/g)].map(m => m[1])));
+
+        const tiempoTotalSegundos = (Date.now() - tiempoDeInicio) / 1000;
+        console.log(`\n🎉 ¡TRANSCRIPCIÓN INDIVIDUAL COMPLETADA!`);
+        console.log(`⏱️ Me tomó: ${(tiempoTotalSegundos / 60).toFixed(1)} minutos`);
+        console.log(`👥 Detecté ${hablantesQueDetecte.length} hablantes diferentes`);
+
+        const informacionDelAudio = extraerInformacionDelAudio(nombreDelArchivo, textoTranscrito);
+        let resultadoActa = null;
+
+        if (puedeUsarGemini) {
+            resultadoActa = await generarActaConInteligenciaArtificial(textoTranscrito, informacionDelAudio);
+        }
+
+        if (verificarSiHablantesEstanRegistrados(hablantesQueDetecte) && generarDocumentoWord(textoTranscrito, nombreDelArchivo)) {
+            console.log(`✅ ¡Completé el procesamiento de: ${nombreDelArchivo}!`);
+            console.log(`📄 Archivos que generé:`);
+            console.log(`   - Transcripción: ${archivoEncontrado}`);
+            console.log(`   - Documento Word: ${nombreDelArchivo}_acta_completa.docx`);
+
+            if (resultadoActa) {
+                console.log(`   - Acta con Gemini: ${resultadoActa.archivoGenerado}`);
+            }
+         }
+
+        return {
+            transcripcion: archivoEncontrado,
+            acta: resultadoActa,
+            informacion: informacionDelAudio
+        };
+    } catch (e) {
+        console.error("❌ Tuve problemas procesando los archivos:", e);
+        throw e;
+    }
 }
 
 // ============================================================================

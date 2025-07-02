@@ -10,7 +10,8 @@
     "preprocesar": "node src/js/preprocesar_audio.js",
     "configurar": "node src/js/setup_gemini.js",
     "organizar": "node src/js/organizar_carpetas.js",
-    "test-api": "node src/js/test_api.js"
+    "test-api": "node src/js/test_api.js",
+    "test": "echo \"No tests specified\" && exit 0"
   },
   "dependencies": {
     "@google/generative-ai": "^0.2.1",
