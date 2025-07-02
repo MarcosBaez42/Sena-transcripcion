@@ -10,6 +10,23 @@ async function generarActaEnDosPartes(parte1, parte2, info = {}) {
 
     const generador = new GeneradorActas();
     const resultado = await generador.generarMiActa(textoCompleto, info);
+
+    if (resultado) {
+        generarDocumentoWord(resultado.textoDelActa, info.nombreDelProyecto);
+
+        const projectRoot = path.resolve(__dirname, '../../');
+        const docxName = `${info.nombreDelProyecto}_acta_completa.docx`;
+        const docxOrigen = path.join(projectRoot, docxName);
+        const destino = path.join(path.dirname(resultado.archivo), docxName);
+
+        try {
+            fs.renameSync(docxOrigen, destino);
+            resultado.archivoDocx = destino;
+        } catch (err) {
+            console.error(`No pude mover el archivo Word: ${err.message}`);
+        }
+    }
+
     return resultado;
 }
 
@@ -21,22 +38,14 @@ if (require.main === module) {
             process.exit(1);
         }
 
-        const nombreProyecto = path.basename(parte1).replace('_transcripcion', '').replace(path.extname(parte1),'');
+        const nombreProyecto = path.basename(parte1).replace('_transcripcion', '').replace(path.extname(parte1), '');
         const info = { nombreDelProyecto: nombreProyecto };
 
         const resultado = await generarActaEnDosPartes(parte1, parte2, info);
         if (resultado) {
             console.log(`Acta generada en: ${resultado.archivo}`);
-            generarDocumentoWord(resultado.textoDelActa, info.nombreDelProyecto);
-            const projectRoot = path.resolve(__dirname, '../../');
-            const docxName = `${info.nombreDelProyecto}_acta_completa.docx`;
-            const docxOrigen = path.join(projectRoot, docxName);
-            const destino = path.join(path.dirname(resultado.archivo), docxName);
-            try {
-                fs.renameSync(docxOrigen, destino);
-                console.log(`Documento Word guardado en: ${destino}`);
-            } catch (err) {
-                console.error(`No pude mover el archivo Word: ${err.message}`);
+            if (resultado.archivoDocx) {
+                console.log(`Documento Word guardado en: ${resultado.archivoDocx}`);
             }
         } else {
             console.error('No se generó el acta.');

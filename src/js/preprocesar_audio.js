@@ -1,6 +1,8 @@
 const fs = require("fs");
 const path = require("path");
 const { exec } = require("child_process");
+const { promisify } = require("util");
+const execAsync = promisify(exec);
 
 const audioFile = "ADSO.mp3"; // Cambia por el nombre de tu archivo
 const nombreBase = path.basename(audioFile, path.extname(audioFile));
@@ -19,95 +21,63 @@ if (!fs.existsSync(outputDir)) {
 }
 
 // Función para obtener duración del audio
-function obtenerDuracion(archivo) {
-    return new Promise((resolve, reject) => {
-        const comando = `ffprobe -v quiet -show_entries format=duration -of csv=p=0 "${archivo}"`;
-        exec(comando, (error, stdout, stderr) => {
-            if (error) {
-                reject(error);
-            } else {
-                resolve(parseFloat(stdout.trim()));
-            }
-        });
-    });
+async function obtenerDuracion(archivo) {
+    const comando = `ffprobe -v quiet -show_entries format=duration -of csv=p=0 "${archivo}"`;
+    try {
+        const { stdout } = await execAsync(comando);
+        return parseFloat(stdout.trim());
+    } catch (error) {
+        throw error;
+    }
 }
 
 // Función para limpiar audio (reducir ruido)
-function limpiarAudio() {
-    return new Promise((resolve, reject) => {
-        console.log("🧹 Limpiando audio (reduciendo ruido de fondo)...");
-        
-        const filtros = [
-            "highpass=f=80",           // Filtro pasa-altos a 80Hz
-            "lowpass=f=8000",          // Filtro pasa-bajos a 8kHz
-            "afftdn=nr=20:nf=-40",     // Reducción de ruido FFT
-            "dynaudnorm=p=0.9:s=5"     // Normalización dinámica
-        ].join(",");
+async function limpiarAudio() {
+    console.log("🧹 Limpiando audio (reduciendo ruido de fondo)...");
 
-        const comando = `ffmpeg -i "${audioFile}" -af "${filtros}" -ar 16000 -ac 1 "${audioLimpio}" -y`;
-        
-        console.log("⚙️  Aplicando filtros de limpieza...");
-        exec(comando, (error, stdout, stderr) => {
-            if (error) {
-                console.error("❌ Error al limpiar audio:", error.message);
-                reject(error);
-            } else {
-                console.log("✅ Audio limpiado correctamente");
-                resolve();
-            }
-        });
-    });
+    const filtros = [
+        "highpass=f=80",           // Filtro pasa-altos a 80Hz
+        "lowpass=f=8000",          // Filtro pasa-bajos a 8kHz
+        "afftdn=nr=20:nf=-40",     // Reducción de ruido FFT
+        "dynaudnorm=p=0.9:s=5"     // Normalización dinámica
+    ].join(",");
+
+    const comando = `ffmpeg -i "${audioFile}" -af "${filtros}" -ar 16000 -ac 1 "${audioLimpio}" -y`;
+
+    console.log("⚙️  Aplicando filtros de limpieza...");
+    try {
+        await execAsync(comando);
+        console.log("✅ Audio limpiado correctamente");
+    } catch (error) {
+        console.error("❌ Error al limpiar audio:", error.message);
+        throw error;
+    }
 }
 
 // Función para dividir audio en partes
-function dividirAudio(duracionTotal) {
-    return new Promise((resolve, reject) => {
-        console.log("✂️  Dividiendo audio en 3 partes...");
-        
-        const duracionParte = duracionTotal / 3;
-        const comandos = [];
-        
-        // Crear comandos para cada parte
-        for (let i = 0; i < 3; i++) {
-            const inicioTiempo = i * duracionParte;
-            const archivoSalida = `${prefijoParte}_${i + 1}.wav`;
-            
-            const comando = `ffmpeg -i "${audioLimpio}" -ss ${inicioTiempo} -t ${duracionParte} -c copy "${archivoSalida}" -y`;
-            comandos.push({
-                comando: comando,
-                parte: i + 1,
-                archivo: archivoSalida,
-                inicio: Math.floor(inicioTiempo / 60),
-                duracion: Math.floor(duracionParte / 60)
-            });
+async function dividirAudio(duracionTotal) {
+    console.log("✂️  Dividiendo audio en 3 partes...");
+
+    const duracionParte = duracionTotal / 3;
+    const archivosGenerados = [];
+
+    for (let i = 0; i < 3; i++) {
+        const inicioTiempo = i * duracionParte;
+        const archivoSalida = `${prefijoParte}_${i + 1}.wav`;
+        const comando = `ffmpeg -i "${audioLimpio}" -ss ${inicioTiempo} -t ${duracionParte} -c copy "${archivoSalida}" -y`;
+
+        console.log(`📝 Creando parte ${i + 1} (${Math.floor(inicioTiempo / 60)}min - ~${Math.floor(duracionParte / 60)}min)...`);
+        try {
+            await execAsync(comando);
+            console.log(`✅ Parte ${i + 1} creada: ${path.basename(archivoSalida)}`);
+            archivosGenerados.push(archivoSalida);
+        } catch (error) {
+            console.error(`❌ Error al crear parte ${i + 1}:`, error.message);
+            throw error;
         }
-        
-        // Ejecutar comandos secuencialmente
-        let procesoActual = 0;
-        
-        function procesarSiguiente() {
-            if (procesoActual >= comandos.length) {
-                resolve(comandos.map(c => c.archivo));
-                return;
-            }
-            
-            const cmd = comandos[procesoActual];
-            console.log(`📝 Creando parte ${cmd.parte} (${cmd.inicio}min - ~${cmd.duracion}min)...`);
-            
-            exec(cmd.comando, (error, stdout, stderr) => {
-                if (error) {
-                    console.error(`❌ Error al crear parte ${cmd.parte}:`, error.message);
-                    reject(error);
-                } else {
-                    console.log(`✅ Parte ${cmd.parte} creada: ${path.basename(cmd.archivo)}`);
-                    procesoActual++;
-                    procesarSiguiente();
-                }
-            });
-        }
-        
-        procesarSiguiente();
-    });
+    }
+
+    return archivosGenerados;
 }
 
 // Función principal
@@ -153,16 +123,16 @@ async function procesarAudio() {
         archivosPartes.forEach((archivo, i) => {
             console.log(`   - Parte ${i + 1}: ${archivo}`);
         });
-        
+
         console.log("\n📝 Siguiente paso:");
         console.log("   Ejecuta transcribir.js usando cada archivo de parte individual");
         console.log("   Ejemplo: node transcribir.js para cada archivo .wav generado");
-        
+
         // Crear un archivo de lote para transcribir todas las partes
         const scriptTranscripcion = archivosPartes
             .map(archivo => `echo "Transcribiendo ${path.basename(archivo)}..."\nnode transcribir.js "${archivo}"`)
             .join("\n\n");
-            
+
         const archivoLote = path.join(outputDir, "transcribir_todas_partes.bat");
         fs.writeFileSync(archivoLote, scriptTranscripcion);
         console.log(`📋 Script creado: ${archivoLote}`);
