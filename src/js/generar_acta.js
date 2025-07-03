@@ -35,7 +35,7 @@ class GeneradorDeActasSENA {
                     temperature: parseFloat(process.env.TEMPERATURA) || 0.3,  // No muy creativo, más formal
                     topK: 20,
                     topP: 0.8,
-                    maxOutputTokens: parseInt(process.env.MAX_TOKENS) || 6500,
+                    maxOutputTokens: parseInt(process.env.MAX_TOKENS) || 4900,
                 }
             });
             console.log(`✅ ¡Logré conectar con Gemini! Usando modelo: ${modeloQueVoyAUsar}`);
@@ -143,8 +143,8 @@ Ahora redacta el acta en formato Markdown con base en la siguiente transcripció
 
         console.log("🤖 Generando acta con mi sistema de IA...");
 
-        const textoReducido = textoTranscripcion.length > 6500
-    ? textoTranscripcion.slice(0, 6500) + "\n[...transcripción truncada por longitud...]"
+        const textoReducido = textoTranscripcion.length > 4900
+    ? textoTranscripcion.slice(0, 4900) + "\n[...transcripción truncada por longitud...]"
     : textoTranscripcion;
 
         const promptCompleto = `${this.obtenerPlantillaDelActa()}

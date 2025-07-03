@@ -10,6 +10,7 @@ async function generarActaEnDosPartes(parte1, parte2 = null, info = {}) {
     const textoCompleto = textos.join('\n\n');
 
     const generador = new GeneradorActas();
+    await generador.init();
     const resultado = await generador.generarActaEnDosPartes(textoCompleto, info);
 
     if (resultado) {

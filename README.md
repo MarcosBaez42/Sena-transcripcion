@@ -20,7 +20,7 @@ Este proyecto automatiza la transcripción de audio de reuniones del SENA y gene
 
 - `npm run transcribir` – procesa los audios y genera archivos de texto.
 - `npm run generar-acta` – crea un acta a partir de una transcripción.
-- `npm run generar-acta-partes` – une dos transcripciones y genera el acta completa.
+- `npm run generar-acta-partes` – acepta uno o dos archivos de transcripción y genera el acta completa.
 
 ## Carpeta `src`
 
