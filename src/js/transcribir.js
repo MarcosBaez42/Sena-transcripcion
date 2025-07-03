@@ -362,6 +362,16 @@ function verificarSiHablantesEstanRegistrados(hablantesDetectados) {
     return true;
 }
 
+// Pequeño ayudante para limpiar texto Markdown antes de pasarlo a Word
+function limpiarMarkdown(texto) {
+    if (!texto) return texto;
+    let limpio = texto.replace(/\*\*(.*?)\*\*/g, '$1'); // elimino **negritas**
+    limpio = limpio.replace(/__(.*?)__/g, '$1');          // elimino __dobles__
+    limpio = limpio.replace(/_(.*?)_/g, '$1');            // elimino _cursivas_
+    limpio = limpio.replace(/^[*-]\s+/gm, '');           // elimino guiones o asteriscos iniciales
+    return limpio;
+}
+
 function generarDocumentoWord(textoCompleto, nombreDelArchivo, datosExtras = {}) {
     if (!fs.existsSync(archivoPlantillaWord)) {
         console.error("❌ No encontré la plantilla de Word.");
@@ -377,12 +387,19 @@ function generarDocumentoWord(textoCompleto, nombreDelArchivo, datosExtras = {})
             delimiters: { start: "[[", end: "]]" }
         });
 
+        const textoLimpio = limpiarMarkdown(textoCompleto);
+        const participantesTexto = limpiarMarkdown(
+            Array.isArray(datosExtras.participantes)
+                ? datosExtras.participantes.join(', ')
+                : (datosExtras.participantes || '')
+        );
+
         documentoWord.render({
-            DESARROLLO: textoCompleto,
+            DESARROLLO: textoLimpio,
             FECHA: datosExtras.fecha || '',
             HORA_INICIO: datosExtras.horaInicio || '',
             HORA_FIN: datosExtras.horaFin || '',
-            PARTICIPANTES: Array.isArray(datosExtras.participantes) ? datosExtras.participantes.join(', ') : (datosExtras.participantes || '')
+            PARTICIPANTES: participantesTexto
         });
 
         const bufferDocumento = documentoWord.getZip().generate({ type: "nodebuffer" });
