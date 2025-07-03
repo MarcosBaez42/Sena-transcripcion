@@ -3,10 +3,11 @@ const path = require('path');
 const { GeneradorActas } = require('./generar_acta');
 const { generarDocumentoWord } = require('./transcribir');
 
-async function generarActaEnDosPartes(parte1, parte2, info = {}) {
-    const textoParte1 = fs.readFileSync(parte1, 'utf8');
-    const textoParte2 = fs.readFileSync(parte2, 'utf8');
-    const textoCompleto = `${textoParte1}\n\n${textoParte2}`;
+async function generarActaEnDosPartes(parte1, parte2 = null, info = {}) {
+    const textos = [];
+    if (parte1) textos.push(fs.readFileSync(parte1, 'utf8'));
+    if (parte2) textos.push(fs.readFileSync(parte2, 'utf8'));
+    const textoCompleto = textos.join('\n\n');
 
     const generador = new GeneradorActas();
     const resultado = await generador.generarActaEnDosPartes(textoCompleto, info);
@@ -33,8 +34,8 @@ async function generarActaEnDosPartes(parte1, parte2, info = {}) {
 if (require.main === module) {
     (async () => {
         const [parte1, parte2] = process.argv.slice(2);
-        if (!parte1 || !parte2) {
-            console.error('Uso: node generar_acta_en_partes.js PARTE1 PARTE2');
+       if (!parte1) {
+            console.error('Uso: node generar_acta_en_partes.js PARTE1 [PARTE2]');
             process.exit(1);
         }
 
