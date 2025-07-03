@@ -64,13 +64,20 @@ Debes generar un acta **siguiendo exactamente esta estructura y formato**.
 **HORA FIN:** [Calcular]  
 **LUGAR:** [Virtual/Presencial o extraer]
 
-## PARTICIPANTES
-- **COORDINACIÓN ACADÉMICA:** [Nombre y cargo]
-- **BIENESTAR DEL APRENDIZ:** [Nombre y cargo]
-- **INSTRUCTORES:** [Lista de instructores]
-- **APRENDIZ CITADO:** [Nombre del aprendiz]
-- **REPRESENTANTE DE CENTRO:** [Nombre]
-- **VOCERO:** [Nombre]
+---
+
+## AGENDA O PUNTOS PARA DESARROLLAR:
+**1. Saludo** 
+**2. Verificación del Quórum** 
+**3. Hechos que serán objeto de estudio en el Comité** 
+**4. Instalación del Comité por parte del Coordinador Académico** 
+**5. Desarrollo del Comité/ Análisis del Caso, descargos del aprendiz y practica de pruebas a que haya lugar.**
+**6. Análisis y conclusiones realizadas por el Comité.**
+
+---
+
+## OBJETIVO(S) DE LA REUNIÓN:
+Analizar el caso del aprendiz [Extraer de transcripción] DEL PROGRAMA [Extraer de transcripción] FICHA: [Extraer de transcripción]  
 
 ---
 
@@ -82,18 +89,23 @@ Se da inicio con el saludo de bienvenida.
 ### 2. VERIFICACIÓN DEL QUÓRUM
 Verificada la asistencia y existiendo quórum para sesionar y decidir, se da inicio al comité y se procede de conformidad al orden del día.
 
+## PARTICIPANTES
+- **COORDINACIÓN ACADÉMICA:** [Nombre y cargo]
+- **BIENESTAR DEL APRENDIZ:** [Nombre y cargo]
+- **INSTRUCTORES:** [Lista de instructores]
+- **APRENDIZ CITADO:** [Nombre del aprendiz]
+- **REPRESENTANTE DE CENTRO:** [Nombre]
+- **VOCERO:** [Nombre]
+
 ### 3. HECHOS QUE SERÁN OBJETO DE ESTUDIO
 [Extrae con claridad los hechos reportados por los instructores, mencionando fechas, fallas, evidencias, y normas del reglamento del aprendiz.]
 
 ### 4. INSTALACIÓN DEL COMITÉ POR PARTE DEL COORDINADOR
-[Resume palabras iniciales del coordinador académico.]
+El coordinador JOHON FREDY SANABRIA MUÑOZ da un saludo de bienvenida a los presentes en el comité. El Comité de Evaluación y Seguimiento es una instancia académica fundamental en nuestra institución. Su propósito principal es orientar y apoyar de manera integral el proceso de formación de nuestros aprendices, asegurando que se lleve a cabo con los más altos estándares de calidad. Este comité desempeña un papel fundamental al analizar y evaluar de manera constante los programas de estudio, los métodos pedagógicos y los resultados obtenidos. Además, se encarga de proponer mejoras, ajustes y estrategias que contribuyan a optimizar la experiencia educativa de nuestros aprendices. Nuestro objetivo común es formar profesionales competentes, éticos y comprometidos con su desarrollo personal y con la sociedad. A través del trabajo conjunto del Comité de Evaluación y Seguimiento, podremos garantizar que estamos cumpliendo con nuestra misión de ofrecer una educación de calidad.
 
 ### 5. DESARROLLO DEL COMITÉ / DESCARGOS DEL APRENDIZ / ANÁLISIS
-**Descargos del aprendiz:**  
-[Extrae lo dicho por el aprendiz con justificaciones, compromisos y motivos.]
-
 **Intervenciones de los participantes:**  
-[Incluye opiniones, preocupaciones, o análisis del comité.]
+[Extrae lo mas importante dicho por los participantes del comite cada vez que un partisipante intervenga comieza con Interviene [Cargo y nombre] incluye justificaciones, compromisos y motivos opiniones, preocupaciones, o análisis del comité.]
 
 ### 6. CONCLUSIONES
 [Especifica tipo de falta, gravedad, medidas, planes de mejoramiento.]
