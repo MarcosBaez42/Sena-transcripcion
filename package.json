@@ -11,7 +11,7 @@
     "configurar": "node src/js/setup_gemini.js",
     "organizar": "node src/js/organizar_carpetas.js",
     "test-api": "node src/js/test_api.js",
-    "test": "echo \"No tests specified\" && exit 0"
+    "test": "echo \"No tests specified\""
   },
   "dependencies": {
     "@google/generative-ai": "^0.2.1",

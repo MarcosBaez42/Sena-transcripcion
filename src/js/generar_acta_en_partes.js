@@ -9,7 +9,7 @@ async function generarActaEnDosPartes(parte1, parte2, info = {}) {
     const textoCompleto = `${textoParte1}\n\n${textoParte2}`;
 
     const generador = new GeneradorActas();
-    const resultado = await generador.generarMiActa(textoCompleto, info);
+    const resultado = await generador.generarActaEnDosPartes(textoCompleto, info);
 
     if (resultado) {
         generarDocumentoWord(resultado.textoDelActa, info.nombreDelProyecto);
