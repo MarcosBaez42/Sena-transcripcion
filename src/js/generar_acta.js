@@ -147,6 +147,32 @@ Ahora redacta el acta en formato Markdown con base en la siguiente transcripció
         return rutaCarpetaCompleta;
     }
 
+    // Extraigo metadatos básicos del acta en formato Markdown
+    extraerMetadatosDelActa(textoActa) {
+        const obtener = (regex) => {
+            const m = textoActa.match(regex);
+            return m ? m[1].trim() : null;
+        };
+
+        const fecha = obtener(/CIUDAD Y FECHA:\s*([^\n]+)/i);
+        const horaInicio = obtener(/HORA INICIO:\s*([^\n]+)/i);
+        const horaFin = obtener(/HORA FIN:\s*([^\n]+)/i);
+
+        let participantes = [];
+        const seccionPartes = textoActa.split(/##\s*PARTICIPANTES/i)[1];
+        if (seccionPartes) {
+            for (const linea of seccionPartes.split(/\r?\n/)) {
+                const recorte = linea.trim();
+                if (recorte.startsWith('##')) break;
+                if (recorte.startsWith('-')) {
+                    participantes.push(recorte.replace(/^-+\s*/, '').replace(/\*+/g, '').trim());
+                }
+            }
+        }
+
+        return { fecha, horaInicio, horaFin, participantes };
+    }
+
     async generarMiActa(textoTranscripcion, informacionExtra = {}) {
         if (!this.modeloIA) {
             console.error("❌ No tengo Gemini configurado. Necesito verificar mi API key.");
@@ -199,10 +225,13 @@ Por favor ayúdame a generar el acta formal completa siguiendo exactamente el fo
             console.log(`✅ ¡Logré generar el acta! Se guardó en: ${rutaCompletaDelActa}`);
             console.log(`📄 Tamaño del acta: ${actaGenerada.length} caracteres`);
             
+            const metadatos = this.extraerMetadatosDelActa(actaGenerada);
+
             return {
                 textoDelActa: actaGenerada,
                 archivo: rutaCompletaDelActa,
-                carpetaDelProyecto: carpetaDelProyecto
+                carpetaDelProyecto: carpetaDelProyecto,
+                ...metadatos
             };
 
         } catch (error) {
@@ -264,11 +293,14 @@ Por favor escribe la primera mitad del acta. Finaliza con la etiqueta <<CONTINUA
 
             console.log(`✅ ¡Acta generada en dos partes! Se guardó en: ${rutaCompletaDelActa}`);
             console.log(`📄 Tamaño del acta final: ${actaFinal.length} caracteres`);
+            
+            const metadatos = this.extraerMetadatosDelActa(actaFinal);
 
             return {
                 textoDelActa: actaFinal,
                 archivo: rutaCompletaDelActa,
-                carpetaDelProyecto: carpetaDelProyecto
+                carpetaDelProyecto: carpetaDelProyecto,
+                ...metadatos
             };
         } catch (error) {
             console.error("❌ Ocurrió un problema en la generación por partes:", error.message);

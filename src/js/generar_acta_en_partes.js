@@ -14,7 +14,12 @@ async function generarActaEnDosPartes(parte1, parte2 = null, info = {}) {
     const resultado = await generador.generarActaEnDosPartes(textoCompleto, info);
 
     if (resultado) {
-        generarDocumentoWord(resultado.textoDelActa, info.nombreDelProyecto);
+        generarDocumentoWord(resultado.textoDelActa, info.nombreDelProyecto, {
+            fecha: resultado.fecha,
+            horaInicio: resultado.horaInicio,
+            horaFin: resultado.horaFin,
+            participantes: resultado.participantes
+        });
 
         const projectRoot = path.resolve(__dirname, '../../');
         const docxName = `${info.nombreDelProyecto}_acta_completa.docx`;
