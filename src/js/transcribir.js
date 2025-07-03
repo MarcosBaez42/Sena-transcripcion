@@ -377,8 +377,7 @@ function generarDocumentoWord(textoCompleto, nombreDelArchivo) {
             delimiters: { start: "[[", end: "]]" }
         });
 
-        documentoWord.setData({ DESARROLLO: textoCompleto });
-        documentoWord.render();
+        documentoWord.render({ DESARROLLO: textoCompleto });
 
         const bufferDocumento = documentoWord.getZip().generate({ type: "nodebuffer" });
         // Guardo en el directorio raíz
