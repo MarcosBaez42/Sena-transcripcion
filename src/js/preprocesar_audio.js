@@ -4,7 +4,9 @@ const { exec } = require("child_process");
 const { promisify } = require("util");
 const execAsync = promisify(exec);
 
-const audioFile = "ADSO.mp3"; // Cambia por el nombre de tu archivo
+// Permitir que el nombre del archivo se pase por la línea de comandos.
+// Si no se proporciona, usar ADSO.mp3 por defecto.
+const audioFile = process.argv[2] || "ADSO.mp3";
 const nombreBase = path.basename(audioFile, path.extname(audioFile));
 
 // Configuración
