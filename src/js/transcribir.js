@@ -362,7 +362,7 @@ function verificarSiHablantesEstanRegistrados(hablantesDetectados) {
     return true;
 }
 
-function generarDocumentoWord(textoCompleto, nombreDelArchivo) {
+function generarDocumentoWord(textoCompleto, nombreDelArchivo, datosExtras = {}) {
     if (!fs.existsSync(archivoPlantillaWord)) {
         console.error("❌ No encontré la plantilla de Word.");
         return false;
@@ -377,7 +377,13 @@ function generarDocumentoWord(textoCompleto, nombreDelArchivo) {
             delimiters: { start: "[[", end: "]]" }
         });
 
-        documentoWord.render({ DESARROLLO: textoCompleto });
+        documentoWord.render({
+            DESARROLLO: textoCompleto,
+            FECHA: datosExtras.fecha || '',
+            HORA_INICIO: datosExtras.horaInicio || '',
+            HORA_FIN: datosExtras.horaFin || '',
+            PARTICIPANTES: Array.isArray(datosExtras.participantes) ? datosExtras.participantes.join(', ') : (datosExtras.participantes || '')
+        });
 
         const bufferDocumento = documentoWord.getZip().generate({ type: "nodebuffer" });
         // Guardo en el directorio raíz
@@ -480,7 +486,7 @@ async function transcribirAudioCompletoPorPartes() {
         // Genero el documento Word si todo está bien
         if (hablantesEstanOK) {
             console.log("📄 Generando documento Word...");
-            generarDocumentoWord(resultadoCombinado.textoCompleto, nombreDelProyecto);
+            generarDocumentoWord(resultadoCombinado.textoCompleto, nombreDelProyecto, {});
         }
 
         // Muestro el resumen final
@@ -597,7 +603,7 @@ async function transcribirUnSoloArchivo(rutaDelAudio) {
             resultadoActa = await generarActaConInteligenciaArtificial(textoTranscrito, informacionDelAudio);
         }
 
-        if (verificarSiHablantesEstanRegistrados(hablantesQueDetecte) && generarDocumentoWord(textoTranscrito, nombreDelArchivo)) {
+        if (verificarSiHablantesEstanRegistrados(hablantesQueDetecte) && generarDocumentoWord(textoTranscrito, nombreDelArchivo, {})) {
             console.log(`✅ ¡Completé el procesamiento de: ${nombreDelArchivo}!`);
             console.log(`📄 Archivos que generé:`);
             console.log(`   - Transcripción: ${archivoEncontrado}`);
