@@ -362,10 +362,10 @@ function verificarSiHablantesEstanRegistrados(hablantesDetectados) {
     return true;
 }
 
-// Pequeño ayudante para limpiar texto Markdown antes de pasarlo a Word
+// Variante que conserva las **negritas** para usarlas al limpiar nombres de participantes
 function limpiarMarkdown(texto) {
     if (!texto) return texto;
-    let limpio = texto.replace(/\*\*(.*?)\*\*/g, '$1'); // elimino **negritas**
+    let limpio = texto;                                   // conservo **negritas**
     limpio = limpio.replace(/__(.*?)__/g, '$1');          // elimino __dobles__
     limpio = limpio.replace(/_(.*?)_/g, '$1');            // elimino _cursivas_
     limpio = limpio.replace(/^[*-]\s+/gm, '');           // elimino guiones o asteriscos iniciales
@@ -390,7 +390,7 @@ function generarDocumentoWord(textoCompleto, nombreDelArchivo, datosExtras = {})
         const textoLimpio = limpiarMarkdown(textoCompleto);
         const participantesTexto = limpiarMarkdown(
             Array.isArray(datosExtras.participantes)
-                ? datosExtras.participantes.join(', ')
+                ? datosExtras.participantes.join('\n')
                 : (datosExtras.participantes || '')
         );
 
