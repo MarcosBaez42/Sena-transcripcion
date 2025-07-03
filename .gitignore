@@ -3,6 +3,7 @@ node_modules/
 venv/
 audio_procesado/
 *.wav
+*.mp3
 *.dll
 *.lib
 *.pyc
