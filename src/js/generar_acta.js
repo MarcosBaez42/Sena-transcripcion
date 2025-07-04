@@ -154,9 +154,11 @@ Ahora redacta el acta en formato Markdown con base en la siguiente transcripció
             return m ? m[1].trim() : null;
         };
 
-        const fecha = obtener(/CIUDAD Y FECHA:\s*([^\n]+)/i);
-        const horaInicio = obtener(/HORA INICIO:\s*([^\n]+)/i);
-        const horaFin = obtener(/HORA FIN:\s*([^\n]+)/i);
+        const limpiar = (v) => v ? v.replace(/\*+/g, '').trim() : v;
+
+        const fecha = limpiar(obtener(/CIUDAD Y FECHA:\s*([^\n]+)/i));
+        const horaInicio = limpiar(obtener(/HORA INICIO:\s*([^\n]+)/i));
+        const horaFin = limpiar(obtener(/HORA FIN:\s*([^\n]+)/i));
 
         let participantes = [];
         const seccionPartes = textoActa.split(/##\s*PARTICIPANTES/i)[1];
