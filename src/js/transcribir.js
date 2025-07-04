@@ -362,12 +362,13 @@ function verificarSiHablantesEstanRegistrados(hablantesDetectados) {
     return true;
 }
 
-// Variante que conserva las **negritas** para usarlas al limpiar nombres de participantes
+// Variante que elimina las **negritas** antes de crear el documento Word
 function limpiarMarkdown(texto) {
     if (!texto) return texto;
-    let limpio = texto;                                   // conservo **negritas**
+    let limpio = texto;                                   // inicio con el texto completo
     limpio = limpio.replace(/__(.*?)__/g, '$1');          // elimino __dobles__
     limpio = limpio.replace(/_(.*?)_/g, '$1');            // elimino _cursivas_
+    limpio = limpio.replace(/\*\*([\s\S]+?)\*\*/g, '$1');  // elimina **negritas**
     limpio = limpio.replace(/^[*-]\s+/gm, '');           // elimino guiones o asteriscos iniciales
     return limpio;
 }
