@@ -25,6 +25,14 @@ def cargar_nombres():
     except FileNotFoundError:
         return {}
 
+def cargar_sugerencias():
+    """Carga sugerencias de nombres si existen"""
+    try:
+        with open("sugerencias.json", "r", encoding="utf-8") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return {}
+
 def guardar_nombres(nombres):
     """Guarda los nombres personalizados"""
     try:
@@ -64,6 +72,7 @@ def asignar_nombres_interactivo():
     """Permite asignar nombres de forma interactiva"""
     mapeo_global = cargar_mapeo_global()
     nombres = cargar_nombres()
+    sugerencias = cargar_sugerencias()
     
     if not mapeo_global:
         print("No hay hablantes detectados aún. Ejecuta primero una transcripción.")
@@ -78,18 +87,24 @@ def asignar_nombres_interactivo():
     hablantes_globales = sorted(set(mapeo_global.values()), key=lambda x: int(x.split('_')[1]))
     
     cambios_realizados = False
-    
+
     for hablante_global in hablantes_globales:
         numero = hablante_global.split('_')[1]
         nombre_actual = nombres.get(hablante_global, f"HABLANTE {numero}")
+        sugerencia = sugerencias.get(hablante_global)
         
         # Mostrar contexto
         speakers_locales = [k for k, v in mapeo_global.items() if v == hablante_global]
         print(f"\n{hablante_global}")
         print(f"Detectado como: {', '.join(speakers_locales)}")
         print(f"Nombre actual: {nombre_actual}")
-        
-        nuevo_nombre = input(f"Nuevo nombre (Enter para mantener): ").strip()
+
+        if sugerencia:
+            prompt = f"Nuevo nombre [{sugerencia}]: "
+        else:
+            prompt = "Nuevo nombre (Enter para mantener): "
+
+        nuevo_nombre = input(prompt).strip()
         
         if nuevo_nombre.lower() == "salir":
             break
@@ -97,6 +112,10 @@ def asignar_nombres_interactivo():
             nombres[hablante_global] = nuevo_nombre
             cambios_realizados = True
             print(f"✓ {hablante_global} -> {nuevo_nombre}")
+        elif sugerencia:
+            nombres[hablante_global] = sugerencia
+            cambios_realizados = True
+            print(f"✓ {hablante_global} -> {sugerencia}")
     
     if cambios_realizados:
         if guardar_nombres(nombres):
@@ -155,6 +174,8 @@ def limpiar_mapeo():
         print("Operación cancelada")
 
 def main():
+    archivo_transcripcion = sys.argv[1] if len(sys.argv) > 1 else None
+
     print("🎭 GESTOR DE NOMBRES DE HABLANTES")
     print("=" * 50)
     
@@ -171,7 +192,7 @@ def main():
         if opcion == "1":
             mostrar_hablantes_detectados()
         elif opcion == "2":
-            asignar_nombres_interactivo()
+            asignar_nombres_interactivo(archivo_transcripcion)
         elif opcion == "3":
             mostrar_estadisticas()
         elif opcion == "4":

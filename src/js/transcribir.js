@@ -535,7 +535,7 @@ async function transcribirAudioCompletoPorPartes() {
         if (!puedeUsarGemini) {
             console.log(`   ⚙️  Configurar Gemini para actas automáticas`);
         }
-        console.log(`   ✏️  Gestionar nombres de hablantes: python gestionar_nombres.py`);
+        console.log(`   ✏️  Gestionar nombres de hablantes: python src/python/gestionar_nombres.py`);
         console.log(`   📄 Revisar todos los archivos generados`);
 
     } catch (error) {
