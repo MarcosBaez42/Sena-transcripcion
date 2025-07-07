@@ -38,3 +38,9 @@ python src/python/gestionar_nombres.py ruta/al/archivo_transcripcion.txt
 ```
 
 El programa intentará detectar nombres propios cerca de cada etiqueta `INTERVIENE HABLANTE X:` usando spaCy y te sugerirá un nombre para cada hablante. Presiona **Enter** para aceptar la sugerencia o escribe el nombre correcto.
+
+Para mejorar la detección de nombres, instala el modelo de spaCy para español con:
+
+```bash
+python -m spacy download es_core_news_sm
+```
