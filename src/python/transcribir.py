@@ -469,5 +469,5 @@ if not hablantes_usados:
 print(f"\n📋 Archivos de configuración:")
 print(f"   - Mapeo global: {archivo_mapeo_global}")
 print(f"   - Nombres personalizados: {archivo_nombres}")
-print("🔧 Para personalizar nombres: python gestionar_nombres.py")
+print("🔧 Para personalizar nombres: python src/python/gestionar_nombres.py")
 print("\n🎉 ¡Proceso completado! Este fue mi aporte al proyecto del SENA.")

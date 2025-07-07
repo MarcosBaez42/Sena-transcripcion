@@ -28,3 +28,13 @@ Este proyecto automatiza la transcripción de audio de reuniones del SENA y gene
 - `src/python` incluye el transcriptor avanzado con WhisperX.
 
 Las actas generadas se almacenan en la carpeta `actas_gemini`.
+
+### Asignar nombres de hablantes
+
+Después de transcribir un audio puedes ejecutar:
+
+```bash
+python src/python/gestionar_nombres.py ruta/al/archivo_transcripcion.txt
+```
+
+El programa intentará detectar nombres propios cerca de cada etiqueta `INTERVIENE HABLANTE X:` usando spaCy y te sugerirá un nombre para cada hablante. Presiona **Enter** para aceptar la sugerencia o escribe el nombre correcto.
