@@ -20,7 +20,13 @@ Este proyecto automatiza la transcripción de audio de reuniones del SENA y gene
 
 - `npm run transcribir` – procesa los audios y genera archivos de texto.
 - `npm run generar-acta` – crea un acta a partir de una transcripción.
+- `npm run generar-acta` – crea un acta a partir de una transcripción. Puedes añadir `--articulos=...` para citar artículos del reglamento.
 - `npm run generar-acta-partes` – acepta uno o dos archivos de transcripción y genera el acta completa.
+- `npm run corregir-transcripcion -- ruta/al/archivo.txt` – genera una versión corregida de la transcripción.
+
+```bash
+npm run corregir-transcripcion -- transcripciones/mi_reunion.txt
+```
 
 ## Carpeta `src`
 
@@ -44,3 +50,18 @@ Para mejorar la detección de nombres, instala el modelo de spaCy para español 
 ```bash
 python -m spacy download es_core_news_sm
 ```
+
+### Referenciar el Reglamento del Aprendiz
+
+Puedes agregar citas del Reglamento del Aprendiz de forma automática. Crea el archivo `config/reglamento.json` (ya se incluye un ejemplo) con los artículos que quieras referenciar. Al generar un acta, pasa una lista de artículos a través del parámetro `articulosReglamento`:
+
+```js
+const generador = new GeneradorActas();
+await generador.init();
+generador.generarMiActa(texto, { articulosReglamento: [
+  "CAPITULO III - Articulo 8 - Numeral 6",
+  "CAPITULO IV - Articulo 10 - Numeral 2"
+] });
+```
+
+El texto completo de esos artículos se añadirá al prompt para que aparezcan en la sección **Hechos que serán objeto de estudio** del acta.

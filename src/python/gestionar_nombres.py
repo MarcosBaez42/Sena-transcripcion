@@ -4,6 +4,8 @@
 Script para gestionar nombres de hablantes de forma interactiva
 """
 
+from __future__ import annotations
+
 import json
 import os
 import sys
@@ -68,12 +70,30 @@ def mostrar_hablantes_detectados():
         print(f"\n{hablante_global} -> {nombre_actual}")
         print(f"   Detectado como: {', '.join(speakers_locales)}")
 
-def asignar_nombres_interactivo():
-    """Permite asignar nombres de forma interactiva"""
+def asignar_nombres_interactivo(archivo_transcripcion: str | None = None) -> None:
+    """Permite asignar nombres de forma interactiva.
+
+    Parameters
+    ----------
+    archivo_transcripcion : str | None, optional
+        Ruta al archivo de transcripción. Si se especifica y no existe
+        ``sugerencias.json``, se generarán sugerencias automáticamente.
+    """
     mapeo_global = cargar_mapeo_global()
     nombres = cargar_nombres()
     sugerencias = cargar_sugerencias()
-    
+
+    if archivo_transcripcion and not sugerencias:
+        try:
+            from detectar_nombres import detectar_nombres
+            sugerencias = detectar_nombres(archivo_transcripcion)
+            with open("sugerencias.json", "w", encoding="utf-8") as f:
+                json.dump(sugerencias, f, indent=2, ensure_ascii=False)
+            if sugerencias:
+                print("\n✓ Sugerencias generadas automáticamente")
+        except Exception as e:  # pragma: no cover - detección es best-effort
+            print(f"Error al generar sugerencias: {e}")
+
     if not mapeo_global:
         print("No hay hablantes detectados aún. Ejecuta primero una transcripción.")
         return

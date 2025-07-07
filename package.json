@@ -7,6 +7,7 @@
     "transcribir": "node src/js/transcribir.js",
     "generar-acta": "node src/js/generar_acta.js",
     "generar-acta-partes": "node src/js/generar_acta_en_partes.js",
+    "corregir-transcripcion": "node src/js/corregir_transcripcion.js",
     "preprocesar": "node src/js/preprocesar_audio.js",
     "configurar": "node src/js/setup_gemini.js",
     "organizar": "node src/js/organizar_carpetas.js",

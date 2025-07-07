@@ -14,10 +14,37 @@ class GeneradorDeActasSENA {
     constructor() {
         this.miClaveAPI = process.env.GEMINI_API_KEY;
         this.modeloIA = null;
+        this.reglamento = {};
     }
 
     async init() {
-        return this.configurarConexionConGemini();
+        await this.configurarConexionConGemini();
+        this.cargarReglamento();
+        return true;
+    }
+
+    cargarReglamento() {
+        const ruta = path.join(__dirname, '../../config/reglamento.json');
+        try {
+            if (fs.existsSync(ruta)) {
+                const data = fs.readFileSync(ruta, 'utf-8');
+                this.reglamento = JSON.parse(data).articulos || {};
+                console.log(`📚 Reglamento del Aprendiz cargado (${Object.keys(this.reglamento).length} artículos)`);
+            } else {
+                console.log('ℹ️ No encontré config/reglamento.json');
+            }
+        } catch (e) {
+            console.error('⚠️ No pude cargar el reglamento:', e.message);
+            this.reglamento = {};
+        }
+    }
+
+    obtenerTextoReglamento(codigos = []) {
+        if (!Array.isArray(codigos) || codigos.length === 0) return '';
+        return codigos.map(c => {
+            const texto = this.reglamento[c];
+            return texto ? `- ${c}: ${texto}` : '';
+        }).filter(Boolean).join('\n');
     }
 
     async configurarConexionConGemini() {
@@ -187,6 +214,7 @@ Ahora redacta el acta en formato Markdown con base en la siguiente transcripció
     ? textoTranscripcion.slice(0, 4900) + "\n[...transcripción truncada por longitud...]"
     : textoTranscripcion;
 
+        const articulos = this.obtenerTextoReglamento(informacionExtra.articulosReglamento);
         const promptCompleto = `${this.obtenerPlantillaDelActa()}
 
 TRANSCRIPCIÓN DEL COMITÉ QUE NECESITO PROCESAR:
@@ -197,6 +225,7 @@ INFORMACIÓN ADICIONAL QUE DETECTÉ:
 - Número de Ficha: ${informacionExtra.numeroFicha || 'Por determinar'}
 - Fecha del Comité: ${informacionExtra.fechaDeHoy || new Date().toLocaleDateString('es-CO')}
 - Aprendiz Principal: ${informacionExtra.nombreAprendiz || 'Extraer de la transcripción'}
+${articulos ? `\nNORMATIVA APLICABLE:\n${articulos}\n` : ''}
 
 Por favor ayúdame a generar el acta formal completa siguiendo exactamente el formato que necesito.`;
 
@@ -260,6 +289,7 @@ Por favor ayúdame a generar el acta formal completa siguiendo exactamente el fo
 
         console.log("🤖 Generando acta en dos llamadas a Gemini...");
 
+        const articulos = this.obtenerTextoReglamento(informacionExtra.articulosReglamento);
         const promptBase = `${this.obtenerPlantillaDelActa()}
 
 TRANSCRIPCIÓN DEL COMITÉ QUE NECESITO PROCESAR:
@@ -270,6 +300,7 @@ INFORMACIÓN ADICIONAL QUE DETECTÉ:
 - Número de Ficha: ${informacionExtra.numeroFicha || 'Por determinar'}
 - Fecha del Comité: ${informacionExtra.fechaDeHoy || new Date().toLocaleDateString('es-CO')}
 - Aprendiz Principal: ${informacionExtra.nombreAprendiz || 'Extraer de la transcripción'}
+${articulos ? `\nNORMATIVA APLICABLE:\n${articulos}\n` : ''}
 
 Por favor escribe la primera mitad del acta. Finaliza con la etiqueta <<CONTINUAR>> si falta texto.`;
 
@@ -543,7 +574,10 @@ if (require.main === module) {
     if (process.argv.length > 2) {
         // Modo específico: procesar un archivo específico
         const archivoEspecifico = process.argv[2];
+        const extraArg = process.argv.find(a => a.startsWith('--articulos='));
+        const articulos = extraArg ? extraArg.replace('--articulos=', '').split(',').map(a => a.trim()) : [];
         console.log(`📁 Voy a procesar específicamente: ${archivoEspecifico}`);
+        procesarTranscripcionParaGenerarActa(archivoEspecifico, { articulosReglamento: articulos });
         procesarTranscripcionParaGenerarActa(archivoEspecifico);
     } else {
         // Modo automático: procesar todas las transcripciones que encuentre
