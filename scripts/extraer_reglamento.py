@@ -2,10 +2,10 @@
 """Extrae el texto del Reglamento del Aprendiz en PDF y genera un JSON.
 
 Uso:
-  python scripts/extraer_reglamento.py ruta/al/reglamento.pdf config/reglamento.json
+  python scripts/extraer_reglamento.py scripts/REGLAMENTO_DEL_APRENDIZ.pdf config/reglamento.json
 
 El archivo JSON contendrá un objeto ``articulos`` cuyas claves siguen el formato
-"CAPITULO III - Articulo 8 - Numeral 6".
+"CAPITULO I - Articulo 1 - Numeral 1".
 """
 from __future__ import annotations
 
