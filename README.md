@@ -51,6 +51,10 @@ Para mejorar la detección de nombres, instala el modelo de spaCy para español 
 python -m spacy download es_core_news_sm
 ```
 
+Cuando confirmes los nombres se guardarán en el archivo `hablantes.json`. Luego
+debes volver a ejecutar `transcribir.py` (o `npm run transcribir`) para que los
+nombres aparezcan tanto en la transcripción como en las actas generadas.
+
 ### Referenciar el Reglamento del Aprendiz
 
 Puedes agregar citas del Reglamento del Aprendiz de forma automática. Crea el archivo `config/reglamento.json` (ya se incluye un ejemplo) con los artículos que quieras referenciar. Al generar un acta, pasa una lista de artículos a través del parámetro `articulosReglamento`:
@@ -65,3 +69,14 @@ generador.generarMiActa(texto, { articulosReglamento: [
 ```
 
 El texto completo de esos artículos se añadirá al prompt para que aparezcan en la sección **Hechos que serán objeto de estudio** del acta.
+
+El texto completo de esos artículos se añadirá al prompt para que aparezcan en la sección **Hechos que serán objeto de estudio** del acta.
+### Generar regamento.json
+
+Para extraer todos los artículos del PDF oficial ejecuta:
+
+"``bash
+scripts de Python/extraer_reglamento.py/ruta/al/Reglamento.pdf config/reglamento.json
+```
+
+El archivo `config/reglamento.json` incluirá cada numeral con una clave del tipo `"CAPITULO III - Articulo 8 - Numeral 6"`.
