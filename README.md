@@ -9,6 +9,7 @@ Este proyecto automatiza la transcripción de audio de reuniones del SENA y gene
 - Instalar dependencias:
   - `npm install`
   - `pip install -r requirements.txt`
+  - El propio PyTorch a la instalación del desde PyPI, por lo que **sin necesidad** especificar un `--url de índice adicional`.
 - Configurar las siguientes variables de entorno en un archivo `.env`:
   - `GEMINI_API_KEY` – clave para usar Google Gemini.
   - `MODELO_GEMINI` – nombre del modelo Gemini (opcional).
@@ -19,7 +20,6 @@ Este proyecto automatiza la transcripción de audio de reuniones del SENA y gene
 ## Comandos principales
 
 - `npm run transcribir` – procesa los audios y genera archivos de texto.
-- `npm run generar-acta` – crea un acta a partir de una transcripción.
 - `npm run generar-acta` – crea un acta a partir de una transcripción. Puedes añadir `--articulos=...` para citar artículos del reglamento.
 - `npm run generar-acta-partes` – acepta uno o dos archivos de transcripción y genera el acta completa.
 - `npm run corregir-transcripcion -- ruta/al/archivo.txt` – genera una versión corregida de la transcripción.
@@ -70,13 +70,12 @@ generador.generarMiActa(texto, { articulosReglamento: [
 
 El texto completo de esos artículos se añadirá al prompt para que aparezcan en la sección **Hechos que serán objeto de estudio** del acta.
 
-El texto completo de esos artículos se añadirá al prompt para que aparezcan en la sección **Hechos que serán objeto de estudio** del acta.
-### Generar regamento.json
+### Generar reglamento.json
 
 Para extraer todos los artículos del PDF oficial ejecuta:
 
-"``bash
-scripts de Python/extraer_reglamento.py/ruta/al/Reglamento.pdf config/reglamento.json
+```bash
+python scripts/extraer_reglamento.py ruta/al/Reglamento.pdf config/reglamento.json
 ```
 
 El archivo `config/reglamento.json` incluirá cada numeral con una clave del tipo `"CAPITULO III - Articulo 8 - Numeral 6"`.
