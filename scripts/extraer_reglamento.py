@@ -15,7 +15,11 @@ import sys
 from pathlib import Path
 from typing import Dict
 
-from pdfminer.high_level import extract_text
+try:
+    from pdfminer.high_level import extract_text
+except ImportError as exc:
+    print("Falta la dependencia pdfminer.six. Ejecuta 'pip install -r requirements.txt'")
+    raise SystemExit(1) from exc
 
 
 CAPITULO_RE = re.compile(r"CAP[IÍ]TULO\s+([IVXLCDM]+)", re.IGNORECASE)
