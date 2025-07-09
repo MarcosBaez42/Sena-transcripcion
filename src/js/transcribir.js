@@ -400,7 +400,10 @@ function generarDocumentoWord(textoCompleto, nombreDelArchivo, datosExtras = {})
             FECHA: datosExtras.fecha || '',
             HORA_INICIO: datosExtras.horaInicio || '',
             HORA_FIN: datosExtras.horaFin || '',
-            PARTICIPANTES: participantesTexto
+            PARTICIPANTES: participantesTexto,
+            HECHOS: limpiarMarkdown(datosExtras.hechos || ''),
+            DESARROLLO_COMITE: limpiarMarkdown(datosExtras.desarrolloComite || ''),
+            CONCLUSIONES: limpiarMarkdown(datosExtras.conclusiones || '')
         });
 
         const bufferDocumento = documentoWord.getZip().generate({ type: "nodebuffer" });

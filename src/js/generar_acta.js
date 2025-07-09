@@ -62,7 +62,7 @@ class GeneradorDeActasSENA {
                     temperature: parseFloat(process.env.TEMPERATURA) || 0.3,  // No muy creativo, más formal
                     topK: 20,
                     topP: 0.8,
-                    maxOutputTokens: parseInt(process.env.MAX_TOKENS) || 4900,
+                    maxOutputTokens: parseInt(process.env.MAX_TOKENS) || 4850,
                 }
             });
             console.log(`✅ ¡Logré conectar con Gemini! Usando modelo: ${modeloQueVoyAUsar}`);
@@ -125,7 +125,7 @@ Verificada la asistencia y existiendo quórum para sesionar y decidir, se da ini
 - **VOCERO:** [Nombre]
 
 ### 3. HECHOS QUE SERÁN OBJETO DE ESTUDIO EN EL COMITÉ
-[Enumera cada hecho con números consecutivos. Extrae con claridad los hechos reportados por los instructores, mencionando fechas, fallas, evidencias y normas del reglamento del aprendiz.]
+[Enumera cada hecho con números consecutivos. Extrae con claridad los hechos reportados por los instructores, mencionando fechas, fallas y evidencias. Cita el artículo exacto del reglamento del aprendiz que describa el incumplimiento (por ejemplo: "CAPITULO III - Articulo 8 - Numeral 6").]
 
 ### 4. INSTALACIÓN DEL COMITÉ POR PARTE DEL COORDINADOR
 El coordinador JOHON FREDY SANABRIA MUÑOZ da un saludo de bienvenida a los presentes en el comité. El Comité de Evaluación y Seguimiento es una instancia académica fundamental en nuestra institución. Su propósito principal es orientar y apoyar de manera integral el proceso de formación de nuestros aprendices, asegurando que se lleve a cabo con los más altos estándares de calidad. Este comité desempeña un papel fundamental al analizar y evaluar de manera constante los programas de estudio, los métodos pedagógicos y los resultados obtenidos. Además, se encarga de proponer mejoras, ajustes y estrategias que contribuyan a optimizar la experiencia educativa de nuestros aprendices. Nuestro objetivo común es formar profesionales competentes, éticos y comprometidos con su desarrollo personal y con la sociedad. A través del trabajo conjunto del Comité de Evaluación y Seguimiento, podremos garantizar que estamos cumpliendo con nuestra misión de ofrecer una educación de calidad.
@@ -156,7 +156,7 @@ De acuerdo con La Ley 1581 de 2012, Protección de Datos Personales, el Servicio
 - Usa **"No especificado en transcripción"** si falta algún dato.
 - Respeta **el orden y títulos exactos** del formato.
 - Usa Markdown correctamente (títulos con #, negritas con **).
-- si en las intervenciones no reconoces el nombre de un participante, revisa los nombres de los participantes en la sección de participantes y utiliza el nombre que creas que corresponde.
+- si en las intervenciones no reconoces el nombre de un participante, revisa los nombres de los participantes en la sección de participantes y utiliza el nombre que creas que corresponde teniendo en cuenta lo que esta dicendo el texto.
 
 Ahora redacta el acta en formato Markdown con base en la siguiente transcripción.`;
     }
@@ -200,7 +200,17 @@ Ahora redacta el acta en formato Markdown con base en la siguiente transcripció
             }
         }
 
-        return { fecha, horaInicio, horaFin, participantes };
+        const obtenerSeccion = (regex) => {
+            const partes = textoActa.split(regex);
+            if (partes.length < 2) return null;
+            return partes[1].split(/\n###\s*\d+\./)[0].trim();
+        };
+
+        const hechos = obtenerSeccion(/###\s*3\.?[^\n]*HECHOS[^\n]*/i);
+        const desarrolloComite = obtenerSeccion(/###\s*5\.?[^\n]*DESARROLLO[^\n]*/i);
+        const conclusiones = obtenerSeccion(/###\s*6\.?[^\n]*CONCLUSIONES[^\n]*/i);
+
+        return { fecha, horaInicio, horaFin, participantes, hechos, desarrolloComite, conclusiones };
     }
 
     async generarMiActa(textoTranscripcion, informacionExtra = {}) {
@@ -211,8 +221,8 @@ Ahora redacta el acta en formato Markdown con base en la siguiente transcripció
 
         console.log("🤖 Generando acta con mi sistema de IA...");
 
-        const textoReducido = textoTranscripcion.length > 4900
-    ? textoTranscripcion.slice(0, 4900) + "\n[...transcripción truncada por longitud...]"
+        const textoReducido = textoTranscripcion.length > 4850
+    ? textoTranscripcion.slice(0, 4850) + "\n[...transcripción truncada por longitud...]"
     : textoTranscripcion;
 
         const articulos = this.obtenerTextoReglamento(informacionExtra.articulosReglamento);
@@ -579,7 +589,6 @@ if (require.main === module) {
         const articulos = extraArg ? extraArg.replace('--articulos=', '').split(',').map(a => a.trim()) : [];
         console.log(`📁 Voy a procesar específicamente: ${archivoEspecifico}`);
         procesarTranscripcionParaGenerarActa(archivoEspecifico, { articulosReglamento: articulos });
-        procesarTranscripcionParaGenerarActa(archivoEspecifico);
     } else {
         // Modo automático: procesar todas las transcripciones que encuentre
         console.log("🔄 Modo automático: voy a procesar todas las transcripciones");
