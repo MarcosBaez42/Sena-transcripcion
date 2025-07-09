@@ -20,7 +20,7 @@ Este proyecto automatiza la transcripción de audio de reuniones del SENA y gene
 ## Comandos principales
 
 - `npm run transcribir` – procesa los audios y genera archivos de texto.
-- `npm run generar-acta [--articulos=...]` – crea un acta a partir de una transcripción; usa `--articulos` para citar artículos de     reglamento.
+- `npm run generar-acta [--articulos=...]` – crea un acta a partir de una transcripción; usa `--articulos` para citar artículos del reglamento.
 - `npm run generar-acta-partes` – acepta uno o dos archivos de transcripción y genera el acta completa.
 - `npm run corregir-transcripcion -- ruta/al/archivo.txt` – genera una versión corregida de la transcripción.
 

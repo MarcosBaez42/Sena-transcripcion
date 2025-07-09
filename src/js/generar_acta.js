@@ -124,15 +124,15 @@ Verificada la asistencia y existiendo quórum para sesionar y decidir, se da ini
 - **REPRESENTANTE DE CENTRO:** [Nombre]
 - **VOCERO:** [Nombre]
 
-### 3. HECHOS QUE SERÁN OBJETO DE ESTUDIO
-[Extrae con claridad los hechos reportados por los instructores, mencionando fechas, fallas, evidencias, y normas del reglamento del aprendiz.]
+### 3. HECHOS QUE SERÁN OBJETO DE ESTUDIO EN EL COMITÉ
+[Enumera cada hecho con números consecutivos. Extrae con claridad los hechos reportados por los instructores, mencionando fechas, fallas, evidencias y normas del reglamento del aprendiz.]
 
 ### 4. INSTALACIÓN DEL COMITÉ POR PARTE DEL COORDINADOR
 El coordinador JOHON FREDY SANABRIA MUÑOZ da un saludo de bienvenida a los presentes en el comité. El Comité de Evaluación y Seguimiento es una instancia académica fundamental en nuestra institución. Su propósito principal es orientar y apoyar de manera integral el proceso de formación de nuestros aprendices, asegurando que se lleve a cabo con los más altos estándares de calidad. Este comité desempeña un papel fundamental al analizar y evaluar de manera constante los programas de estudio, los métodos pedagógicos y los resultados obtenidos. Además, se encarga de proponer mejoras, ajustes y estrategias que contribuyan a optimizar la experiencia educativa de nuestros aprendices. Nuestro objetivo común es formar profesionales competentes, éticos y comprometidos con su desarrollo personal y con la sociedad. A través del trabajo conjunto del Comité de Evaluación y Seguimiento, podremos garantizar que estamos cumpliendo con nuestra misión de ofrecer una educación de calidad.
 
-### 5. DESARROLLO DEL COMITÉ / DESCARGOS DEL APRENDIZ / ANÁLISIS
+### 5. DESARROLLO DEL COMITÉ / ANALISIS DEL CASO, DESCARGOS DEL APRENDIZ Y PRÁCTICA DE PRUEBAS A QUE HAYA LUGAR
 **Intervenciones de los participantes:**  
-[Extrae lo mas importante dicho por los participantes del comite cada vez que un partisipante intervenga comieza con Interviene [Cargo y nombre] incluye justificaciones, compromisos y motivos opiniones, preocupaciones, o análisis del comité.]
+[Intervenciones de los participantes comieza con Interviene [Cargo y nombre], extrae los puntos tratados análisis del caso, descargos del aprendiz, pruebas realizadas y cualquier otro detalle relevante.]
 
 ### 6. CONCLUSIONES
 [Especifica tipo de falta, gravedad, medidas, planes de mejoramiento.]
@@ -156,6 +156,7 @@ De acuerdo con La Ley 1581 de 2012, Protección de Datos Personales, el Servicio
 - Usa **"No especificado en transcripción"** si falta algún dato.
 - Respeta **el orden y títulos exactos** del formato.
 - Usa Markdown correctamente (títulos con #, negritas con **).
+- si en las intervenciones no reconoces el nombre de un participante, revisa los nombres de los participantes en la sección de participantes y utiliza el nombre que creas que corresponde.
 
 Ahora redacta el acta en formato Markdown con base en la siguiente transcripción.`;
     }
