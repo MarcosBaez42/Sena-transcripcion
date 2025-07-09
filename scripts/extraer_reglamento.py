@@ -2,7 +2,7 @@
 """Extrae el texto del Reglamento del Aprendiz en PDF y genera un JSON.
 
 Uso:
-  python scripts/extraer_reglamento.py scripts/REGLAMENTO_DEL_APRENDIZ.pdf config/reglamento.json
+  python scripts/extraer_reglamento.py scripts/REGLAMENTO_DEL_APRENDIZ.docx config/reglamento.json
 
 El archivo JSON contendrá un objeto ``articulos`` cuyas claves siguen el formato
 "CAPITULO I - Articulo 1 - Numeral 1".
@@ -22,9 +22,9 @@ except ImportError as exc:
     raise SystemExit(1) from exc
 
 
-CAPITULO_RE = re.compile(r"CAP[IÍ]TULO\s+([IVXLCDM]+)", re.IGNORECASE)
+CAPITULO_RE = re.compile(r"CAP[IÍ]TULO\s+([IVXLCDM]+|\d+)", re.IGNORECASE)
 ARTICULO_RE = re.compile(r"ART[IÍ]CULO\s+(\d+)", re.IGNORECASE)
-NUMERAL_RE = re.compile(r"^(\d+)\.")
+NUMERAL_RE = re.compile(r"^(\d+)[\.\u00BA\u00B0\u00B2]?")
 
 
 def analizar_texto(texto: str) -> Dict[str, str]:
