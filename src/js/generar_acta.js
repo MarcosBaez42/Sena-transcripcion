@@ -110,8 +110,8 @@ Debes generar un acta **siguiendo exactamente esta estructura y formato**.
 
 **CIUDAD Y FECHA:** [Extraer de transcripción]  
 **HORA INICIO:** [Extraer o estimar]  
-**HORA FIN:** [Calcular]  
-**LUGAR:** [Virtual/Presencial o extraer]
+**HORA FIN:** [Extraer o estimar]  
+**LUGAR:** [Virtual/Presencial extraer o estimar]
 
 ---
 
@@ -188,9 +188,9 @@ De acuerdo con La Ley 1581 de 2012, Protección de Datos Personales, el Servicio
 - Usa **"No especificado en transcripción"** si falta algún dato.
 - Respeta **el orden y títulos exactos** del formato.
 - Usa Markdown correctamente (títulos con #, negritas con **).
-- si en las intervenciones no reconoces el nombre de un participante, revisa los nombres de los participantes en la sección de participantes y utiliza el nombre que creas que corresponde teniendo en cuenta lo que esta dicendo el texto.
+- si en las intervenciones no reconoces el nombre de un participante, elije de la sección de participantes y utiliza el nombre que creas que corresponde teniendo en cuenta lo que esta dicendo el texto.
 - resume las intervenciones de los participantes, no copies textualmente lo que dicen, extrae lo mas relevante de cada intervención.
-- resume las conclusiones de forma clara y concisa, no copies textualmente lo que dicen los participantes.
+- resume lo mas que se pueda las conclusiones, no copies textualmente lo que dicen los participantes.
 
 Ahora redacta el acta en formato Markdown con base en la siguiente transcripción.`;
     }
@@ -209,7 +209,7 @@ Ahora redacta el acta en formato Markdown con base en la siguiente transcripció
         return rutaCarpetaCompleta;
     }
 
-    // Extraigo metadatos básicos del acta en formato Markdown
+    // Extraigo la tabla de compromisos y otros metadatos del acta en Markdown
     extraerMetadatosDelActa(textoActa) {
         const obtener = (regex) => {
             const m = textoActa.match(regex);
@@ -237,14 +237,24 @@ Ahora redacta el acta en formato Markdown con base en la siguiente transcripció
         const obtenerSeccion = (regex) => {
             const partes = textoActa.split(regex);
             if (partes.length < 2) return null;
-            return partes[1].split(/\n###\s*\d+\./)[0].trim();
+            const despues = partes.slice(1).join('\n');
+            return partes[1]
+                .split(/\n##\s+/)[0]
+                .split(/\n###\s*\d+\./)[0]
+                .trim();
         };
 
         const hechos = obtenerSeccion(/###\s*3\.?[^\n]*HECHOS[^\n]*/i);
         const desarrolloComite = obtenerSeccion(/###\s*5\.?[^\n]*DESARROLLO[^\n]*/i);
         const conclusiones = obtenerSeccion(/###\s*6\.?[^\n]*CONCLUSIONES[^\n]*/i);
 
-        return { fecha, horaInicio, horaFin, participantes, hechos, desarrolloComite, conclusiones };
+        const objetivosMatch = textoActa.split(/##\s*OBJETIVO\(S\)? DE LA REUNIÓN[^\n]*\n/i);
+        let objetivos = null;
+        if (objetivosMatch.length > 1) {
+            objetivos = objetivosMatch[1].split(/\n##\s*/)[0].trim();
+        }
+
+        return { fecha, horaInicio, horaFin, participantes, hechos, desarrolloComite, conclusiones, objetivos };
     }
 
     async generarMiActa(textoTranscripcion, informacionExtra = {}) {

@@ -81,3 +81,16 @@ python scripts/extraer_reglamento.py ruta/al/Reglamento.pdf config/reglamento.js
 ```
 
 El archivo `config/reglamento.json` incluirá cada numeral con una clave del tipo `"CAPITULO III - Articulo 8 - Numeral 6"`.
+
+### Placeholders de la plantilla Word
+
+La plantilla `config/plantilla.docx` usa marcadores de reemplazo entre `[[` y `]]` que se completan al generar el documento final. Los campos disponibles son:
+
+- `[[FECHA]]`
+- `[[HORA_INICIO]]`
+- `[[HORA_FIN]]`
+- `[[PARTICIPANTES]]`
+- `[[HECHOS]]`
+- `[[DESARROLLO_COMITE]]`
+- `[[CONCLUSIONES]]`
+- `[[OBJETIVOS]]` para el objetivo de la reunión.

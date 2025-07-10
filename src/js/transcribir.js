@@ -370,6 +370,7 @@ function limpiarMarkdown(texto) {
     limpio = limpio.replace(/_(.*?)_/g, '$1');            // elimino _cursivas_
     limpio = limpio.replace(/\*\*([\s\S]+?)\*\*/g, '$1');  // elimina **negritas**
     limpio = limpio.replace(/^[*-]\s+/gm, '');           // elimino guiones o asteriscos iniciales
+    limpio = limpio.replace(/(\d+\.\s[^\n]+)\n(?=\d+\.\s)/g, '$1\n\n'); // separo párrafos numerados
     return limpio;
 }
 
@@ -401,6 +402,7 @@ function generarDocumentoWord(textoCompleto, nombreDelArchivo, datosExtras = {})
             HORA_INICIO: datosExtras.horaInicio || '',
             HORA_FIN: datosExtras.horaFin || '',
             PARTICIPANTES: participantesTexto,
+            OBJETIVOS: limpiarMarkdown(datosExtras.objetivos || ''),
             HECHOS: limpiarMarkdown(datosExtras.hechos || ''),
             DESARROLLO_COMITE: limpiarMarkdown(datosExtras.desarrolloComite || ''),
             CONCLUSIONES: limpiarMarkdown(datosExtras.conclusiones || '')
