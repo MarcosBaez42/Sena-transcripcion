@@ -62,7 +62,7 @@ class GeneradorDeActasSENA {
                     temperature: parseFloat(process.env.TEMPERATURA) || 0.3,  // No muy creativo, más formal
                     topK: 20,
                     topP: 0.8,
-                    maxOutputTokens: parseInt(process.env.MAX_TOKENS) || 4850,
+                    maxOutputTokens: parseInt(process.env.MAX_TOKENS) || 4900,
                 }
             });
             console.log(`✅ ¡Logré conectar con Gemini! Usando modelo: ${modeloQueVoyAUsar}`);
@@ -125,17 +125,27 @@ Verificada la asistencia y existiendo quórum para sesionar y decidir, se da ini
 - **VOCERO:** [Nombre]
 
 ### 3. HECHOS QUE SERÁN OBJETO DE ESTUDIO EN EL COMITÉ
-[Enumera cada hecho con números consecutivos. Extrae con claridad los hechos reportados por los instructores, mencionando fechas, fallas y evidencias. Cita el artículo exacto del reglamento del aprendiz que describa el incumplimiento (por ejemplo: "CAPITULO III - Articulo 8 - Numeral 6").]
+[Enumera cada hecho con números consecutivos. Extrae con claridad los hechos reportados por los instructores, mencionando fechas, fallas y evidencias. Por ejemplo: "1) El día 13 de diciembre del 2024 el aprendiz falla la prueba de conocimiento por segunda vez, teniendo en cuenta que previamente se había asignado una actividad complementaria. etc."].
+
+Se indica la preocupación acerca del tema, el cual radica en que se evidencia incumplimiento del REGLAMENTO DEL APRENDIZ: en el [Cita el artículo exacto del reglamento del aprendiz que describa el incumplimiento Por ejemplo: CAPITULO III DEBERES DEL APRENDIZ SENA; Artículo 22º Deberes del aprendiz, en su numeral cita: Numeral 6 Cumplir con todas las actividades de aprendizaje propias de su proceso formativo, presentando las evidencias según la planeación pedagógica, guías de aprendizaje y cronograma, en los plazos o en la oportunidad que estas deban presentarse o reportarse, a través de los medios dispuestos para ello Numeral 7. Realizar una dedicación efectiva del tiempo, priorizando las actividades de aprendizaje y manteniendo un compromiso constante para alcanzar los resultados de aprendizaje propuestos en el programa de formación.]
+
+Hechos Instructor(a) [Nombre del instructor]:
+
+El aprendiz [Nombre del aprendiz], (agregar numero de CC o TI) se reporta a comité de tipo [Tipo de comité, por ejemplo: "academico", "disciplinario", etc.] 
+Instructor(a): [Cargo y nombre del instructor]: [extrae los hechos reportados por el instructor, incluyendo fechas, fallas y evidencias. Por ejemplo: "El aprendiz no participó en las actividades de socialización, no subió evidencias al drive, no participó en exposiciones ni en actividades de bienestar del aprendiz."]
+
+Se indica la preocupación acerca del tema, el cual radica en que se evidencia incumplimiento del REGLAMENTO DEL APRENDIZ: en el [Cita el artículo exacto del reglamento del aprendiz que describa el incumplimiento Por ejemplo: "CAPITULO III DEBERES DEL APRENDIZ SENA; Articulo No.9 Deberes del aprendiz, en su numeral 4, el cual cita: Participar en las actividades complementarias o de profundización, relacionadas con el programa de formación, con el fin de gestionar su proceso de aprendizaje."]
+
+Por lo anterior y respetando el debido proceso, se cita al aprendiz [Nombre del aprendiz] del programa [extraer programa y numero de la ficha. Por ejemplo: "TECNICO DE ASISTECIA ADMINISTRATIVA FICHA 3065626"]. para la presentación de sus descargos ante el Comité de Evaluación y Seguimiento, respetando el derecho que le asiste a controvertir las pruebas allegadas o que se alleguen en su contra y a aportar y/o solicitar la práctica de las pruebas que considere pertinentes.
 
 ### 4. INSTALACIÓN DEL COMITÉ POR PARTE DEL COORDINADOR
 El coordinador JOHON FREDY SANABRIA MUÑOZ da un saludo de bienvenida a los presentes en el comité. El Comité de Evaluación y Seguimiento es una instancia académica fundamental en nuestra institución. Su propósito principal es orientar y apoyar de manera integral el proceso de formación de nuestros aprendices, asegurando que se lleve a cabo con los más altos estándares de calidad. Este comité desempeña un papel fundamental al analizar y evaluar de manera constante los programas de estudio, los métodos pedagógicos y los resultados obtenidos. Además, se encarga de proponer mejoras, ajustes y estrategias que contribuyan a optimizar la experiencia educativa de nuestros aprendices. Nuestro objetivo común es formar profesionales competentes, éticos y comprometidos con su desarrollo personal y con la sociedad. A través del trabajo conjunto del Comité de Evaluación y Seguimiento, podremos garantizar que estamos cumpliendo con nuestra misión de ofrecer una educación de calidad.
 
 ### 5. DESARROLLO DEL COMITÉ / ANALISIS DEL CASO, DESCARGOS DEL APRENDIZ Y PRÁCTICA DE PRUEBAS A QUE HAYA LUGAR
-**Intervenciones de los participantes:**  
-[Intervenciones de los participantes comieza con Interviene [Cargo y nombre], extrae los puntos tratados análisis del caso, descargos del aprendiz, pruebas realizadas y cualquier otro detalle relevante.]
+[Intervenciones de los participantes comieza con Interviene [Cargo y nombre], extrae y resume lo mas relevante dicho por los participantes, extrae los puntos tratados análisis del caso, descargos del aprendiz, pruebas realizadas y cualquier otro detalle relevante.]
 
 ### 6. CONCLUSIONES
-[Especifica tipo de falta, gravedad, medidas, planes de mejoramiento.]
+[Resume lo mas que se pueda el tipo de falta, gravedad, medidas, planes de mejoramiento.]
 
 ---
 
@@ -157,6 +167,8 @@ De acuerdo con La Ley 1581 de 2012, Protección de Datos Personales, el Servicio
 - Respeta **el orden y títulos exactos** del formato.
 - Usa Markdown correctamente (títulos con #, negritas con **).
 - si en las intervenciones no reconoces el nombre de un participante, revisa los nombres de los participantes en la sección de participantes y utiliza el nombre que creas que corresponde teniendo en cuenta lo que esta dicendo el texto.
+- resume las intervenciones de los participantes, no copies textualmente lo que dicen, extrae lo mas relevante de cada intervención.
+- resume las conclusiones de forma clara y concisa, no copies textualmente lo que dicen los participantes.
 
 Ahora redacta el acta en formato Markdown con base en la siguiente transcripción.`;
     }
@@ -221,8 +233,8 @@ Ahora redacta el acta en formato Markdown con base en la siguiente transcripció
 
         console.log("🤖 Generando acta con mi sistema de IA...");
 
-        const textoReducido = textoTranscripcion.length > 4850
-    ? textoTranscripcion.slice(0, 4850) + "\n[...transcripción truncada por longitud...]"
+        const textoReducido = textoTranscripcion.length > 4900
+    ? textoTranscripcion.slice(0, 4900) + "\n[...transcripción truncada por longitud...]"
     : textoTranscripcion;
 
         const articulos = this.obtenerTextoReglamento(informacionExtra.articulosReglamento);
