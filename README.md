@@ -70,6 +70,8 @@ generador.generarMiActa(texto, { articulosReglamento: [
 
 El texto completo de esos artículos se añadirá al prompt para que aparezcan en la sección **Hechos que serán objeto de estudio** del acta.
 
+Si no se proporcionan artículos explícitos, el generador intentará deducirlos automáticamente. Para ello analiza la transcripción y busca coincidencias con el texto del reglamento, seleccionando los artículos más relevantes y agregándolos al prompt.
+
 ### Generar reglamento.json
 
 Para extraer todos los artículos del PDF oficial ejecuta:

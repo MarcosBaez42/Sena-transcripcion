@@ -47,6 +47,28 @@ class GeneradorDeActasSENA {
         }).filter(Boolean).join('\n');
     }
 
+    // Intento adivinar los artículos del reglamento que podrían aplicar
+    // comparando palabras clave de la transcripción con cada artículo
+    detectarArticulosDesdeTexto(texto = '') {
+        if (typeof texto !== 'string' || !texto.trim()) return [];
+
+        const palabras = new Set(
+            texto.toLowerCase().split(/\W+/).filter(p => p.length > 4)
+        );
+
+        const puntajes = Object.entries(this.reglamento).map(([codigo, cuerpo]) => {
+            const palabrasArticulo = new Set(cuerpo.toLowerCase().split(/\W+/));
+            let score = 0;
+            palabras.forEach(p => {
+                if (palabrasArticulo.has(p)) score++;
+            });
+            return { codigo, score };
+        }).filter(p => p.score > 0);
+
+        puntajes.sort((a, b) => b.score - a.score);
+        return puntajes.slice(0, 3).map(p => p.codigo);
+    }
+
     async configurarConexionConGemini() {
         try {
             // Importo la librería de Google (me costó entender cómo usarla al principio)
@@ -237,7 +259,11 @@ Ahora redacta el acta en formato Markdown con base en la siguiente transcripció
     ? textoTranscripcion.slice(0, 4900) + "\n[...transcripción truncada por longitud...]"
     : textoTranscripcion;
 
-        const articulos = this.obtenerTextoReglamento(informacionExtra.articulosReglamento);
+        let articulosSeleccionados = informacionExtra.articulosReglamento;
+        if (!Array.isArray(articulosSeleccionados) || articulosSeleccionados.length === 0) {
+            articulosSeleccionados = this.detectarArticulosDesdeTexto(textoTranscripcion);
+        }
+        const articulos = this.obtenerTextoReglamento(articulosSeleccionados);
         const promptCompleto = `${this.obtenerPlantillaDelActa()}
 
 TRANSCRIPCIÓN DEL COMITÉ QUE NECESITO PROCESAR:
@@ -312,7 +338,11 @@ Por favor ayúdame a generar el acta formal completa siguiendo exactamente el fo
 
         console.log("🤖 Generando acta en dos llamadas a Gemini...");
 
-        const articulos = this.obtenerTextoReglamento(informacionExtra.articulosReglamento);
+        let articulosSeleccionados = informacionExtra.articulosReglamento;
+        if (!Array.isArray(articulosSeleccionados) || articulosSeleccionados.length === 0) {
+            articulosSeleccionados = this.detectarArticulosDesdeTexto(textoTranscripcion);
+        }
+        const articulos = this.obtenerTextoReglamento(articulosSeleccionados);
         const promptBase = `${this.obtenerPlantillaDelActa()}
 
 TRANSCRIPCIÓN DEL COMITÉ QUE NECESITO PROCESAR:
