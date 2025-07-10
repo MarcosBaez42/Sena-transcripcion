@@ -22,7 +22,8 @@ async function generarActaEnDosPartes(parte1, parte2 = null, info = {}) {
             objetivos: resultado.objetivos,
             hechos: resultado.hechos,
             desarrolloComite: resultado.desarrolloComite,
-            conclusiones: resultado.conclusiones
+            conclusiones: resultado.conclusiones,
+            compromisos: resultado.compromisos
         });
 
         const projectRoot = path.resolve(__dirname, '../../');

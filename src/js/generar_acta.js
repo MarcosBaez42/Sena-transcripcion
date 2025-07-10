@@ -164,7 +164,7 @@ Por lo anterior y respetando el debido proceso, se cita al aprendiz [Nombre del 
 El coordinador JOHON FREDY SANABRIA MUÑOZ da un saludo de bienvenida a los presentes en el comité. El Comité de Evaluación y Seguimiento es una instancia académica fundamental en nuestra institución. Su propósito principal es orientar y apoyar de manera integral el proceso de formación de nuestros aprendices, asegurando que se lleve a cabo con los más altos estándares de calidad. Este comité desempeña un papel fundamental al analizar y evaluar de manera constante los programas de estudio, los métodos pedagógicos y los resultados obtenidos. Además, se encarga de proponer mejoras, ajustes y estrategias que contribuyan a optimizar la experiencia educativa de nuestros aprendices. Nuestro objetivo común es formar profesionales competentes, éticos y comprometidos con su desarrollo personal y con la sociedad. A través del trabajo conjunto del Comité de Evaluación y Seguimiento, podremos garantizar que estamos cumpliendo con nuestra misión de ofrecer una educación de calidad.
 
 ### 5. DESARROLLO DEL COMITÉ / ANALISIS DEL CASO, DESCARGOS DEL APRENDIZ Y PRÁCTICA DE PRUEBAS A QUE HAYA LUGAR
-[Intervenciones de los participantes comieza con Interviene [Cargo y nombre], extrae y resume lo mas relevante dicho por los participantes, extrae los puntos tratados análisis del caso, descargos del aprendiz, pruebas realizadas y cualquier otro detalle relevante.]
+[Intervenciones de los participantes comieza con Interviene [Cargo y nombre]:, extrae y resume lo mas relevante dicho por los participantes, extrae los puntos tratados análisis del caso, descargos del aprendiz, pruebas realizadas y cualquier otro detalle relevante.]
 
 ### 6. CONCLUSIONES
 [Resume lo mas que se pueda el tipo de falta, gravedad, medidas, planes de mejoramiento.]
@@ -254,7 +254,29 @@ Ahora redacta el acta en formato Markdown con base en la siguiente transcripció
             objetivos = objetivosMatch[1].split(/\n##\s*/)[0].trim();
         }
 
-        return { fecha, horaInicio, horaFin, participantes, hechos, desarrolloComite, conclusiones, objetivos };
+        const compromisos = this.extraerCompromisos(textoActa);
+        return { fecha, horaInicio, horaFin, participantes, hechos, desarrolloComite, conclusiones, compromisos, objetivos };
+    }
+
+    // Parsea la sección de compromisos y seguimiento para obtener cada fila de la tabla
+    extraerCompromisos(texto = '') {
+        const seccion = texto.split(/##\s*COMPROMISOS Y SEGUIMIENTO/i)[1];
+        if (!seccion) return [];
+        const filas = [];
+        for (const linea of seccion.split(/\r?\n/)) {
+            const l = linea.trim();
+            if (l.startsWith('##')) break;
+            if (!l.startsWith('|')) continue;
+            const partes = l.split('|').map(p => p.trim());
+            if (partes.length < 4) continue;
+            if (/^-{3,}$/.test(partes[1])) continue; // salto separadores
+            filas.push({
+                actividad: partes[1],
+                fecha: partes[2],
+                responsable: partes[3]
+            });
+        }
+        return filas;
     }
 
     async generarMiActa(textoTranscripcion, informacionExtra = {}) {

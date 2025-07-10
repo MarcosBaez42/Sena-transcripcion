@@ -396,6 +396,9 @@ function generarDocumentoWord(textoCompleto, nombreDelArchivo, datosExtras = {})
                 : (datosExtras.participantes || '')
         );
 
+        const compromisosArray = Array.isArray(datosExtras.compromisos)
+            ? datosExtras.compromisos : [];
+
         documentoWord.render({
             DESARROLLO: textoLimpio,
             FECHA: datosExtras.fecha || '',
@@ -405,7 +408,8 @@ function generarDocumentoWord(textoCompleto, nombreDelArchivo, datosExtras = {})
             OBJETIVOS: limpiarMarkdown(datosExtras.objetivos || ''),
             HECHOS: limpiarMarkdown(datosExtras.hechos || ''),
             DESARROLLO_COMITE: limpiarMarkdown(datosExtras.desarrolloComite || ''),
-            CONCLUSIONES: limpiarMarkdown(datosExtras.conclusiones || '')
+            CONCLUSIONES: limpiarMarkdown(datosExtras.conclusiones || ''),
+            COMPROMISOS: compromisosArray
         });
 
         const bufferDocumento = documentoWord.getZip().generate({ type: "nodebuffer" });
