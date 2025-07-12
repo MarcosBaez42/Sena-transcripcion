@@ -20,6 +20,9 @@ try {
     console.warn("⚠️  No pude cargar el archivo .env, pero seguiré intentando...");
 }
 
+// Determina si podemos usar Gemini basándonos en la presencia de la clave API
+const puedeUsarGemini = Boolean(process.env.GEMINI_API_KEY);
+
 // Aquí voy a intentar usar el generador de actas que hice con Gemini
 let GeneradorActasConIA;
 let modoGenerador = null;
@@ -371,6 +374,7 @@ function limpiarMarkdown(texto) {
     limpio = limpio.replace(/\*\*([\s\S]+?)\*\*/g, '$1');  // elimina **negritas**
     limpio = limpio.replace(/^[*-]\s+/gm, '');           // elimino guiones o asteriscos iniciales
     limpio = limpio.replace(/(\d+\.\s[^\n]+)\n(?=\d+\.\s)/g, '$1\n\n'); // separo párrafos numerados
+
     return limpio;
 }
 
