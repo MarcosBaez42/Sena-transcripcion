@@ -281,7 +281,7 @@ async function transcribirUnaParte(archivoParteInfo) {
     }
 }
 
-// Función para normalizar hablantes entre partes (esto me costó entender)
+// Función para normalizar hablantes entre partes 
 function unificarHablantesEntreParts(listaTranscripciones) {
     console.log("🧠 Unificando hablantes entre todas las partes...");
     
@@ -435,9 +435,9 @@ function generarDocumentoWord(textoCompleto, nombreDelArchivo, datosExtras = {})
 
 async function transcribirAudioCompletoPorPartes() {
     try {
-        console.log("🎬 INICIANDO MI SISTEMA DE TRANSCRIPCIÓN COMPLETA");
+        console.log("🎬 INICIANDO SISTEMA DE TRANSCRIPCIÓN");
         console.log("=" .repeat(70));
-        console.log("Este es mi proyecto para las prácticas del SENA - espero que funcione bien!");
+        console.log("🔄 Modo automático: voy a procesar todas las partes de audio");
         
         // Muestro el estado de Gemini
         if (puedeUsarGemini) {

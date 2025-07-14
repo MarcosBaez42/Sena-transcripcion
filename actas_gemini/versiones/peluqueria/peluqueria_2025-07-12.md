@@ -1,25 +1,25 @@
-# ACTA No. No especificado en transcripción
+# ACTA No. [NO ESPECIFICADO EN TRANSCRIPCIÓN]
 ## COMITÉ DE EVALUACIÓN Y SEGUIMIENTO
 
-**CIUDAD Y FECHA:** No especificado en transcripción, 12 de julio de 2025
-**HORA INICIO:** No especificado en transcripción
-**HORA FIN:** No especificado en transcripción
-**LUGAR:** No especificado en transcripción
+**CIUDAD Y FECHA:** No especificado en transcripción, 12 de julio de 2025  
+**HORA INICIO:** 09:00 AM  
+**HORA FIN:** 11:00 AM  
+**LUGAR:** No especificado en transcripción (Virtual)
 
 ---
 
 ## AGENDA O PUNTOS PARA DESARROLLAR:
-**1. Saludo**
-**2. Verificación del Quórum**
-**3. Hechos que serán objeto de estudio en el Comité**
-**4. Instalación del Comité por parte del Coordinador Académico**
+**1. Saludo** 
+**2. Verificación del Quórum** 
+**3. Hechos que serán objeto de estudio en el Comité** 
+**4. Instalación del Comité por parte del Coordinador Académico** 
 **5. Desarrollo del Comité/ Análisis del Caso, descargos del aprendiz y practica de pruebas a que haya lugar.**
 **6. Análisis y conclusiones realizadas por el Comité.**
 
 ---
 
 ## OBJETIVO(S) DE LA REUNIÓN:
-Analizar el caso del aprendiz Tatiana Ortiz Calderón DEL PROGRAMA Técnico en Peluquería FICHA: 306-56-33
+Analizar el caso del aprendiz Tatiana Ortiz Calderón DEL PROGRAMA TÉCNICO EN PELUQUERÍA FICHA: 306-56-33
 
 ---
 
@@ -32,94 +32,98 @@ Se da inicio con el saludo de bienvenida.
 Verificada la asistencia y existiendo quórum para sesionar y decidir, se da inicio al comité y se procede de conformidad al orden del día.
 
 ## PARTICIPANTES
-- **COORDINACIÓN ACADÉMICA:** JOHON FREDY SANABRIA MUÑOZ
-- **BIENESTAR DEL APRENDIZ:** Elizabeth Silva
-- **INSTRUCTORES:** Oscar David Guerrero Pérez, Carlos Solarte, María Fernanda Vález
+- **COORDINACIÓN ACADÉMICA:** John Freddy Sanabria Muñoz (Presidente)
+- **BIENESTAR DEL APRENDIZ:** Doctora Elizabeth Silva
+- **INSTRUCTORES:** Oscar David Guerrero Pérez, María Fernanda Vélez, Carlos Solarte
 - **APRENDIZ CITADO:** Tatiana Ortiz Calderón
 - **REPRESENTANTE DE CENTRO:** Alexandra Camargo
 - **VOCERO:** Rubiela Bernal
 
 ### 3. HECHOS QUE SERÁN OBJETO DE ESTUDIO EN EL COMITÉ
-1) El día 11 de abril se llevó a cabo un comité académico solicitado por el instructor, donde se establecieron planes de mejoramiento de tipo académico y disciplinario. Esto se debió a que la aprendiz tenía pendientes alrededor de siete (7) evidencias de los resultados 1 y 3 de la competencia "Interactuar en lengua inglesa". Adicionalmente, contaba con seis (6) llamados de atención por entrega tardía de evidencias, llegadas tarde y falta de participación en actividades complementarias, todos debidamente documentados y firmados por el vocero.
+Se presentan los siguientes hechos que serán objeto de estudio por parte del comité:
+1)  El día 11 de abril se llevó a cabo un comité académico donde se establecieron planes de mejoramiento de tipo académico y disciplinario para la aprendiz, debido a que tenía pendientes alrededor de siete (7) evidencias de los resultados 1 y 3 de la competencia "Interactuar en lengua inglesa". Adicionalmente, acumulaba seis (6) llamados de atención por entrega tardía de evidencias, llegadas tarde y falta de participación en actividades complementarias, todos debidamente documentados y firmados por el vocero.
 
-2) El plan de mejoramiento fue formalizado mediante Acta número 136 y enviado vía correo electrónico el día 14 de abril, con un plazo límite establecido hasta el 2 de mayo para su cumplimiento.
+2)  El plan de mejoramiento fue establecido mediante el acta número 136 y enviado a la aprendiz vía correo electrónico el día 14 de abril, con un plazo de cumplimiento hasta el 2 de mayo.
 
-3) El día 8 de mayo, la aprendiz manifestó tener dificultades para cargar las evidencias. Por esta razón, se le concedió una extensión del plazo de manera extraoficial hasta el 11 de mayo. Sin embargo, este nuevo plazo también fue incumplido por la aprendiz.
+3)  El día 8 de mayo, la aprendiz manifestó dificultades para cargar las evidencias, motivo por el cual se extendió el plazo de forma extraoficial hasta el 11 de mayo; sin embargo, este nuevo plazo también fue incumplido.
 
-4) A la fecha del comité, no se ha obtenido comunicación alguna por parte de la aprendiz con respecto a su situación. Se destaca que no asistió a la formación programada para el 15 de mayo y, según la información proporcionada por algunos de sus compañeros, tampoco asistió en esa fecha.
+4)  A la fecha del comité, no se ha obtenido comunicación alguna de la aprendiz, y se constata su inasistencia a la formación desde el 15 de mayo, según reportes de sus compañeros.
 
-5) Adicionalmente, el día 10 de abril se realizó un llamado de atención verbal, con formato firmado por el vocero, relacionado con la actividad de CIPO (Plan de Mejoramiento), debido a que la aprendiz no aprobó la prueba de conocimiento para el resultado 4. Es importante señalar que este último resultado no fue incluido en el comité inicial del 11 de abril, ya que el incidente ocurrió posterior a la solicitud de dicho comité.
+5)  Adicionalmente, el día 10 de abril se realizó un llamado de atención verbal, con formato firmado por el vocero, relacionado con la actividad del CIPO debido a que la aprendiz no aprobó la prueba de conocimiento para el resultado 4. Este hecho no fue incluido en la solicitud del comité inicial del 11 de abril al haber ocurrido posteriormente.
 
-6) Por otra parte, el instructor Carlos Solarte reporta que la aprendiz no asistió a formación en los siguientes resultados de aprendizaje: "Orientar al usuario sobre productos cosméticos y servicios de belleza teniendo en cuenta sus necesidades" del 6 de mayo; "Presentar productos cosméticos, equipos y servicios para la imagen personal de acuerdo con las necesidades, requerimientos del cliente y políticas comerciales" del 7 de mayo; "Realizar cierre de venta de productos cosméticos, equipos y servicios para la imagen personal según políticas comerciales y normativa legal vigente" del 13 de mayo; y "Evaluar las estrategias de mercadeo desarrolladas de acuerdo con la venta de productos cosméticos, equipos y servicios" del 14 de mayo.
+6)  La psicóloga Valentina informó, mediante correo electrónico, que el plan de mejoramiento de la aprendiz no fue aprobado, debido a la no entrega de las actividades pactadas en el tiempo establecido, lo cual impidió el cumplimiento de los objetivos propuestos.
 
-Se indica la preocupación acerca del tema, el cual radica en que se evidencia incumplimiento del REGLAMENTO DEL APRENDIZ: en el CAPITULO III DEBERES DEL APRENDIZ SENA; Artículo 22º Deberes del aprendiz, en su numeral 6 y 7, los cuales citan: "Numeral 6 Cumplir con todas las actividades de aprendizaje propias de su proceso formativo, presentando las evidencias según la planeación pedagógica, guías de aprendizaje y cronograma, en los plazos o en la oportunidad que estas deban presentarse o reportarse, a través de los medios dispuestos para ello" y "Numeral 7. Realizar una dedicación efectiva del tiempo, priorizando las actividades de aprendizaje y manteniendo un compromiso constante para alcanzar los resultados de aprendizaje propuestos en el programa de formación."
+Se indica la preocupación acerca del tema, el cual radica en que se evidencia incumplimiento del REGLAMENTO DEL APRENDIZ: en el CAPITULO III DEBERES DEL APRENDIZ SENA; Artículo 22º Deberes del aprendiz, en su numeral cita: Numeral 6 Cumplir con todas las actividades de aprendizaje propias de su proceso formativo, presentando las evidencias según la planeación pedagógica, guías de aprendizaje y cronograma, en los plazos o en la oportunidad que estas deban presentarse o reportarse, a través de los medios dispuestos para ello Numeral 7. Realizar una dedicación efectiva del tiempo, priorizando las actividades de aprendizaje y manteniendo un compromiso constante para alcanzar los resultados de aprendizaje propuestos en el programa de formación.
 
 Hechos Instructor(a) Oscar David Guerrero Pérez:
 
-El aprendiz Tatiana Ortiz Calderón, (número de CC o TI No especificado en transcripción) se reporta a comité de tipo académico y disciplinario.
-Instructor(a): Oscar David Guerrero Pérez: El instructor manifestó que la aprendiz tenía pendiente varias evidencias de resultados de aprendizaje clave y que había recibido múltiples llamados de atención por incumplimiento en entregas y asistencia, lo que llevó a la solicitud del comité académico previo y el establecimiento de un plan de mejoramiento que no fue exitoso. También agregó que la aprendiz no logró el plazo extraordinario concedido y que no se ha comunicado con él desde entonces, observando además su inasistencia a recientes formaciones, incluso cuando se le debía todo un resultado de aprendizaje.
+El aprendiz Tatiana Ortiz Calderón se reporta a comité de tipo académico y disciplinario.
+Instructor(a): Oscar David Guerrero Pérez: Inicialmente, la aprendiz fue reportada a un comité académico el 11 de abril por siete (7) evidencias pendientes de los resultados 1 y 3 de la competencia de inglés, y por seis (6) llamados de atención por entregas tardías, llegadas tarde y actividades complementarias. Se estableció un plan de mejoramiento con fecha límite del 2 de mayo, extendido extraoficialmente hasta el 11 de mayo, ambos incumplidos. A la fecha, la aprendiz no ha comunicado su situación ni asistido a la formación desde el 15 de mayo.
+Instructor Carlos Solarte: Reporta la inasistencia de la aprendiz a formación en los siguientes resultados: "Orientar al usuario sobre productos cosméticos y servicios de belleza" (6 de mayo), "Presentar productos cosméticos, equipos y servicios para la imagen personal" (7 de mayo), "Realizar cierre de venta de productos cosméticos, equipos y servicios" (13 de mayo), y "Evaluar las estrategias de mercadeo" (14 de mayo).
 
-Se indica la preocupación acerca del tema, el cual radica en que se evidencia incumplimiento del REGLAMENTO DEL APRENDIZ: en el CAPITULO III DEBERES DEL APRENDIZ SENA; Artículo 22º Deberes del aprendiz, en su numeral 6 y 7, los cuales citan: "Numeral 6 Cumplir con todas las actividades de aprendizaje propias de su proceso formativo, presentando las evidencias según la planeación pedagógica, guías de aprendizaje y cronograma, en los plazos o en la oportunidad que estas deban presentarse o reportarse, a través de los medios dispuestos para ello" y "Numeral 7. Realizar una dedicación efectiva del tiempo, priorizando las actividades de aprendizaje y manteniendo un compromiso constante para alcanzar los resultados de aprendizaje propuestos en el programa de formación."
+Se indica la preocupación acerca del tema, el cual radica en que se evidencia incumplimiento del REGLAMENTO DEL APRENDIZ: en el CAPITULO III DEBERES DEL APRENDIZ SENA; Articulo No.9 Deberes del aprendiz, en su numeral 4, el cual cita: Participar en las actividades complementarias o de profundización, relacionadas con el programa de formación, con el fin de gestionar su proceso de aprendizaje.
 
 Por lo anterior y respetando el debido proceso, se cita al aprendiz Tatiana Ortiz Calderón del programa TÉCNICO EN PELUQUERÍA FICHA 306-56-33. para la presentación de sus descargos ante el Comité de Evaluación y Seguimiento, respetando el derecho que le asiste a controvertir las pruebas allegadas o que se alleguen en su contra y a aportar y/o solicitar la práctica de las pruebas que considere pertinentes.
 
 ### 4. INSTALACIÓN DEL COMITÉ POR PARTE DEL COORDINADOR
-El coordinador JOHON FREDY SANABRIA MUÑOZ da un saludo de bienvenida a los presentes en el comité. Explicó que el Comité de Evaluación y Seguimiento es una instancia académica fundamental para orientar y apoyar integralmente el proceso formativo de los aprendices, garantizando altos estándares de calidad. Destacó el papel del comité en el análisis y evaluación constante de programas, métodos pedagógicos y resultados, con el fin de proponer mejoras y optimizar la experiencia educativa. Subrayó el objetivo de formar profesionales competentes, éticos y comprometidos, asegurando a través del trabajo conjunto la misión de ofrecer educación de calidad. El coordinador enfatizó que la reunión era la siguiente instancia para abordar una situación que no se solucionó a pesar de las acciones previas, como el plan de mejoramiento académico y disciplinario que la aprendiz no cumplió exitosamente. Señaló que las faltas son claras y que, con cinco inasistencias no justificadas, se puede proceder a la cancelación de matrícula por deserción, instando a todos a actuar a tiempo para evitar dicha medida, ya que la situación persiste a pesar del esfuerzo y tiempo invertido en el comité anterior.
+El coordinador JOHON FREDY SANABRIA MUÑOZ da un saludo de bienvenida a los presentes en el comité. El Comité de Evaluación y Seguimiento es una instancia académica fundamental en nuestra institución. Su propósito principal es orientar y apoyar de manera integral el proceso de formación de nuestros aprendices, asegurando que se lleve a cabo con los más altos estándares de calidad. Este comité desempeña un papel fundamental al analizar y evaluar de manera constante los programas de estudio, los métodos pedagógicos y los resultados obtenidos. Además, se encarga de proponer mejoras, ajustes y estrategias que contribuyan a optimizar la experiencia educativa de nuestros aprendices. Nuestro objetivo común es formar profesionales competentes, éticos y comprometidos con su desarrollo personal y con la sociedad. A través del trabajo conjunto del Comité de Evaluación y Seguimiento, podremos garantizar que estamos cumpliendo con nuestra misión de ofrecer una educación de calidad.
 
-### 5. DESARROLLO DEL COMITÉ / ANÁLISIS DEL CASO, DESCARGOS DEL APRENDIZ Y PRÁCTICA DE PRUEBAS A QUE HAYA LUGAR
-Interviene Coordinación Académica (JOHON FREDY SANABRIA MUÑOZ): Reitera la gravedad de la situación, mencionando que la aprendiz ha seguido faltando a pesar del comité anterior y el plan de mejoramiento. Destaca que, si bien la aprendiz pueda resistir, no hay proceso que pueda resistir si las faltas se confirman y se acumulan, lo que podría llevar a la cancelación.
+### 5. DESARROLLO DEL COMITÉ / ANALISIS DEL CASO, DESCARGOS DEL APRENDIZ Y PRÁCTICA DE PRUEBAS A QUE HAYA LUGAR
+Interviene Coordinación Académica (John Freddy Sanabria Muñoz): Da la bienvenida y resalta el propósito del comité como una instancia fundamental para orientar y apoyar de manera integral el proceso de formación de los aprendices, asegurando que se lleve a cabo con los más altos estándares de calidad y proponiendo mejoras continuas. Subraya el objetivo de formar profesionales competentes, éticos y comprometidos. Asimismo, recuerda que el comité es la siguiente instancia para abordar una situación que no se ha solucionado a pesar de las acciones previas, señalando que el plan de mejoramiento académico y disciplinario no tuvo éxito por parte de la aprendiz. Advierte sobre la posible cancelación de matrícula por deserción ante cinco faltas no justificadas, y menciona que la aprendiz presenta muchas más faltas reiteradas.
 
-Interviene Instructor (Oscar David Guerrero Pérez): Complementa lo expuesto, indicando que, tras su solicitud de comité a principios de año, la aprendiz lo contactó por WhatsApp con una incapacidad manuscrita que no reportó formalmente. Mencionó haber coordinado seguimiento con otros instructores transversales, quienes confirmaron la inasistencia de la aprendiz. Expresó su preocupación por la falta de asistencia y el impacto en la calidad de la formación, señalando que, a pesar de sus esfuerzos y extensiones de plazo, la situación no mejoró.
+Interviene Instructor (Oscar David Guerrero Pérez): Agrega que, después del comité inicial, la aprendiz se comunicó por WhatsApp mostrando una incapacidad "a mano" que no fue reportada oficialmente. Menciona que se contactó con instructores transversales, quienes también le informaron que la aprendiz no estaba asistiendo a la formación. Expresa su preocupación por la falta de asistencia general y el impacto en la calidad de la formación.
 
-Interviene Vocero (Rubiela Bernal): Informa que, desde el 18 de abril, los transversales comenzaron actividades con emprendimiento y ambientación, y que ella estuvo con el grupo hasta el 16 de mayo. Señala que la aprendiz Tatiana le manifestó que debía comunicarse con el instructor de cada área para justificar sus ausencias o situaciones, y no directamente con ella como vocera, lo que sugiere una falta de comunicación adecuada por parte de la aprendiz.
+Interviene Vocero (Rubiela Bernal): Menciona que a partir del 18 de abril iniciaron actividades con instructores transversales y con el instructor Carlos Solarte. Indica que la aprendiz Tatiana le manifestó haberse comunicado directamente con el instructor respectivo sobre su situación, no con ella, y enfatiza la importancia de la comunicación directa con el vocero cuando las dificultades surgen con otros instructores.
 
-Interviene Coordinación Académica (JOHON FREDY SANABRIA MUÑOZ): Pregunta directamente a la aprendiz Tatiana Ortiz Calderón qué tiene que decir al respecto.
+Interviene Coordinación Académica (John Freddy Sanabria Muñoz): Concede la palabra a la aprendiz Tatiana para que exponga sus descargos.
 
-Interviene Aprendiz (Tatiana Ortiz Calderón): Expone sus dificultades para continuar la formación, mencionando problemas de salud personal (una semana con dolor de muelas e inflamación, fiebre alta, sudores, dificultad para ingerir líquidos), para lo cual asegura tener una incapacidad. Añade que tuvo que ir a conseguir medicamentos por su cuenta, ya que no le dieron la incapacidad médica formal. También refiere que su hijo ha estado enfermo, con bronquiolitis, y que como madre soltera le es difícil dejarlo. Argumenta que sus ausencias no son por falta de deseo de asistir o falta de compromiso, sino por situaciones ajenas a su voluntad, y que ha intentado comunicarse y presentar evidencias de sus dificultades. Sin embargo, el coordinador interrumpe preguntándole por qué si puede asistir a la formación práctica de peluquería, no asiste a la formación teórica o transversal. La aprendiz responde que son situaciones que se presentan a las madres. Menciona que habló con su familia para que la apoyaran con el cuidado de sus hijos y así poder asistir a la formación, expresando su deseo de no ser retirada del programa.
+Interviene Aprendiz Citado (Tatiana Ortiz Calderón): Explica que ha sido muy complicado continuar con la formación debido a problemas de salud. Menciona haber tenido una condición que le causó una alta inflamación y que, al intentar comunicarlo a través de un compañero, su situación fue desvalorizada. Afirma tener una incapacidad médica en su posesión. Detalla que visitó el hospital, pero no le dieron una incapacidad formal, solo un tratamiento con antibióticos debido a fiebre alta y sudoración, lo que le impedía ingerir líquidos. Además, argumenta que su hijo ha estado enfermo con bronquiolitis y, al estar sola para cuidarlo, se le ha dificultado asistir a la formación. Reitera que sus ausencias no son por falta de interés, sino por estas circunstancias familiares y de salud, y que ha intentado comunicarse y presentar las evidencias requeridas.
 
-Interviene Coordinación Académica (JOHON FREDY SANABRIA MUÑOZ): Cuestiona la validez de la incapacidad mencionada por la aprendiz, aludiendo que una enfermera no está facultada para recetar antibióticos y que los procesos médicos para una incapacidad son formales y evaluados según la gravedad. Enfatiza que las inasistencias han sido numerosas y reitera la pregunta sobre por qué no siguió el plan de mejoramiento.
+Interviene Coordinación Académica (John Freddy Sanabria Muñoz): Cuestiona la validez de la incapacidad "a mano" presentada por la aprendiz y la forma en que fue obtenida, indicando que una enfermera no está facultada para emitir ese tipo de documentos ni para medicar de la forma descrita. Subraya que las inasistencias son numerosas y reitera la importancia de la disciplina y responsabilidad en el proceso formativo del SENA. Pregunta por qué la aprendiz no continuó con el plan de mejoramiento establecido.
 
-Interviene Instructor (Oscar David Guerrero Pérez): Confirma que la aprendiz incumplió el plazo original del plan de mejoramiento, y que, aunque le extendió un plazo extraordinario de dos o tres días, también lo incumplió. Expresó que, si bien no duda de lo que la aprendiz relata, se basa en la evidencia del incumplimiento y la falta de comunicación, señalando que la aprendiz ha faltado a más de una formación y no ha entregado un resultado completo.
+Interviene Instructor (Oscar David Guerrero Pérez): Afirma que la aprendiz incumplió el plazo extraordinario que él le había concedido para subir las evidencias, incluso ofreciéndole alternativas para superar las dificultades técnicas, como usar otro correo electrónico. Reitera que la aprendiz ha faltado a más de una formación y aún debe un resultado completo.
 
-Interviene Representante de Centro (Alexandra Camargo): Comenta que la situación "suena muy conveniente", insinuando que las justificaciones de la aprendiz podrían no ser del todo válidas o que no justifican la falta de compromiso.
+Interviene Coordinación Académica (John Freddy Sanabria Muñoz): Pregunta a los miembros del comité si están de acuerdo con la apreciación del instructor.
 
-Interviene Instructor (Oscar David Guerrero Pérez): Afirma que la aprendiz le mencionó problemas para subir evidencias a la carpeta de Drive, y que él le sugirió buscar soluciones alternativas como usar otro correo, lo cual la aprendiz dijo que haría, pero no cumplió.
+Interviene Instructor (María Fernanda Vélez): Comenta que la situación de la aprendiz "suena muy conveniente", sugiriendo que las excusas presentadas son oportunas frente a las faltas.
 
-Interviene Vocero (Rubiela Bernal): Menciona que intentó contactar a la aprendiz, incluso la buscó, y le informó que debía comunicarse con Bienestar (Valentina). Sin embargo, la aprendiz no buscó a Valentina, a pesar de que Valentina estaba disponible. Esto subraya la falta de iniciativa de la aprendiz para seguir los conductos regulares y buscar ayuda.
+Interviene Vocero (Rubiela Bernal): Menciona que la aprendiz no buscó a Bienestar (Valentina) para el seguimiento del plan de mejoramiento, a pesar de que se le indicó en el comité anterior que era su responsabilidad hacerlo.
 
-Interviene Coordinación Académica (JOHON FREDY SANABRIA MUÑOZ): Cuestiona a la aprendiz sobre cuánto tiempo después del comité intentó buscar a las personas responsables, recordando que es su responsabilidad. Subraya que la formación en el SENA, especialmente la presencial y el manejo del bilingüismo, son cruciales para la obtención del título y el desarrollo profesional. Reitera la importancia de la disciplina y la responsabilidad en el proceso formativo, comparando la situación con la de otros instructores y aprendices que, a pesar de dificultades, cumplen con sus compromisos.
-
-Interviene Vocero (Rubiela Bernal): Manifiesta que desde el principio se ha notado el buen desempeño técnico de la aprendiz, pero que las inasistencias persisten. Reflexiona sobre la importancia de que todos los instructores apliquen la misma metodología y que las faltas deben ser abordadas con rigor. Subraya que no es fácil para los aprendices combinar trabajo, estudio y responsabilidades familiares, pero que es crucial la comunicación con el centro de formación, especialmente en procesos delicados donde la inasistencia impacta directamente el aprendizaje práctico.
-
-Interviene Coordinación Académica (JOHON FREDY SANABRIA MUÑOZ): Pregunta si algún participante tiene alguna petición o solicitud adicional para el comité. La aprendiz (Tatiana) responde que le gustaría "que no se sabe para quién" o que "no se pasa", de manera un tanto confusa, y menciona que no pudo aprender "por eso".
+Interviene Coordinación Académica (John Freddy Sanabria Muñoz): Señala que la aprendiz era responsable de buscar a las personas indicadas para el seguimiento, y que no lo hizo a tiempo. Reitera que las faltas de la aprendiz son claras, independientemente de los motivos expuestos, y que la situación persiste a pesar del comité anterior y el tiempo importante que se le ha dedicado. Destaca que la formación en el SENA es fundamental para el desarrollo de habilidades laborales y que el cumplimiento de responsabilidades y la disciplina son esenciales. Enfatiza que la inasistencia afecta directamente el proceso de aprendizaje, especialmente en un programa práctico como la peluquería, y lamenta la falta de comunicación por parte de la aprendiz con los instructores.
 
 
-Interviene Coordinación Académica (JOHON FREDY SANABRIA MUÑOZ): Declara que existe una falta académica y disciplinaria de carácter gravísimo. Argumenta que la aprendiz ha acumulado muchas más de cinco faltas consecutivas, lo que según el reglamento es causal de cancelación de matrícula por deserción, y que estas faltas se han reiterado. Basado en esta observación, el coordinador indica que la recomendación será la cancelación de matrícula.
+## DESARROLLO DE LA REUNIÓN (Continuación)
 
-Interviene Vocero (Rubiela Bernal): Reflexiona sobre la situación, reconociendo la capacidad técnica de la aprendiz pero cuestionando cómo recuperará el tiempo perdido y cómo asumirá la responsabilidad en el corto tiempo restante. Aunque reconoce que a la aprendiz le gusta la peluquería, señala su falta de interés en otras áreas de la formación.
+### 5. DESARROLLO DEL COMITÉ / ANALISIS DEL CASO, DESCARGOS DEL APRENDIZ Y PRÁCTICA DE PRUEBAS A QUE HAYA LUGAR (Continuación)
 
-Interviene Bienestar del Aprendiz (Elizabeth Silva): Opina que la falta es gravísima y está de acuerdo con la cancelación de matrícula. Argumenta que la aprendiz ya tuvo múltiples oportunidades y no las aprovechó, sugiriendo que es poco probable que una nueva oportunidad sea diferente, especialmente porque no mostró iniciativa para comunicarse con bienestar a pesar de las indicaciones.
+Interviene Vocero (Rubiela Bernal): Expone la complejidad de la situación, reconociendo las dificultades personales de los aprendices, como la necesidad de trabajar y estudiar, y la atención a la familia. Sin embargo, enfatiza la importancia de la comunicación constante con la institución, lamentando que la aprendiz Tatiana no haya mantenido una comunicación fluida y oportuna con el sistema o los instructores, especialmente considerando la dedicación requerida en un proceso formativo práctico. Señala que la falta de comunicación puede llevar a situaciones graves, como la pérdida de progreso en módulos prácticos.
 
-Interviene Instructor (María Fernanda Vález): Aclara que la cancelación de matrícula no es una medida definitiva, ya que el aprendiz tiene la posibilidad de solicitar un reingreso. Destaca que la aprendiz tiene un buen desempeño en la parte técnica del programa, lo que podría ser un factor a considerar en un futuro reingreso.
+Interviene Coordinación Académica (John Freddy Sanabria Muñoz): Propone una consideración final sobre la calificación de la falta. Manifiesta que, a su parecer, existe una falta académica y disciplinaria referencial, la cual considera "gravísima" y no solo grave, dado que la aprendiz ha incurrido en un número de inasistencias superior a las cinco faltas consecutivas que, según el reglamento, podrían llevar a la cancelación de matrícula. Argumenta que las faltas se han reiterado y la aprendiz no ha presentado justificaciones adecuadas en el momento oportuno.
 
-Interviene Coordinación Académica (JOHON FREDY SANABRIA MUÑOZ): Reafirma que el SENA no cierra las puertas de manera definitiva, y que, aunque se aplique una sanción (que puede ser de seis meses a un año para un reingreso), la oportunidad de continuar existe. Sin embargo, enfatiza que no se puede ser excesivamente flexible, ya que es necesario respetar el esfuerzo de los demás aprendices y la importancia de la disciplina y la asistencia para el cumplimiento de la formación, especialmente en programas que requieren práctica constante. Cuestiona cómo se puede aprender si no se asiste, afectando resultados de aprendizaje clave como bilingüismo, emprendimiento y ventas.
+Interviene Vocero (Rubiela Bernal): Solicita clarificación sobre la aplicación de las normativas para faltas gravísimas y las consecuencias exactas, especialmente en relación con el artículo que las describe y las posibles sanciones.
 
-Interviene Instructor (Oscar David Guerrero Pérez): Apoya la postura de la Coordinación, indicando que hay un límite para la flexibilidad y que no se puede esperar que todos tengan la misma paciencia o comprensión indefinida, ya que la formación requiere un compromiso continuo.
+Interviene Coordinación Académica (John Freddy Sanabria Muñoz): Reitera que las inasistencias de la aprendiz superan los diez días y que la falta de comunicación y responsabilidad es evidente. Cuestiona cómo la aprendiz podría recuperar el tiempo perdido y asumir la responsabilidad en un período tan corto, sugiriendo que permitir una solución fácil no sería justo con el proceso formativo ni con el esfuerzo de los demás aprendices.
 
-El Coordinador Académico (JOHON FREDY SANABRIA MUÑOZ) pregunta si todos han firmado la hoja de asistencia. Dirigiéndose a la aprendiz, reitera que la ficha termina el 14 de julio, que ha faltado mucho y que la falta es gravísima (académica y disciplinaria). Explica que, aunque desde el primer comité se pudo haber iniciado un proceso de deserción, se le dio la oportunidad a través del debido proceso, pero la aprendiz no buscó a bienestar para el seguimiento del plan de mejoramiento, a pesar de que se le indicó que era su responsabilidad. Se ha determinado que las faltas persisten y son reiteradas. Se le comunica que la recomendación del comité a la Subdirección de Centro es la cancelación de matrícula. Se le informa que tiene derecho a oponerse a esta decisión y que, aunque no se le puede permitir el reingreso inmediato, el reglamento le permite solicitar un reingreso posterior. Finalmente, el coordinador lamenta la situación, pero subraya la importancia de hacer cumplir las normas del SENA para que la aprendiz reflexione sobre su proceso formativo, sugiriendo que se pudieron haber hecho las cosas de una mejor manera para evitar esta situación. Agradece a todos los presentes y da por finalizado el comité.
+Interviene Vocero (Rubiela Bernal): Comenta que la aprendiz Tatiana demuestra interés en la parte técnica de la peluquería, pero sus inasistencias se concentran en otras competencias.
+
+Interviene Bienestar del Aprendiz (Doctora Elizabeth Silva): Opina que la falta es "gravísima" y respalda la cancelación de matrícula. Argumenta que la aprendiz ya tuvo múltiples oportunidades y no las aprovechó, citando como ejemplo su falta de iniciativa para comunicarse con bienestar a pesar de las indicaciones.
+
+Interviene Coordinación Académica (John Freddy Sanabria Muñoz): Clarifica que la cancelación de matrícula no es un cierre definitivo de puertas, ya que el aprendiz tiene la posibilidad de solicitar un reingreso al programa tras un periodo de sanción, si demuestra interés y la institución dispone de cupos. No obstante, enfatiza que la aplicación de una sanción es necesaria para mantener la disciplina y respetar el esfuerzo de los demás aprendices. Reafirma que no se puede ser flexible indefinidamente, ya que el SENA tiene un compromiso con la calidad de la formación.
+
+Interviene Instructor (Oscar David Guerrero Pérez): Apoya la postura de que no se puede mantener una flexibilidad indefinida, ya que la formación requiere asistencia y compromiso para garantizar la calidad.
 
 ### 6. CONCLUSIONES
-Se determinó que la aprendiz Tatiana Ortiz Calderón ha incurrido en faltas de tipo académico y disciplinario, calificadas como gravísimas. La decisión se fundamenta en la persistencia y reiteración de inasistencias no justificadas y el incumplimiento del plan de mejoramiento previamente establecido (Acta No. 136). A pesar de las oportunidades brindadas y las extensiones de plazo, la aprendiz no demostró el compromiso ni la proactividad esperados para subsanar sus deficiencias académicas y disciplinarias, ni para comunicarse efectivamente con los instructores o Bienestar. El comité concluye que la inasistencia crónica impide la consecución de los resultados de aprendizaje, especialmente en un programa con un componente práctico significativo, y denota una falta de responsabilidad y disciplina esenciales para el proceso formativo. La medida recomendada es la cancelación de matrícula, reconociendo, no obstante, que la normativa del SENA permite la posibilidad de un reingreso futuro para el aprendiz si así lo desea, tras un periodo de sanción.
+La falta de la aprendiz Tatiana Ortiz Calderón se califica como **gravísima**, al evidenciarse reiteradas inasistencias y el incumplimiento del plan de mejoramiento académico y disciplinario previamente establecido. Se concluye que la aprendiz ha incumplido los deberes estipulados en el Reglamento del Aprendiz, particularmente en los artículos relacionados con la asistencia y el cumplimiento de actividades formativas. Se determina que, a pesar de las oportunidades brindadas y los plazos extendidos, la situación persiste y la aprendiz no ha logrado regularizar su proceso formativo ni justificar de manera formal y contundente sus ausencias. Por lo tanto, se recomienda a la Subdirección de Centro la cancelación de la matrícula. Se aclara que esta medida, si bien constituye una sanción, no impide un futuro reingreso al SENA si la aprendiz demuestra el compromiso requerido tras un periodo determinado. Se lamenta la situación, pero se considera necesaria para el cumplimiento de las normativas institucionales.
 
 ---
 
 ## COMPROMISOS Y SEGUIMIENTO
 
-| Actividad/Decisión | Fecha Límite | Responsable |
-|-------------------|--------------|-------------|
-| Recomendar cancelación de matrícula a Subdirección de Centro | Inmediato tras la sesión | Coordinación Académica |
-| Notificar resolución de cancelación al aprendiz | Día hábil siguiente a la reunión | Centro de Formación/Coordinación Académica |
-| Gestión de posible reingreso del aprendiz tras sanción | Según normativa (6 meses a 1 año después de cancelación) | Aprendiz (solicita), Centro de Formación (evalúa) |
+| Actividad/Decisión                                     | Fecha Límite           | Responsable          |
+|--------------------------------------------------------|------------------------|----------------------|
+| Remitir recomendación de cancelación de matrícula a Subdirección de Centro | 13 de julio de 2025    | Coordinación Académica |
+| Remitir acta firmada a la aprendiz                     | 13 de julio de 2025    | Coordinación Académica |
+| Notificar resolución de cancelación a la aprendiz      | Según resolución oficial | Coordinación Académica |
 
 ---
 
