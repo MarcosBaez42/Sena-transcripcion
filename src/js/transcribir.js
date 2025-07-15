@@ -5,9 +5,7 @@
 
 const fs = require("fs");
 const path = require("path");
-const { exec } = require("child_process");
-const { promisify } = require("util");
-const execAsync = promisify(exec);
+const { spawn } = require("child_process");
 
 // Librerías para generar documentos Word (aprendí esto en el proyecto)
 const PizZip = require("pizzip");
@@ -239,23 +237,25 @@ function buscarArchivosDeAudioProcesado() {
 async function transcribirUnaParte(archivoParteInfo) {
     console.log(`🔊 Transcribiendo ${archivoParteInfo.nombreArchivo}...`);
 
-            const comandoParaEjecutar = `python "${scriptPythonTranscribir}" "${archivoParteInfo.rutaCompleta}"`;
-
     try {
-        const { stdout, stderr } = await execAsync(comandoParaEjecutar, {
-            maxBuffer: 1024 * 1024 * 10,
-            cwd: directorioDelProyecto
+        await new Promise((resolve, reject) => {
+            const child = spawn('python', [scriptPythonTranscribir, archivoParteInfo.rutaCompleta], {
+                cwd: directorioDelProyecto,
+                stdio: ['ignore', 'pipe', 'pipe']
+            });
+
+            child.stdout.pipe(process.stdout);
+            child.stderr.pipe(process.stderr);
+
+           child.on('close', code => {
+                if (code === 0) {
+                    resolve();
+                } else {
+                    reject(new Error(`transcribir.py exited with code ${code}`));
+                }
+            });
+            child.on('error', reject);
         });
-
-            if (stderr && !stderr.includes('Lightning automatically upgraded')) {
-            console.warn(`⚠️ Advertencias en ${archivoParteInfo.nombreArchivo}:`, stderr);
-        }
-
-           if (stderr && stderr.includes('Lightning automatically upgraded')) {
-            console.log(`📦 PyTorch Lightning se actualizó automáticamente para ${archivoParteInfo.nombreArchivo}`);
-        }
-
-            console.log(stdout);
 
         const nombreBase = path.basename(archivoParteInfo.rutaCompleta, path.extname(archivoParteInfo.rutaCompleta));
         const archivoTranscripcionEsperado = path.join(path.dirname(archivoParteInfo.rutaCompleta), `${nombreBase}_transcripcion.txt`);
@@ -270,13 +270,7 @@ async function transcribirUnaParte(archivoParteInfo) {
             contenido: fs.readFileSync(archivoTranscripcionEsperado, "utf-8")
         };
     } catch (error) {
-        if (error.stderr && !String(error.stderr).includes('Lightning automatically upgraded')) {
-            console.error(`❌ Error transcribiendo ${archivoParteInfo.nombreArchivo}:`, error.message);
-            console.error(`❌ Errores adicionales:`, error.stderr);
-            if (error.stdout) {
-                console.error(`❌ Salida:`, error.stdout);
-            }
-        }
+        console.error(`❌ Error transcribiendo ${archivoParteInfo.nombreArchivo}:`, error.message);
         throw error;
     }
 }
@@ -580,19 +574,25 @@ async function transcribirUnSoloArchivo(rutaDelAudio) {
     
     const tiempoDeInicio = Date.now();
     
-    const comandoCompleto = `python "${scriptPythonTranscribir}" "${rutaCompletaDelAudio}"`;
+    try {
+        await new Promise((resolve, reject) => {
+            const child = spawn('python', [scriptPythonTranscribir, rutaCompletaDelAudio], {
+                cwd: directorioDelProyecto,
+                stdio: ['ignore', 'pipe', 'pipe']
+            });
 
-            try {
-        const { stdout, stderr } = await execAsync(comandoCompleto, {
-            maxBuffer: 1024 * 1024 * 10,
-            cwd: directorioDelProyecto
+            child.stdout.pipe(process.stdout);
+            child.stderr.pipe(process.stderr);
+
+        child.on('close', code => {
+                if (code === 0) {
+                    resolve();
+                } else {
+                    reject(new Error(`transcribir.py exited with code ${code}`));
+                }
+            });
+            child.on('error', reject);
         });
-
-            if (stderr && !stderr.includes('Lightning automatically upgraded')) {
-            console.warn("⚠️ Algunas advertencias:", stderr);
-        }
-
-        console.log(stdout);
 
         const posiblesUbicaciones = [
             archivoTranscripcionEsperado,
