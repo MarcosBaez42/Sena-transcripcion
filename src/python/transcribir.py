@@ -13,6 +13,8 @@ import re
 
 # Token de Hugging Face desde variable de entorno
 token_hf = os.getenv("HF_TOKEN")
+if not token_hf:
+    print("⚠️  Variable HF_TOKEN no configurada; la diarización podría fallar.")
 
 # Configuración para que funcione bien en Windows 
 os.environ['PYTHONIOENCODING'] = 'utf-8'
@@ -57,7 +59,7 @@ dispositivo = "cpu"  # Uso CPU porque mi computadora no tiene GPU buena
 tipo_computo = "int8"  # Más rápido en mi máquina
 
 # Cargo el modelo (medium funciona bien para español)
-modelo_whisper = whisperx.load_model("base", dispositivo, compute_type=tipo_computo)
+modelo_whisper = whisperx.load_model("medium", dispositivo, compute_type=tipo_computo)
 print("✅ Modelo cargado correctamente")
 
 print(f"🎙️ Comenzando transcripción de: {archivo_de_audio}")

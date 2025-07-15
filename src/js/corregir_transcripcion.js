@@ -29,7 +29,7 @@ async function corregirTranscripcion(inputPath, outputPath, modelo) {
 
     let resultadoCompleto = '';
     for (const parte of partes) {
-        const prompt = "Corrige ortografía y gramática del siguiente texto en español sin cambiar el significado. cambia las marcas 'INTERVIENE HABLANTE X:' con Interviene [Cargo y nombre del que esta interviniendo extraer de la transcripcion]" + parte;
+        const prompt = "Intervenciones de los participantes comieza con Interviene [Cargo y nombre]:, extrae lo dicho por los participantes." + parte;
         
         const res = await modelInstance.generateContent(prompt);
         const resp = await res.response;
