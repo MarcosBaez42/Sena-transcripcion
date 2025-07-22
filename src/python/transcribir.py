@@ -358,11 +358,7 @@ def procesar_segmentos_con_hablantes(resultado_alineado, segmentos_hablantes):
     total_segmentos_originales = len(segmentos_procesados)
     total_grupos_procesados = len(grupos)
     
-    print(f"📊 Estadísticas de mi procesamiento:")
-    print(f"   - Segmentos originales: {total_segmentos_originales}")
-    print(f"   - Grupos de hablantes: {total_grupos_procesados}")
-    print(f"   - Caracteres en texto final: {len(texto_final)}")
-    
+
     # Si el texto es muy corto, uso método de respaldo
     if len(texto_final) < 100:
         print("⚠️ Texto muy corto, usando método de respaldo...")
@@ -396,7 +392,6 @@ else:
 texto_transcrito_final = limpiar_texto_repetitivo(texto_transcrito_final)
 texto_transcrito_final = formatear_texto_final(texto_transcrito_final)
 
-print(f"📏 Longitud después del formateo: {len(texto_transcrito_final)} caracteres")
 
 # Guardo el resultado en un archivo
 archivo_salida = f"{nombre_sin_extension}_transcripcion.txt"
@@ -412,29 +407,4 @@ print(f"📄 Texto guardado en: {archivo_salida}")
 intervenciones_detectadas = [linea for linea in texto_transcrito_final.split('\n') if linea.strip().startswith('INTERVIENE')]
 print(f"👥 Total de intervenciones detectadas: {len(intervenciones_detectadas)}")
 
-# Muestro una preview del resultado
-print("\n📋 Primeras líneas de mi transcripción:")
-print("-" * 60)
-lineas = texto_transcrito_final.split('\n')
-for i, linea in enumerate(lineas[:3]):
-    if linea.strip():
-        print(f"{i+1}: {linea[:100]}...")
-
-# Muestro el mapeo de hablantes que usé
-print("\n🗺️ Hablantes que identifiqué en este audio:")
-hablantes_usados = set()
-for speaker_local, hablante_global in hablantes_globales.items():
-    numero = hablante_global.split('_')[1] if '_' in hablante_global else hablante_global
-    if f"HABLANTE {numero}" in texto_transcrito_final:
-        nombre_final = obtener_nombre_final(hablante_global)
-        print(f"   {speaker_local} → {nombre_final}")
-        hablantes_usados.add(hablante_global)
-
-if not hablantes_usados:
-    print("   ℹ️ No identifiqué hablantes específicos en este audio")
-
-print(f"\n📋 Archivos de configuración:")
-print(f"   - Mapeo global: {archivo_mapeo_global}")
-print(f"   - Nombres personalizados: {archivo_nombres}")
-print("🔧 Para personalizar nombres: python src/python/gestionar_nombres.py")
 print("\n🎉 ¡Proceso completado! Este fue mi aporte al proyecto del SENA.")

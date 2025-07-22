@@ -482,12 +482,18 @@ async function transcribirAudioCompletoPorPartes() {
         console.log("🔗 Combinando y organizando todas las transcripciones...");
         const resultadoCombinado = combinarTodasLasTranscripciones(transcripcionesCompletadas);
         
-        // Detecto metadatos
-        const nombreDelProyecto = "ADSO"; // Puedo cambiarlo según el audio
+        // Detecto metadatos usando el nombre base del audio
+        const nombreBase = path.basename(archivosParaProcesar[0].nombreArchivo, path.extname(archivosParaProcesar[0].nombreArchivo));
+        const nombreDelProyecto = nombreBase.replace(/_parte_\d+$/, "");
         const informacionExtraida = extraerInformacionDelAudio(nombreDelProyecto, resultadoCombinado.textoCompleto);
         
-        // Guardo la transcripción completa en el directorio raíz
-        const archivoTranscripcionCompleta = path.join(directorioDelProyecto, `${nombreDelProyecto}_transcripcion_completa.txt`);
+        // Guardo la transcripción completa en su propia carpeta
+        const carpetaProyecto = path.join(directorioDelProyecto, nombreDelProyecto);
+        if (!fs.existsSync(carpetaProyecto)) {
+            fs.mkdirSync(carpetaProyecto, { recursive: true });
+        }
+
+        const archivoTranscripcionCompleta = path.join(carpetaProyecto, `${nombreDelProyecto}_transcripcion.txt`);
         fs.writeFileSync(archivoTranscripcionCompleta, resultadoCombinado.textoCompleto, "utf-8");
         console.log(`📝 Transcripción completa guardada en: ${archivoTranscripcionCompleta}`);
 
@@ -605,6 +611,17 @@ async function transcribirUnSoloArchivo(rutaDelAudio) {
         }
 
              console.log(`✅ ¡Encontré la transcripción! Está en: ${archivoEncontrado}`);
+
+        // Muevo la transcripción a su carpeta propia
+        const carpetaDestino = path.join(directorioDelProyecto, nombreDelArchivo);
+        if (!fs.existsSync(carpetaDestino)) {
+            fs.mkdirSync(carpetaDestino, { recursive: true });
+        }
+        const destinoFinal = path.join(carpetaDestino, `${nombreDelArchivo}_transcripcion.txt`);
+        if (archivoEncontrado !== destinoFinal) {
+            fs.renameSync(archivoEncontrado, destinoFinal);
+            archivoEncontrado = destinoFinal;
+        }
 
         const textoTranscrito = fs.readFileSync(archivoEncontrado, "utf-8");
         const hablantesQueDetecte = Array.from(new Set([...textoTranscrito.matchAll(/HABLANTE (\w+|\d+)/g)].map(m => m[1])));
