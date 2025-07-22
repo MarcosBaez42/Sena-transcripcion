@@ -1,13 +1,8 @@
 // Transcriptor de Audio para Comités SENA
-// Desarrollado durante mis prácticas en el Centro Agroturístico
-// Este script me ayuda a transcribir las reuniones de comité y generar las actas
-// Autor: Estudiante en práctica - Análisis y Desarrollo de Software
 
 const fs = require("fs");
 const path = require("path");
 const { spawn } = require("child_process");
-
-// Librerías para generar documentos Word (aprendí esto en el proyecto)
 const PizZip = require("pizzip");
 const Docxtemplater = require("docxtemplater");
 
@@ -18,10 +13,10 @@ try {
     console.warn("⚠️  No pude cargar el archivo .env, pero seguiré intentando...");
 }
 
-// Determina si podemos usar Gemini basándonos en la presencia de la clave API
+// Generador de actas con Gemini
+// Determina si podemos usar Gemini 
 const puedeUsarGemini = Boolean(process.env.GEMINI_API_KEY);
 
-// Aquí voy a intentar usar el generador de actas que hice con Gemini
 let GeneradorActasConIA;
 let modoGenerador = null;
 
@@ -38,24 +33,27 @@ try {
     console.warn("⚠️  No se pudo cargar el generador de actas:", error.message);
 }
 
-// ============================================================================
-// CONFIGURACIÓN DE RUTAS - Esto lo aprendí después de mucho trial and error
-// ============================================================================
 
-// Me di cuenta que necesitaba el directorio raíz para que funcionara bien
+// CONFIGURACIÓN DE RUTAS - Esto lo aprendí después de mucho trial and error
+
 const directorioDelProyecto = path.resolve(__dirname, '../../');
 
-// Estas rutas las configuré para que el sistema encuentre todo
 const carpetaAudioProcesado = path.join(directorioDelProyecto, "audio_procesado");
 const archivoPlantillaWord = path.join(directorioDelProyecto, "config/plantilla.docx");
 const archivoHablantes = path.join(directorioDelProyecto, "config/hablantes.json");
 const scriptPythonTranscribir = path.join(directorioDelProyecto, "src/python/transcribir.py");
 
+const isQuiet = process.argv.includes("--quiet");
+if (isQuiet) {
+    // Elimino la bandera para que otros argumentos mantengan su posición
+    process.argv = process.argv.filter(arg => arg !== "--quiet");
+}
+const pythonExtraArgs = isQuiet ? ["--quiet"] : [];
+
 console.log(`📁 Trabajando desde: ${directorioDelProyecto}`);
 
-// ============================================================================
-// FUNCIONES PARA DETECTAR INFORMACIÓN DEL AUDIO - Mi primera función importante!
-// ============================================================================
+
+// FUNCIONES PARA DETECTAR INFORMACIÓN DEL AUDIO 
 
 function extraerInformacionDelAudio(nombreArchivo, textoTranscrito = "") {
     // Esta función la hice para extraer automáticamente la info de las actas
@@ -173,9 +171,8 @@ function extraerInformacionDelAudio(nombreArchivo, textoTranscrito = "") {
     return informacionDetectada;
 }
 
-// ============================================================================
+
 // FUNCIÓN PARA GENERAR ACTA CON GEMINI - Mi parte favorita del proyecto!
-// ============================================================================
 
 async function generarActaConInteligenciaArtificial(textoTranscrito, informacion) {
     if (!GeneradorActasConIA) {
@@ -187,19 +184,19 @@ async function generarActaConInteligenciaArtificial(textoTranscrito, informacion
         const generador = new GeneradorActasConIA();
         await generador.init();
 
-        const resultadoActa = await generador.generarActa(textoTranscrito, {
-            nombreBase: informacion.nombreDelProyecto || "acta",
-            programa: informacion.programaAcademico,
-            ficha: informacion.numeroFicha,
-            fecha: informacion.fechaDeHoy,
-            aprendiz: informacion.nombreAprendiz
+        const resultadoActa = await generador.generarMiActa(textoTranscrito, {
+            nombreDelProyecto: informacion.nombreDelProyecto || "acta",
+            programaAcademico: informacion.programaAcademico,
+            numeroFicha: informacion.numeroFicha,
+            fechaDeHoy: informacion.fechaDeHoy,
+            nombreAprendiz: informacion.nombreAprendiz
         });
 
         if (resultadoActa) {
             console.log(`✅ Acta generada con ${modoGenerador.toUpperCase()}: ${resultadoActa.archivo}`);
             return {
                 archivoGenerado: resultadoActa.archivo,
-                textoCompleto: resultadoActa.texto
+                textoCompleto: resultadoActa.textoDelActa
             };
         } else {
             console.log("❌ No se pudo generar el acta");
@@ -211,9 +208,8 @@ async function generarActaConInteligenciaArtificial(textoTranscrito, informacion
     }
 }
 
-// ============================================================================
-// FUNCIONES ORIGINALES DEL TRANSCRIPTOR - Las adapté para mi proyecto
-// ============================================================================
+
+// FUNCIONES ORIGINALES DEL TRANSCRIPTOR 
 
 function buscarArchivosDeAudioProcesado() {
     if (!fs.existsSync(carpetaAudioProcesado)) {
@@ -239,7 +235,7 @@ async function transcribirUnaParte(archivoParteInfo) {
 
     try {
         await new Promise((resolve, reject) => {
-            const child = spawn('python', [scriptPythonTranscribir, archivoParteInfo.rutaCompleta], {
+            const child = spawn('python', [scriptPythonTranscribir, archivoParteInfo.rutaCompleta, ...pythonExtraArgs], {
                 cwd: directorioDelProyecto,
                 stdio: ['ignore', 'pipe', 'pipe']
             });
@@ -276,7 +272,7 @@ async function transcribirUnaParte(archivoParteInfo) {
 }
 
 // Función para normalizar hablantes entre partes 
-function unificarHablantesEntreParts(listaTranscripciones) {
+function unificarHablantesEntrePartes(listaTranscripciones) {
     console.log("🧠 Unificando hablantes entre todas las partes...");
     
     const mapeoHablantesGlobal = {};
@@ -286,7 +282,6 @@ function unificarHablantesEntreParts(listaTranscripciones) {
         let textoUnificado = transcripcion.contenido;
         const numeroParteActual = indice + 1;
         
-        // Encuentro todos los hablantes únicos en esta parte
         const hablantesEnEstaParte = [...new Set([...textoUnificado.matchAll(/INTERVIENE HABLANTE (SPEAKER_\d+|\d+):/g)].map(m => m[1]))];
         
         // Los mapeo a IDs globales
@@ -299,7 +294,6 @@ function unificarHablantesEntreParts(listaTranscripciones) {
                 contadorDeHablantes++;
             }
             
-            // Reemplazo en el texto
             const expresionRegular = new RegExp(`INTERVIENE HABLANTE ${hablanteLocal}:`, 'g');
             textoUnificado = textoUnificado.replace(expresionRegular, `INTERVIENE HABLANTE ${mapeoHablantesGlobal[claveMapeo]}:`);
         });
@@ -316,7 +310,7 @@ function unificarHablantesEntreParts(listaTranscripciones) {
 function combinarTodasLasTranscripciones(transcripciones) {
     console.log("🔗 Combinando todas las transcripciones en una sola...");
     
-    const transcripcionesUnificadas = unificarHablantesEntreParts(transcripciones);
+    const transcripcionesUnificadas = unificarHablantesEntrePartes(transcripciones);
     transcripcionesUnificadas.sort((a, b) => parseInt(a.parte) - parseInt(b.parte));
     
     let textoFinalCompleto = "";
@@ -423,9 +417,8 @@ function generarDocumentoWord(textoCompleto, nombreDelArchivo, datosExtras = {})
     }
 }
 
-// ============================================================================
+
 // FUNCIÓN PRINCIPAL PARA TRANSCRIBIR MÚLTIPLES PARTES
-// ============================================================================
 
 async function transcribirAudioCompletoPorPartes() {
     try {
@@ -435,7 +428,7 @@ async function transcribirAudioCompletoPorPartes() {
         
         // Muestro el estado de Gemini
         if (puedeUsarGemini) {
-            console.log("🤖 Gemini AI: ✅ CONFIGURADO (¡qué emocionante!)");
+            console.log("🤖 Gemini AI: ✅ CONFIGURADO");
         } else {
             console.log("🤖 Gemini AI: ❌ NO CONFIGURADO");
             console.log("💡 Para configurarlo necesito agregar GEMINI_API_KEY en .env");
@@ -504,19 +497,16 @@ async function transcribirAudioCompletoPorPartes() {
             resultadoActaConIA = await generarActaConInteligenciaArtificial(resultadoCombinado.textoCompleto, informacionExtraida);
         }
 
-        // Verifico los hablantes para el documento Word
         console.log(`👥 Hablantes que detecté: ${resultadoCombinado.listaHablantes.sort((a, b) => parseInt(a) - parseInt(b)).map(h => `HABLANTE ${h}`).join(", ")}`);
         const hablantesEstanOK = verificarSiHablantesEstanRegistrados(resultadoCombinado.listaHablantes);
 
-        // Genero el documento Word si todo está bien
         if (hablantesEstanOK) {
             console.log("📄 Generando documento Word...");
             generarDocumentoWord(resultadoCombinado.textoCompleto, nombreDelProyecto, {});
         }
 
-        // Muestro el resumen final
         const tiempoTotalEnMinutos = (Date.now() - tiempoDeInicio) / 1000 / 60;
-        console.log(`\n📊 RESUMEN DE MI TRABAJO:`);
+        console.log(`\n📊 RESUMEN DE TRANSCRIPCIÓN:`);
         console.log(`${'='.repeat(50)}`);
         console.log(`⏱️  Tiempo total: ${tiempoTotalEnMinutos.toFixed(1)} minutos`);
         console.log(`📝 Partes procesadas: ${transcripcionesCompletadas.length}/${archivosParaProcesar.length}`);
@@ -528,16 +518,15 @@ async function transcribirAudioCompletoPorPartes() {
         }
         
         if (hablantesEstanOK) {
-            console.log(`📄 Documento Word: ${nombreDelProyecto}_acta_completa.docx`);
+            console.log(`📄 Documento Word: ${nombreDelProyecto}_acta.docx`);
         }
 
         console.log(`\n🎯 ¡PROCESO COMPLETADO EXITOSAMENTE!`);
-        console.log("Este fue mi proyecto de prácticas - ¡estoy orgulloso del resultado!");
         
         // Sugiero próximos pasos
         console.log(`\n📋 Próximos pasos que puedo hacer:`);
         if (!resultadoActaConIA && GeneradorActasConIA) {
-            console.log(`   🤖 Generar acta manualmente: node generar_acta.js ${archivoTranscripcionCompleta}`);
+            console.log(`   🤖 Generar acta manualmente: node generar_acta_en_partes.js ${archivoTranscripcionCompleta}`);
         }
         if (!puedeUsarGemini) {
             console.log(`   ⚙️  Configurar Gemini para actas automáticas`);
@@ -550,9 +539,7 @@ async function transcribirAudioCompletoPorPartes() {
     }
 }
 
-// ============================================================================
 // FUNCIÓN PARA PROCESAR UN SOLO ARCHIVO DE AUDIO
-// ============================================================================
 
 async function transcribirUnSoloArchivo(rutaDelAudio) {
     // Verifico si la ruta es absoluta o relativa
@@ -576,7 +563,7 @@ async function transcribirUnSoloArchivo(rutaDelAudio) {
     
     try {
         await new Promise((resolve, reject) => {
-            const child = spawn('python', [scriptPythonTranscribir, rutaCompletaDelAudio], {
+            const child = spawn('python', [scriptPythonTranscribir, rutaCompletaDelAudio, ...pythonExtraArgs], {
                 cwd: directorioDelProyecto,
                 stdio: ['ignore', 'pipe', 'pipe']
             });
@@ -656,18 +643,15 @@ async function transcribirUnSoloArchivo(rutaDelAudio) {
     }
 }
 
-// ============================================================================
-// LÓGICA PRINCIPAL - Aquí decido qué hacer según cómo me ejecuten
-// ============================================================================
+// LÓGICA PRINCIPAL 
 
-// Esta parte la aprendí viendo ejemplos en Stack Overflow
 if (require.main === module) {
     console.log("🎓 SISTEMA DE TRANSCRIPCIÓN PARA PRÁCTICAS SENA");
     console.log("Desarrollado por un estudiante en formación");
     console.log("=" .repeat(60));
     
     if (process.argv.length > 2) {
-        // Modo individual: me pasaron un archivo específico
+        
         const archivoDeAudio = process.argv[2];
         console.log(`📁 Voy a procesar el archivo: ${archivoDeAudio}`);
         
@@ -677,13 +661,12 @@ if (require.main === module) {
             process.exit(1);
         });
     } else {
-        // Modo por partes: procesamiento completo
+        
         console.log("🔄 Modo automático: voy a procesar todas las partes de audio");
         transcribirAudioCompletoPorPartes();
     }
 }
 
-// Exporto las funciones para que otros archivos las puedan usar
 module.exports = {
     transcribirAudioCompletoPorPartes,
     transcribirUnSoloArchivo,

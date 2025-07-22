@@ -1,7 +1,4 @@
-# Script de Transcripción para mis Prácticas en el SENA
-# Este es mi proyecto para automatizar la transcripción de comités
-# Me ha costado mucho trabajo pero al final funcionó!
-# Autor: Estudiante en práctica - Técnico en Análisis y Desarrollo de Software
+# Script de Transcripción para el SENA
 
 import sys
 import time
@@ -10,6 +7,16 @@ import json
 import os
 import warnings
 import re
+import builtins
+
+# Modo silencioso (--quiet o variable QUIET_MODE)
+QUIET_MODE = os.getenv("QUIET_MODE", "").lower() not in ("", "0", "false", "no")
+if "--quiet" in sys.argv:
+    QUIET_MODE = True
+    sys.argv.remove("--quiet")
+
+if QUIET_MODE:
+    builtins.print = lambda *a, **k: None
 
 # Token de Hugging Face desde variable de entorno
 token_hf = os.getenv("HF_TOKEN")
@@ -21,7 +28,6 @@ os.environ['PYTHONIOENCODING'] = 'utf-8'
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
 sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
 
-# Oculto las advertencias molestas 
 warnings.filterwarnings("ignore", category=UserWarning)
 warnings.filterwarnings("ignore", category=FutureWarning)
 
@@ -35,7 +41,6 @@ except ImportError as e:
     print("💡 Instala con: pip install whisperx")
     sys.exit(1)
 
-# Verifico que me hayan pasado el archivo de audio
 if len(sys.argv) < 2:
     print("❌ ¡Necesito que me digas qué archivo transcribir!")
     print("💡 Uso: python transcribir.py archivo_de_audio.mp3")
@@ -43,8 +48,7 @@ if len(sys.argv) < 2:
 
 archivo_de_audio = sys.argv[1]
 nombre_sin_extension = archivo_de_audio.rsplit(".", 1)[0]
-
-# Primero verifico que el archivo exista 
+ 
 if not os.path.exists(archivo_de_audio):
     print(f"❌ No encontré el archivo: {archivo_de_audio}")
     print("💡 Verifica que el nombre y la ruta estén correctos")
@@ -54,24 +58,20 @@ print(f"📁 ¡Perfecto! Encontré el archivo: {archivo_de_audio}")
 print("🤖 Cargando el modelo WhisperX...")
 print("⏳ Esto puede tardar un poco la primera vez...")
 
-# Configuración que me funcionó mejor después de muchas pruebas
-dispositivo = "cpu"  # Uso CPU porque mi computadora no tiene GPU buena
-tipo_computo = "int8"  # Más rápido en mi máquina
+dispositivo = "cpu"  
+tipo_computo = "int8" 
 
-# Cargo el modelo (medium funciona bien para español)
 modelo_whisper = whisperx.load_model("medium", dispositivo, compute_type=tipo_computo)
 print("✅ Modelo cargado correctamente")
 
 print(f"🎙️ Comenzando transcripción de: {archivo_de_audio}")
 tiempo_inicio = time.time()
 
-# Aquí hago la transcripción con diferentes niveles de parámetros
 try:
-    # Primero intento con parámetros avanzados
     try:
         resultado_transcripcion = modelo_whisper.transcribe(
             archivo_de_audio, 
-            language="es",  # Español para el SENA
+            language="es",  
             batch_size=8,
             condition_on_previous_text=False,
             no_speech_threshold=0.6,
@@ -116,7 +116,6 @@ except Exception as e:
     print("🔄 Continuando sin separación de hablantes...")
     segmentos_hablantes = None
 
-# Cargo configuración de nombres de hablantes (si existe)
 archivo_nombres = "hablantes.json"
 try:
     with open(archivo_nombres, "r", encoding="utf-8") as f:
@@ -166,11 +165,9 @@ def obtener_nombre_final(hablante_global):
     if not hablante_global or hablante_global == "DESCONOCIDO":
         return "HABLANTE DESCONOCIDO"
     
-    # Si tengo un nombre personalizado, lo uso
     if hablante_global in mapeo_nombres:
         return mapeo_nombres[hablante_global]
     
-    # Si no, uso el formato HABLANTE X
     try:
         if '_' in hablante_global:
             numero = hablante_global.split('_')[1]
@@ -188,12 +185,10 @@ def encontrar_hablante_para_segmento(inicio_seg, fin_seg, segmentos_hablantes):
     mejor_hablante = "DESCONOCIDO"
     mejor_superposicion = 0
     
-    # Reviso todos los segmentos de hablantes
     for _, fila in segmentos_hablantes.iterrows():
         inicio_h = fila["start"]
         fin_h = fila["end"]
         
-        # Calculo cuánto se superponen los tiempos
         inicio_overlap = max(inicio_seg, inicio_h)
         fin_overlap = min(fin_seg, fin_h)
         
@@ -201,10 +196,8 @@ def encontrar_hablante_para_segmento(inicio_seg, fin_seg, segmentos_hablantes):
             superposicion = fin_overlap - inicio_overlap
             duracion_segmento = fin_seg - inicio_seg
             
-            # Calculo el porcentaje de superposición
             porcentaje_overlap = superposicion / duracion_segmento if duracion_segmento > 0 else 0
             
-            # Si se superpone al menos 15%, lo considero válido
             if porcentaje_overlap >= 0.15 and superposicion > mejor_superposicion:
                 mejor_superposicion = superposicion
                 mejor_hablante = fila["speaker"]
@@ -225,7 +218,6 @@ def formatear_texto_final(texto_final):
     """Formatea el texto para que se vea profesional"""
     print("🎨 Aplicando formato final al texto...")
     
-    # Divido por intervenciones
     patron = r'(INTERVIENE HABLANTE \w+:)'
     partes = re.split(patron, texto_final)
     
@@ -236,16 +228,12 @@ def formatear_texto_final(texto_final):
         parte = partes[i].strip()
         
         if parte.startswith('INTERVIENE HABLANTE'):
-            # Esta es una etiqueta de hablante
             if i + 1 < len(partes):
-                # Obtengo el texto que sigue
                 texto_intervencion = partes[i + 1].strip()
                 
-                # Limpio el texto
                 texto_intervencion = re.sub(r'\s+', ' ', texto_intervencion)
                 texto_intervencion = texto_intervencion.strip()
                 
-                # Agrego con formato correcto
                 if texto_formateado:
                     texto_formateado += "\n\n"
                 
@@ -255,12 +243,10 @@ def formatear_texto_final(texto_final):
             else:
                 i += 1
         else:
-            # Manejo partes sueltas o separadores
             if parte and not parte.startswith('---'):
                 if texto_formateado and not parte.startswith('INTERVIENE'):
                     texto_formateado += " " + parte
             elif parte.startswith('---'):
-                # Mantengo separadores de partes
                 texto_formateado += f"\n\n{parte}\n\n"
             
             i += 1
@@ -285,13 +271,10 @@ def procesar_segmentos_con_hablantes(resultado_alineado, segmentos_hablantes):
         if not texto_segmento or len(texto_segmento) < 1:
             continue
         
-        # Limpio un poco el texto
         texto_segmento = re.sub(r'\s+', ' ', texto_segmento.strip())
         
-        # Encuentro qué hablante corresponde a este segmento
         hablante_local = encontrar_hablante_para_segmento(tiempo_inicio, tiempo_fin, segmentos_hablantes)
         
-        # Convierto a hablante global
         if hablante_local != "DESCONOCIDO":
             hablante_global = asignar_hablante_global(hablante_local)
         else:
@@ -304,17 +287,13 @@ def procesar_segmentos_con_hablantes(resultado_alineado, segmentos_hablantes):
             'texto': texto_segmento
         })
     
-    # Segunda pasada: suavizo cambios bruscos de hablante
-    print("🔧 Suavizando cambios de hablante...")
-    
+    # Segunda pasada: suavizo cambios bruscos de hablante 
     for i in range(len(segmentos_procesados)):
         seg_actual = segmentos_procesados[i]
         
-        # Miro el contexto alrededor
         contexto_anterior = []
         contexto_posterior = []
         
-        # Recopilo contexto de 3 segmentos hacia atrás y adelante
         for j in range(max(0, i-3), i):
             if j < len(segmentos_procesados):
                 contexto_anterior.append(segmentos_procesados[j]['hablante'])
@@ -322,7 +301,6 @@ def procesar_segmentos_con_hablantes(resultado_alineado, segmentos_hablantes):
         for j in range(i+1, min(len(segmentos_procesados), i+4)):
             contexto_posterior.append(segmentos_procesados[j]['hablante'])
         
-        # Si está rodeado por el mismo hablante, probablemente es error
         if (contexto_anterior and contexto_posterior and 
             seg_actual['hablante'] != "DESCONOCIDO"):
             
@@ -350,11 +328,9 @@ def procesar_segmentos_con_hablantes(resultado_alineado, segmentos_hablantes):
                 'cantidad_segmentos': 1
             }
         elif seg['hablante'] == grupo_actual['hablante']:
-            # Mismo hablante, agrego al grupo actual
             grupo_actual['textos'].append(seg['texto'])
             grupo_actual['cantidad_segmentos'] += 1
         else:
-            # Hablante diferente, cierro grupo y creo nuevo
             grupos.append(grupo_actual)
             grupo_actual = {
                 'hablante': seg['hablante'],
@@ -367,19 +343,14 @@ def procesar_segmentos_con_hablantes(resultado_alineado, segmentos_hablantes):
     if grupo_actual:
         grupos.append(grupo_actual)
     
-    # Construyo el texto final
-    print(f"📝 Construyendo texto final con {len(grupos)} intervenciones...")
-    
     texto_final = ""
     
     for i, grupo in enumerate(grupos):
         nombre_para_mostrar = obtener_nombre_final(grupo['hablante'])
         texto_del_grupo = " ".join(grupo['textos'])
         
-        # Limpio el texto final
         texto_del_grupo = limpiar_texto_repetitivo(texto_del_grupo)
         
-        # Solo agrego si tiene contenido suficiente
         if len(texto_del_grupo) > 3:
             texto_final += f"INTERVIENE {nombre_para_mostrar}: {texto_del_grupo} "
     
@@ -404,13 +375,10 @@ def procesar_segmentos_con_hablantes(resultado_alineado, segmentos_hablantes):
     
     return texto_final.strip()
 
-# Ejecuto mi algoritmo principal
-print("🎯 Aplicando mi algoritmo de procesamiento...")
 
 if segmentos_hablantes is not None:
     texto_transcrito_final = procesar_segmentos_con_hablantes(resultado_alineado, segmentos_hablantes)
 else:
-    # Si no tengo separación de hablantes, proceso todo como un solo hablante
     print("📝 Sin separación de hablantes, procesando como hablante único...")
     texto_transcrito_final = "INTERVIENE HABLANTE DESCONOCIDO: "
     
@@ -423,9 +391,6 @@ else:
             texto_seg = limpiar_texto_repetitivo(texto_seg)
             if texto_seg.strip():
                 texto_transcrito_final += texto_seg + " "
-
-# Verifico la longitud antes del formateo
-print(f"📏 Longitud antes del formateo: {len(texto_transcrito_final)} caracteres")
 
 # Limpio y formato el texto final
 texto_transcrito_final = limpiar_texto_repetitivo(texto_transcrito_final)

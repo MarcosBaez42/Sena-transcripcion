@@ -189,7 +189,7 @@ De acuerdo con La Ley 1581 de 2012, Protección de Datos Personales, el Servicio
 - Respeta **el orden y títulos exactos** del formato.
 - Usa Markdown correctamente (títulos con #, negritas con **).
 - si en las intervenciones no reconoces el nombre de un participante, elije de la sección de participantes y utiliza el nombre que creas que corresponde teniendo en cuenta lo que esta dicendo el texto.
-- resume las intervenciones de los participantes, no copies textualmente lo que dicen, extrae lo mas relevante de cada intervención.
+- resume lo maximo posible las intervenciones de los participantes, no copies textualmente lo que dicen, extrae lo mas relevante de cada intervención.
 - resume lo mas que se pueda las conclusiones, no copies textualmente lo que dicen los participantes.
 
 Ahora redacta el acta en formato Markdown con base en la siguiente transcripción.`;
@@ -582,10 +582,9 @@ async function procesarTranscripcionParaGenerarActa(archivoDeTranscripcion, info
             // Creo la versión final
             const archivoFinal = await miGenerador.crearVersionFinalDelActa(mejorVersion, informacionCompleta);
             
-            console.log(`\n🎉 ¡COMPLETÉ MI PROCESO DE GENERACIÓN DE ACTAS!`);
+            console.log(`\n🎉 ¡PROCESO DE GENERACIÓN DE ACTAS COMPLETADO!`);
             console.log(`📄 Acta final: ${archivoFinal}`);
             console.log(`📁 Versiones generadas: ${versionesGeneradas.length}`);
-            console.log("¡Estoy muy orgulloso de este resultado!");
             
             return {
                 archivoFinal: archivoFinal,
@@ -650,9 +649,7 @@ module.exports = {
 
 // Esta parte se ejecuta cuando llamo al archivo directamente
 if (require.main === module) {
-    console.log("🎓 GENERADOR DE ACTAS - PROYECTO DE PRÁCTICAS SENA");
-    console.log("Desarrollado por un estudiante en formación");
-    console.log("¡Espero que funcione bien!");
+    console.log("🎓 GENERADOR DE ACTAS - PRÁCTICAS SENA");
     console.log("=" .repeat(60));
     
     // Verifico los argumentos que me pasaron
