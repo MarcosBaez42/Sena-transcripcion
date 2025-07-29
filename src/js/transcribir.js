@@ -22,7 +22,7 @@ let modoGenerador = null;
 
 try {
     if (process.env.GEMINI_API_KEY) {
-        console.log("🤖 Gemini habilitado para generación de actas");
+        console.log("🤖 Gemini ✅ HABILITADO");
         const { GeneradorActas } = require('./generar_acta');
         GeneradorActasConIA = GeneradorActas;
         modoGenerador = "gemini";
@@ -49,8 +49,6 @@ if (isQuiet) {
     process.argv = process.argv.filter(arg => arg !== "--quiet");
 }
 const pythonExtraArgs = isQuiet ? ["--quiet"] : [];
-
-console.log(`📁 Trabajando desde: ${directorioDelProyecto}`);
 
 
 // FUNCIONES PARA DETECTAR INFORMACIÓN DEL AUDIO 
@@ -421,20 +419,7 @@ function generarDocumentoWord(textoCompleto, nombreDelArchivo, datosExtras = {})
 // FUNCIÓN PRINCIPAL PARA TRANSCRIBIR MÚLTIPLES PARTES
 
 async function transcribirAudioCompletoPorPartes() {
-    try {
-        console.log("🎬 INICIANDO SISTEMA DE TRANSCRIPCIÓN");
-        console.log("=" .repeat(70));
-        console.log("🔄 Modo automático: voy a procesar todas las partes de audio");
-        
-        // Muestro el estado de Gemini
-        if (puedeUsarGemini) {
-            console.log("🤖 Gemini AI: ✅ CONFIGURADO");
-        } else {
-            console.log("🤖 Gemini AI: ❌ NO CONFIGURADO");
-            console.log("💡 Para configurarlo necesito agregar GEMINI_API_KEY en .env");
-        }
-        console.log("");
-        
+    try {            
         const archivosParaProcesar = buscarArchivosDeAudioProcesado();
         
         if (archivosParaProcesar.length === 0) {
@@ -663,9 +648,7 @@ async function transcribirUnSoloArchivo(rutaDelAudio) {
 // LÓGICA PRINCIPAL 
 
 if (require.main === module) {
-    console.log("🎓 SISTEMA DE TRANSCRIPCIÓN PARA PRÁCTICAS SENA");
-    console.log("Desarrollado por un estudiante en formación");
-    console.log("=" .repeat(60));
+    console.log("🎬 INICIANDO SISTEMA DE TRANSCRIPCIÓN");
     
     if (process.argv.length > 2) {
         
@@ -679,7 +662,6 @@ if (require.main === module) {
         });
     } else {
         
-        console.log("🔄 Modo automático: voy a procesar todas las partes de audio");
         transcribirAudioCompletoPorPartes();
     }
 }

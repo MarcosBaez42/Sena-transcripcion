@@ -649,8 +649,7 @@ module.exports = {
 
 // Esta parte se ejecuta cuando llamo al archivo directamente
 if (require.main === module) {
-    console.log("🎓 GENERADOR DE ACTAS - PRÁCTICAS SENA");
-    console.log("=" .repeat(60));
+    console.log("🎓 GENERADOR DE ACTAS SENA");
     
     // Verifico los argumentos que me pasaron
     if (process.argv.length > 2) {
