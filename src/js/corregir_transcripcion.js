@@ -29,7 +29,7 @@ async function corregirTranscripcion(inputPath, outputPath, modelo) {
 
     let resultadoCompleto = '';
     for (const parte of partes) {
-        const prompt = "Intervenciones de los participantes comieza con Interviene [Cargo y nombre]:, extrae lo dicho por los participantes." + parte;
+        const prompt = "Corrige la gramatica del texto no le adiciones nada solo corrige " + parte;
         
         const res = await modelInstance.generateContent(prompt);
         const resp = await res.response;
