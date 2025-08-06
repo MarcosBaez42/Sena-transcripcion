@@ -8,6 +8,7 @@ import os
 import warnings
 import re
 import builtins
+import torch
 
 # Modo silencioso (--quiet o variable QUIET_MODE)
 QUIET_MODE = os.getenv("QUIET_MODE", "").lower() not in ("", "0", "false", "no")
@@ -36,10 +37,76 @@ try:
     import whisperx
     from whisperx.diarize import DiarizationPipeline
     import pandas as pd
+    import torch
 except ImportError as e:
     print(f"❌ Me faltan librerías: {e}")
     print("💡 Instala con: pip install whisperx")
     sys.exit(1)
+
+    # Parámetros configurables
+BATCH_SIZE_DEF = 8
+COMPUTE_TYPE_DEF = "float16"
+TIPOS_PERMITIDOS = {"float16", "float32", "int8", "int8_float16", "int8_float32"}
+
+tamano_lote = BATCH_SIZE_DEF
+tipo_computo = COMPUTE_TYPE_DEF
+
+def validar_batch_size(valor):
+    try:
+        v = int(valor)
+        if v > 0:
+            return v
+    except (TypeError, ValueError):
+        pass
+    print(f"⚠️ Valor inválido para batch size: {valor}. Usando {BATCH_SIZE_DEF}.")
+    return BATCH_SIZE_DEF
+
+def validar_tipo_computo(valor):
+    if valor in TIPOS_PERMITIDOS:
+        return valor
+    print(f"⚠️ Valor inválido para compute type: {valor}. Usando {COMPUTE_TYPE_DEF}.")
+    return COMPUTE_TYPE_DEF
+
+# Variables de entorno
+env_batch = os.getenv("BATCH_SIZE")
+env_compute = os.getenv("COMPUTE_TYPE")
+if env_batch:
+    tamano_lote = validar_batch_size(env_batch)
+if env_compute:
+    tipo_computo = validar_tipo_computo(env_compute)
+
+# Argumentos por línea de comandos
+if "--batch-size" in sys.argv:
+    idx = sys.argv.index("--batch-size")
+    val = sys.argv[idx + 1] if idx + 1 < len(sys.argv) else None
+    tamano_lote = validar_batch_size(val)
+    del sys.argv[idx:idx + 2]
+
+if "--compute-type" in sys.argv:
+    idx = sys.argv.index("--compute-type")
+    val = sys.argv[idx + 1] if idx + 1 < len(sys.argv) else None
+    tipo_computo = validar_tipo_computo(val)
+    del sys.argv[idx:idx + 2]
+
+  def seleccionar_dispositivo():
+    dispositivo_env = os.getenv("DEVICE")
+    dispositivo_cli = None
+    if "--device" in sys.argv:
+        idx = sys.argv.index("--device")
+        if idx + 1 < len(sys.argv):
+            dispositivo_cli = sys.argv[idx + 1].lower()
+            del sys.argv[idx:idx + 2]
+        else:
+            print("⚠️ Debes indicar un dispositivo después de --device")
+            del sys.argv[idx]
+    if dispositivo_cli:
+        return dispositivo_cli
+    if dispositivo_env:
+        return dispositivo_env.lower()
+    return "cuda" if torch.cuda.is_available() else "cpu"
+
+dispositivo = seleccionar_dispositivo()
+
 
 if len(sys.argv) < 2:
     print("❌ ¡Necesito que me digas qué archivo transcribir!")
@@ -58,8 +125,10 @@ print(f"📁 ¡Perfecto! Encontré el archivo: {archivo_de_audio}")
 print("🤖 Cargando el modelo WhisperX...")
 print("⏳ Esto puede tardar un poco la primera vez...")
 
-dispositivo = "cuda"
-tipo_computo = "float16"
+tipo_computo = "float16" if dispositivo == "cuda" else "int8"
+if dispositivo == "cuda":
+    torch.backends.cudnn.benchmark = True
+    torch.set_float32_matmul_precision("high")
 
 modelo_whisper = whisperx.load_model("medium", dispositivo, compute_type=tipo_computo)
 print("✅ Modelo cargado correctamente")
@@ -72,7 +141,7 @@ try:
         resultado_transcripcion = modelo_whisper.transcribe(
             archivo_de_audio, 
             language="es",  
-            batch_size=8,
+            batch_size=tamano_lote,
             condition_on_previous_text=False,
             no_speech_threshold=0.6,
             logprob_threshold=-1.0,
@@ -84,7 +153,7 @@ try:
         print(f"⚠️ Parámetros avanzados no funcionaron: {e}")
         print("🔄 Intentando con parámetros básicos...")
         try:
-            resultado_transcripcion = modelo_whisper.transcribe(archivo_de_audio, language="es", batch_size=8)
+            resultado_transcripcion = modelo_whisper.transcribe(archivo_de_audio, language="es", batch_size=tamano_lote)
             print("✅ Transcripción básica completada")
         except TypeError:
             resultado_transcripcion = modelo_whisper.transcribe(archivo_de_audio, language="es")
@@ -107,8 +176,8 @@ except Exception as e:
 
 print("👥 Aplicando separación de hablantes...")
 try:
-    pipeline_diarizacion = DiarizationPipeline(use_auth_token=token_hf)
-    print("🔄 Procesando diarización (esto puede tardar un poco)...")
+    pipeline_diarizacion = DiarizationPipeline(use_auth_token=token_hf, device=dispositivo)
+    print(f"🖥️ Diarización usando dispositivo: {pipeline_diarizacion.device}")
     segmentos_hablantes = pipeline_diarizacion(archivo_de_audio)
     print("✅ Separación de hablantes completada")
 except Exception as e:
@@ -397,6 +466,14 @@ texto_transcrito_final = formatear_texto_final(texto_transcrito_final)
 archivo_salida = f"{nombre_sin_extension}_transcripcion.txt"
 with open(archivo_salida, "w", encoding="utf-8") as f:
     f.write(texto_transcrito_final)
+
+try:
+    del modelo_whisper
+    if "pipeline_diarizacion" in locals():
+        del pipeline_diarizacion
+    torch.cuda.empty_cache()
+except Exception:
+    pass
 
 tiempo_final = time.time()
 print("✅ ¡Transcripción y separación de hablantes completadas!")
