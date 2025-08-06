@@ -36,7 +36,6 @@ warnings.filterwarnings("ignore", category=FutureWarning)
 try:
     import whisperx
     from whisperx.diarize import DiarizationPipeline
-    import pandas as pd
     import torch
 except ImportError as e:
     print(f"❌ Me faltan librerías: {e}")
@@ -88,7 +87,7 @@ if "--compute-type" in sys.argv:
     tipo_computo = validar_tipo_computo(val)
     del sys.argv[idx:idx + 2]
 
-  def seleccionar_dispositivo():
+def seleccionar_dispositivo():
     dispositivo_env = os.getenv("DEVICE")
     dispositivo_cli = None
     if "--device" in sys.argv:
