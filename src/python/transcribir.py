@@ -58,8 +58,8 @@ print(f"📁 ¡Perfecto! Encontré el archivo: {archivo_de_audio}")
 print("🤖 Cargando el modelo WhisperX...")
 print("⏳ Esto puede tardar un poco la primera vez...")
 
-dispositivo = "cpu"  
-tipo_computo = "int8" 
+dispositivo = "cuda"
+tipo_computo = "float16"
 
 modelo_whisper = whisperx.load_model("medium", dispositivo, compute_type=tipo_computo)
 print("✅ Modelo cargado correctamente")
