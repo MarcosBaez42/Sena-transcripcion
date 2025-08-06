@@ -1,15 +1,8 @@
 // Transcriptor de Audio para Comités SENA
-// Desarrollado durante mis prácticas en el Centro Agroturístico
-// Este script me ayuda a transcribir las reuniones de comité y generar las actas
-// Autor: Estudiante en práctica - Análisis y Desarrollo de Software
 
 const fs = require("fs");
 const path = require("path");
-const { exec } = require("child_process");
-const { promisify } = require("util");
-const execAsync = promisify(exec);
-
-// Librerías para generar documentos Word (aprendí esto en el proyecto)
+const { spawn } = require("child_process");
 const PizZip = require("pizzip");
 const Docxtemplater = require("docxtemplater");
 
@@ -20,13 +13,16 @@ try {
     console.warn("⚠️  No pude cargar el archivo .env, pero seguiré intentando...");
 }
 
-// Aquí voy a intentar usar el generador de actas que hice con Gemini
+// Generador de actas con Gemini
+// Determina si podemos usar Gemini 
+const puedeUsarGemini = Boolean(process.env.GEMINI_API_KEY);
+
 let GeneradorActasConIA;
 let modoGenerador = null;
 
 try {
     if (process.env.GEMINI_API_KEY) {
-        console.log("🤖 Gemini habilitado para generación de actas");
+        console.log("🤖 Gemini ✅ HABILITADO");
         const { GeneradorActas } = require('./generar_acta');
         GeneradorActasConIA = GeneradorActas;
         modoGenerador = "gemini";
@@ -37,24 +33,25 @@ try {
     console.warn("⚠️  No se pudo cargar el generador de actas:", error.message);
 }
 
-// ============================================================================
-// CONFIGURACIÓN DE RUTAS - Esto lo aprendí después de mucho trial and error
-// ============================================================================
 
-// Me di cuenta que necesitaba el directorio raíz para que funcionara bien
+// CONFIGURACIÓN DE RUTAS - Esto lo aprendí después de mucho trial and error
+
 const directorioDelProyecto = path.resolve(__dirname, '../../');
 
-// Estas rutas las configuré para que el sistema encuentre todo
 const carpetaAudioProcesado = path.join(directorioDelProyecto, "audio_procesado");
 const archivoPlantillaWord = path.join(directorioDelProyecto, "config/plantilla.docx");
 const archivoHablantes = path.join(directorioDelProyecto, "config/hablantes.json");
 const scriptPythonTranscribir = path.join(directorioDelProyecto, "src/python/transcribir.py");
 
-console.log(`📁 Trabajando desde: ${directorioDelProyecto}`);
+const isQuiet = process.argv.includes("--quiet");
+if (isQuiet) {
+    // Elimino la bandera para que otros argumentos mantengan su posición
+    process.argv = process.argv.filter(arg => arg !== "--quiet");
+}
+const pythonExtraArgs = isQuiet ? ["--quiet"] : [];
 
-// ============================================================================
-// FUNCIONES PARA DETECTAR INFORMACIÓN DEL AUDIO - Mi primera función importante!
-// ============================================================================
+
+// FUNCIONES PARA DETECTAR INFORMACIÓN DEL AUDIO 
 
 function extraerInformacionDelAudio(nombreArchivo, textoTranscrito = "") {
     // Esta función la hice para extraer automáticamente la info de las actas
@@ -172,9 +169,8 @@ function extraerInformacionDelAudio(nombreArchivo, textoTranscrito = "") {
     return informacionDetectada;
 }
 
-// ============================================================================
+
 // FUNCIÓN PARA GENERAR ACTA CON GEMINI - Mi parte favorita del proyecto!
-// ============================================================================
 
 async function generarActaConInteligenciaArtificial(textoTranscrito, informacion) {
     if (!GeneradorActasConIA) {
@@ -186,19 +182,19 @@ async function generarActaConInteligenciaArtificial(textoTranscrito, informacion
         const generador = new GeneradorActasConIA();
         await generador.init();
 
-        const resultadoActa = await generador.generarActa(textoTranscrito, {
-            nombreBase: informacion.nombreDelProyecto || "acta",
-            programa: informacion.programaAcademico,
-            ficha: informacion.numeroFicha,
-            fecha: informacion.fechaDeHoy,
-            aprendiz: informacion.nombreAprendiz
+        const resultadoActa = await generador.generarMiActa(textoTranscrito, {
+            nombreDelProyecto: informacion.nombreDelProyecto || "acta",
+            programaAcademico: informacion.programaAcademico,
+            numeroFicha: informacion.numeroFicha,
+            fechaDeHoy: informacion.fechaDeHoy,
+            nombreAprendiz: informacion.nombreAprendiz
         });
 
         if (resultadoActa) {
             console.log(`✅ Acta generada con ${modoGenerador.toUpperCase()}: ${resultadoActa.archivo}`);
             return {
                 archivoGenerado: resultadoActa.archivo,
-                textoCompleto: resultadoActa.texto
+                textoCompleto: resultadoActa.textoDelActa
             };
         } else {
             console.log("❌ No se pudo generar el acta");
@@ -210,9 +206,8 @@ async function generarActaConInteligenciaArtificial(textoTranscrito, informacion
     }
 }
 
-// ============================================================================
-// FUNCIONES ORIGINALES DEL TRANSCRIPTOR - Las adapté para mi proyecto
-// ============================================================================
+
+// FUNCIONES ORIGINALES DEL TRANSCRIPTOR 
 
 function buscarArchivosDeAudioProcesado() {
     if (!fs.existsSync(carpetaAudioProcesado)) {
@@ -236,23 +231,25 @@ function buscarArchivosDeAudioProcesado() {
 async function transcribirUnaParte(archivoParteInfo) {
     console.log(`🔊 Transcribiendo ${archivoParteInfo.nombreArchivo}...`);
 
-            const comandoParaEjecutar = `python "${scriptPythonTranscribir}" "${archivoParteInfo.rutaCompleta}"`;
-
     try {
-        const { stdout, stderr } = await execAsync(comandoParaEjecutar, {
-            maxBuffer: 1024 * 1024 * 10,
-            cwd: directorioDelProyecto
+        await new Promise((resolve, reject) => {
+            const child = spawn('python', [scriptPythonTranscribir, archivoParteInfo.rutaCompleta, ...pythonExtraArgs], {
+                cwd: directorioDelProyecto,
+                stdio: ['ignore', 'pipe', 'pipe']
+            });
+
+            child.stdout.pipe(process.stdout);
+            child.stderr.pipe(process.stderr);
+
+           child.on('close', code => {
+                if (code === 0) {
+                    resolve();
+                } else {
+                    reject(new Error(`transcribir.py exited with code ${code}`));
+                }
+            });
+            child.on('error', reject);
         });
-
-            if (stderr && !stderr.includes('Lightning automatically upgraded')) {
-            console.warn(`⚠️ Advertencias en ${archivoParteInfo.nombreArchivo}:`, stderr);
-        }
-
-           if (stderr && stderr.includes('Lightning automatically upgraded')) {
-            console.log(`📦 PyTorch Lightning se actualizó automáticamente para ${archivoParteInfo.nombreArchivo}`);
-        }
-
-            console.log(stdout);
 
         const nombreBase = path.basename(archivoParteInfo.rutaCompleta, path.extname(archivoParteInfo.rutaCompleta));
         const archivoTranscripcionEsperado = path.join(path.dirname(archivoParteInfo.rutaCompleta), `${nombreBase}_transcripcion.txt`);
@@ -267,19 +264,13 @@ async function transcribirUnaParte(archivoParteInfo) {
             contenido: fs.readFileSync(archivoTranscripcionEsperado, "utf-8")
         };
     } catch (error) {
-        if (error.stderr && !String(error.stderr).includes('Lightning automatically upgraded')) {
-            console.error(`❌ Error transcribiendo ${archivoParteInfo.nombreArchivo}:`, error.message);
-            console.error(`❌ Errores adicionales:`, error.stderr);
-            if (error.stdout) {
-                console.error(`❌ Salida:`, error.stdout);
-            }
-        }
+        console.error(`❌ Error transcribiendo ${archivoParteInfo.nombreArchivo}:`, error.message);
         throw error;
     }
 }
 
-// Función para normalizar hablantes entre partes (esto me costó entender)
-function unificarHablantesEntreParts(listaTranscripciones) {
+// Función para normalizar hablantes entre partes 
+function unificarHablantesEntrePartes(listaTranscripciones) {
     console.log("🧠 Unificando hablantes entre todas las partes...");
     
     const mapeoHablantesGlobal = {};
@@ -289,7 +280,6 @@ function unificarHablantesEntreParts(listaTranscripciones) {
         let textoUnificado = transcripcion.contenido;
         const numeroParteActual = indice + 1;
         
-        // Encuentro todos los hablantes únicos en esta parte
         const hablantesEnEstaParte = [...new Set([...textoUnificado.matchAll(/INTERVIENE HABLANTE (SPEAKER_\d+|\d+):/g)].map(m => m[1]))];
         
         // Los mapeo a IDs globales
@@ -302,7 +292,6 @@ function unificarHablantesEntreParts(listaTranscripciones) {
                 contadorDeHablantes++;
             }
             
-            // Reemplazo en el texto
             const expresionRegular = new RegExp(`INTERVIENE HABLANTE ${hablanteLocal}:`, 'g');
             textoUnificado = textoUnificado.replace(expresionRegular, `INTERVIENE HABLANTE ${mapeoHablantesGlobal[claveMapeo]}:`);
         });
@@ -319,7 +308,7 @@ function unificarHablantesEntreParts(listaTranscripciones) {
 function combinarTodasLasTranscripciones(transcripciones) {
     console.log("🔗 Combinando todas las transcripciones en una sola...");
     
-    const transcripcionesUnificadas = unificarHablantesEntreParts(transcripciones);
+    const transcripcionesUnificadas = unificarHablantesEntrePartes(transcripciones);
     transcripcionesUnificadas.sort((a, b) => parseInt(a.parte) - parseInt(b.parte));
     
     let textoFinalCompleto = "";
@@ -370,6 +359,8 @@ function limpiarMarkdown(texto) {
     limpio = limpio.replace(/_(.*?)_/g, '$1');            // elimino _cursivas_
     limpio = limpio.replace(/\*\*([\s\S]+?)\*\*/g, '$1');  // elimina **negritas**
     limpio = limpio.replace(/^[*-]\s+/gm, '');           // elimino guiones o asteriscos iniciales
+    limpio = limpio.replace(/(\d+\.\s[^\n]+)\n(?=\d+\.\s)/g, '$1\n\n'); // separo párrafos numerados
+
     return limpio;
 }
 
@@ -395,12 +386,20 @@ function generarDocumentoWord(textoCompleto, nombreDelArchivo, datosExtras = {})
                 : (datosExtras.participantes || '')
         );
 
+        const compromisosArray = Array.isArray(datosExtras.compromisos)
+            ? datosExtras.compromisos : [];
+
         documentoWord.render({
             DESARROLLO: textoLimpio,
             FECHA: datosExtras.fecha || '',
             HORA_INICIO: datosExtras.horaInicio || '',
             HORA_FIN: datosExtras.horaFin || '',
-            PARTICIPANTES: participantesTexto
+            PARTICIPANTES: participantesTexto,
+            OBJETIVOS: limpiarMarkdown(datosExtras.objetivos || ''),
+            HECHOS: limpiarMarkdown(datosExtras.hechos || ''),
+            DESARROLLO_COMITE: limpiarMarkdown(datosExtras.desarrolloComite || ''),
+            CONCLUSIONES: limpiarMarkdown(datosExtras.conclusiones || ''),
+            COMPROMISOS: compromisosArray
         });
 
         const bufferDocumento = documentoWord.getZip().generate({ type: "nodebuffer" });
@@ -416,25 +415,11 @@ function generarDocumentoWord(textoCompleto, nombreDelArchivo, datosExtras = {})
     }
 }
 
-// ============================================================================
+
 // FUNCIÓN PRINCIPAL PARA TRANSCRIBIR MÚLTIPLES PARTES
-// ============================================================================
 
 async function transcribirAudioCompletoPorPartes() {
-    try {
-        console.log("🎬 INICIANDO MI SISTEMA DE TRANSCRIPCIÓN COMPLETA");
-        console.log("=" .repeat(70));
-        console.log("Este es mi proyecto para las prácticas del SENA - espero que funcione bien!");
-        
-        // Muestro el estado de Gemini
-        if (puedeUsarGemini) {
-            console.log("🤖 Gemini AI: ✅ CONFIGURADO (¡qué emocionante!)");
-        } else {
-            console.log("🤖 Gemini AI: ❌ NO CONFIGURADO");
-            console.log("💡 Para configurarlo necesito agregar GEMINI_API_KEY en .env");
-        }
-        console.log("");
-        
+    try {            
         const archivosParaProcesar = buscarArchivosDeAudioProcesado();
         
         if (archivosParaProcesar.length === 0) {
@@ -482,12 +467,18 @@ async function transcribirAudioCompletoPorPartes() {
         console.log("🔗 Combinando y organizando todas las transcripciones...");
         const resultadoCombinado = combinarTodasLasTranscripciones(transcripcionesCompletadas);
         
-        // Detecto metadatos
-        const nombreDelProyecto = "ADSO"; // Puedo cambiarlo según el audio
+        // Detecto metadatos usando el nombre base del audio
+        const nombreBase = path.basename(archivosParaProcesar[0].nombreArchivo, path.extname(archivosParaProcesar[0].nombreArchivo));
+        const nombreDelProyecto = nombreBase.replace(/_parte_\d+$/, "");
         const informacionExtraida = extraerInformacionDelAudio(nombreDelProyecto, resultadoCombinado.textoCompleto);
         
-        // Guardo la transcripción completa en el directorio raíz
-        const archivoTranscripcionCompleta = path.join(directorioDelProyecto, `${nombreDelProyecto}_transcripcion_completa.txt`);
+        // Guardo la transcripción completa en su propia carpeta
+        const carpetaProyecto = path.join(directorioDelProyecto, nombreDelProyecto);
+        if (!fs.existsSync(carpetaProyecto)) {
+            fs.mkdirSync(carpetaProyecto, { recursive: true });
+        }
+
+        const archivoTranscripcionCompleta = path.join(carpetaProyecto, `${nombreDelProyecto}_transcripcion.txt`);
         fs.writeFileSync(archivoTranscripcionCompleta, resultadoCombinado.textoCompleto, "utf-8");
         console.log(`📝 Transcripción completa guardada en: ${archivoTranscripcionCompleta}`);
 
@@ -497,19 +488,16 @@ async function transcribirAudioCompletoPorPartes() {
             resultadoActaConIA = await generarActaConInteligenciaArtificial(resultadoCombinado.textoCompleto, informacionExtraida);
         }
 
-        // Verifico los hablantes para el documento Word
         console.log(`👥 Hablantes que detecté: ${resultadoCombinado.listaHablantes.sort((a, b) => parseInt(a) - parseInt(b)).map(h => `HABLANTE ${h}`).join(", ")}`);
         const hablantesEstanOK = verificarSiHablantesEstanRegistrados(resultadoCombinado.listaHablantes);
 
-        // Genero el documento Word si todo está bien
         if (hablantesEstanOK) {
             console.log("📄 Generando documento Word...");
             generarDocumentoWord(resultadoCombinado.textoCompleto, nombreDelProyecto, {});
         }
 
-        // Muestro el resumen final
         const tiempoTotalEnMinutos = (Date.now() - tiempoDeInicio) / 1000 / 60;
-        console.log(`\n📊 RESUMEN DE MI TRABAJO:`);
+        console.log(`\n📊 RESUMEN DE TRANSCRIPCIÓN:`);
         console.log(`${'='.repeat(50)}`);
         console.log(`⏱️  Tiempo total: ${tiempoTotalEnMinutos.toFixed(1)} minutos`);
         console.log(`📝 Partes procesadas: ${transcripcionesCompletadas.length}/${archivosParaProcesar.length}`);
@@ -521,16 +509,15 @@ async function transcribirAudioCompletoPorPartes() {
         }
         
         if (hablantesEstanOK) {
-            console.log(`📄 Documento Word: ${nombreDelProyecto}_acta_completa.docx`);
+            console.log(`📄 Documento Word: ${nombreDelProyecto}_acta.docx`);
         }
 
         console.log(`\n🎯 ¡PROCESO COMPLETADO EXITOSAMENTE!`);
-        console.log("Este fue mi proyecto de prácticas - ¡estoy orgulloso del resultado!");
         
         // Sugiero próximos pasos
         console.log(`\n📋 Próximos pasos que puedo hacer:`);
         if (!resultadoActaConIA && GeneradorActasConIA) {
-            console.log(`   🤖 Generar acta manualmente: node generar_acta.js ${archivoTranscripcionCompleta}`);
+            console.log(`   🤖 Generar acta manualmente: node generar_acta_en_partes.js ${archivoTranscripcionCompleta}`);
         }
         if (!puedeUsarGemini) {
             console.log(`   ⚙️  Configurar Gemini para actas automáticas`);
@@ -543,9 +530,7 @@ async function transcribirAudioCompletoPorPartes() {
     }
 }
 
-// ============================================================================
 // FUNCIÓN PARA PROCESAR UN SOLO ARCHIVO DE AUDIO
-// ============================================================================
 
 async function transcribirUnSoloArchivo(rutaDelAudio) {
     // Verifico si la ruta es absoluta o relativa
@@ -567,19 +552,25 @@ async function transcribirUnSoloArchivo(rutaDelAudio) {
     
     const tiempoDeInicio = Date.now();
     
-    const comandoCompleto = `python "${scriptPythonTranscribir}" "${rutaCompletaDelAudio}"`;
+    try {
+        await new Promise((resolve, reject) => {
+            const child = spawn('python', [scriptPythonTranscribir, rutaCompletaDelAudio, ...pythonExtraArgs], {
+                cwd: directorioDelProyecto,
+                stdio: ['ignore', 'pipe', 'pipe']
+            });
 
-            try {
-        const { stdout, stderr } = await execAsync(comandoCompleto, {
-            maxBuffer: 1024 * 1024 * 10,
-            cwd: directorioDelProyecto
+            child.stdout.pipe(process.stdout);
+            child.stderr.pipe(process.stderr);
+
+        child.on('close', code => {
+                if (code === 0) {
+                    resolve();
+                } else {
+                    reject(new Error(`transcribir.py exited with code ${code}`));
+                }
+            });
+            child.on('error', reject);
         });
-
-            if (stderr && !stderr.includes('Lightning automatically upgraded')) {
-            console.warn("⚠️ Algunas advertencias:", stderr);
-        }
-
-        console.log(stdout);
 
         const posiblesUbicaciones = [
             archivoTranscripcionEsperado,
@@ -605,6 +596,17 @@ async function transcribirUnSoloArchivo(rutaDelAudio) {
         }
 
              console.log(`✅ ¡Encontré la transcripción! Está en: ${archivoEncontrado}`);
+
+        // Muevo la transcripción a su carpeta propia
+        const carpetaDestino = path.join(directorioDelProyecto, nombreDelArchivo);
+        if (!fs.existsSync(carpetaDestino)) {
+            fs.mkdirSync(carpetaDestino, { recursive: true });
+        }
+        const destinoFinal = path.join(carpetaDestino, `${nombreDelArchivo}_transcripcion.txt`);
+        if (archivoEncontrado !== destinoFinal) {
+            fs.renameSync(archivoEncontrado, destinoFinal);
+            archivoEncontrado = destinoFinal;
+        }
 
         const textoTranscrito = fs.readFileSync(archivoEncontrado, "utf-8");
         const hablantesQueDetecte = Array.from(new Set([...textoTranscrito.matchAll(/HABLANTE (\w+|\d+)/g)].map(m => m[1])));
@@ -643,18 +645,13 @@ async function transcribirUnSoloArchivo(rutaDelAudio) {
     }
 }
 
-// ============================================================================
-// LÓGICA PRINCIPAL - Aquí decido qué hacer según cómo me ejecuten
-// ============================================================================
+// LÓGICA PRINCIPAL 
 
-// Esta parte la aprendí viendo ejemplos en Stack Overflow
 if (require.main === module) {
-    console.log("🎓 SISTEMA DE TRANSCRIPCIÓN PARA PRÁCTICAS SENA");
-    console.log("Desarrollado por un estudiante en formación");
-    console.log("=" .repeat(60));
+    console.log("🎬 INICIANDO SISTEMA DE TRANSCRIPCIÓN");
     
     if (process.argv.length > 2) {
-        // Modo individual: me pasaron un archivo específico
+        
         const archivoDeAudio = process.argv[2];
         console.log(`📁 Voy a procesar el archivo: ${archivoDeAudio}`);
         
@@ -664,13 +661,11 @@ if (require.main === module) {
             process.exit(1);
         });
     } else {
-        // Modo por partes: procesamiento completo
-        console.log("🔄 Modo automático: voy a procesar todas las partes de audio");
+        
         transcribirAudioCompletoPorPartes();
     }
 }
 
-// Exporto las funciones para que otros archivos las puedan usar
 module.exports = {
     transcribirAudioCompletoPorPartes,
     transcribirUnSoloArchivo,

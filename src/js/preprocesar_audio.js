@@ -137,7 +137,6 @@ async function procesarAudio() {
 
         const archivoLote = path.join(outputDir, "transcribir_todas_partes.bat");
         fs.writeFileSync(archivoLote, scriptTranscripcion);
-        console.log(`📋 Script creado: ${archivoLote}`);
 
     } catch (error) {
         console.error("❌ Error durante el procesamiento:", error.message);

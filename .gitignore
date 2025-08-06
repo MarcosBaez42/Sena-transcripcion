@@ -1,6 +1,7 @@
 node_modules/
 # Carpetas grandes que no deben subirse
 venv/
+.venv/
 audio_procesado/
 *.wav
 *.mp3

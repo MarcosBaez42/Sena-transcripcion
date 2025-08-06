@@ -1,7 +1,4 @@
-# Script de Transcripción para mis Prácticas en el SENA
-# Este es mi proyecto para automatizar la transcripción de comités
-# Me ha costado mucho trabajo pero al final funcionó!
-# Autor: Estudiante en práctica - Técnico en Análisis y Desarrollo de Software
+# Script de Transcripción para el SENA
 
 import sys
 import time
@@ -10,16 +7,28 @@ import json
 import os
 import warnings
 import re
+import builtins
+import torch
+
+# Modo silencioso (--quiet o variable QUIET_MODE)
+QUIET_MODE = os.getenv("QUIET_MODE", "").lower() not in ("", "0", "false", "no")
+if "--quiet" in sys.argv:
+    QUIET_MODE = True
+    sys.argv.remove("--quiet")
+
+if QUIET_MODE:
+    builtins.print = lambda *a, **k: None
 
 # Token de Hugging Face desde variable de entorno
 token_hf = os.getenv("HF_TOKEN")
+if not token_hf:
+    print("⚠️  Variable HF_TOKEN no configurada; la diarización podría fallar.")
 
 # Configuración para que funcione bien en Windows 
 os.environ['PYTHONIOENCODING'] = 'utf-8'
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
 sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
 
-# Oculto las advertencias molestas 
 warnings.filterwarnings("ignore", category=UserWarning)
 warnings.filterwarnings("ignore", category=FutureWarning)
 
@@ -27,13 +36,77 @@ warnings.filterwarnings("ignore", category=FutureWarning)
 try:
     import whisperx
     from whisperx.diarize import DiarizationPipeline
-    import pandas as pd
+    import torch
 except ImportError as e:
     print(f"❌ Me faltan librerías: {e}")
     print("💡 Instala con: pip install whisperx")
     sys.exit(1)
 
-# Verifico que me hayan pasado el archivo de audio
+    # Parámetros configurables
+BATCH_SIZE_DEF = 8
+COMPUTE_TYPE_DEF = "float16"
+TIPOS_PERMITIDOS = {"float16", "float32", "int8", "int8_float16", "int8_float32"}
+
+tamano_lote = BATCH_SIZE_DEF
+tipo_computo = COMPUTE_TYPE_DEF
+
+def validar_batch_size(valor):
+    try:
+        v = int(valor)
+        if v > 0:
+            return v
+    except (TypeError, ValueError):
+        pass
+    print(f"⚠️ Valor inválido para batch size: {valor}. Usando {BATCH_SIZE_DEF}.")
+    return BATCH_SIZE_DEF
+
+def validar_tipo_computo(valor):
+    if valor in TIPOS_PERMITIDOS:
+        return valor
+    print(f"⚠️ Valor inválido para compute type: {valor}. Usando {COMPUTE_TYPE_DEF}.")
+    return COMPUTE_TYPE_DEF
+
+# Variables de entorno
+env_batch = os.getenv("BATCH_SIZE")
+env_compute = os.getenv("COMPUTE_TYPE")
+if env_batch:
+    tamano_lote = validar_batch_size(env_batch)
+if env_compute:
+    tipo_computo = validar_tipo_computo(env_compute)
+
+# Argumentos por línea de comandos
+if "--batch-size" in sys.argv:
+    idx = sys.argv.index("--batch-size")
+    val = sys.argv[idx + 1] if idx + 1 < len(sys.argv) else None
+    tamano_lote = validar_batch_size(val)
+    del sys.argv[idx:idx + 2]
+
+if "--compute-type" in sys.argv:
+    idx = sys.argv.index("--compute-type")
+    val = sys.argv[idx + 1] if idx + 1 < len(sys.argv) else None
+    tipo_computo = validar_tipo_computo(val)
+    del sys.argv[idx:idx + 2]
+
+def seleccionar_dispositivo():
+    dispositivo_env = os.getenv("DEVICE")
+    dispositivo_cli = None
+    if "--device" in sys.argv:
+        idx = sys.argv.index("--device")
+        if idx + 1 < len(sys.argv):
+            dispositivo_cli = sys.argv[idx + 1].lower()
+            del sys.argv[idx:idx + 2]
+        else:
+            print("⚠️ Debes indicar un dispositivo después de --device")
+            del sys.argv[idx]
+    if dispositivo_cli:
+        return dispositivo_cli
+    if dispositivo_env:
+        return dispositivo_env.lower()
+    return "cuda" if torch.cuda.is_available() else "cpu"
+
+dispositivo = seleccionar_dispositivo()
+
+
 if len(sys.argv) < 2:
     print("❌ ¡Necesito que me digas qué archivo transcribir!")
     print("💡 Uso: python transcribir.py archivo_de_audio.mp3")
@@ -41,8 +114,7 @@ if len(sys.argv) < 2:
 
 archivo_de_audio = sys.argv[1]
 nombre_sin_extension = archivo_de_audio.rsplit(".", 1)[0]
-
-# Primero verifico que el archivo exista 
+ 
 if not os.path.exists(archivo_de_audio):
     print(f"❌ No encontré el archivo: {archivo_de_audio}")
     print("💡 Verifica que el nombre y la ruta estén correctos")
@@ -52,25 +124,23 @@ print(f"📁 ¡Perfecto! Encontré el archivo: {archivo_de_audio}")
 print("🤖 Cargando el modelo WhisperX...")
 print("⏳ Esto puede tardar un poco la primera vez...")
 
-# Configuración que me funcionó mejor después de muchas pruebas
-dispositivo = "cpu"  # Uso CPU porque mi computadora no tiene GPU buena
-tipo_computo = "int8"  # Más rápido en mi máquina
+tipo_computo = "float16" if dispositivo == "cuda" else "int8"
+if dispositivo == "cuda":
+    torch.backends.cudnn.benchmark = True
+    torch.set_float32_matmul_precision("high")
 
-# Cargo el modelo (medium funciona bien para español)
 modelo_whisper = whisperx.load_model("medium", dispositivo, compute_type=tipo_computo)
 print("✅ Modelo cargado correctamente")
 
 print(f"🎙️ Comenzando transcripción de: {archivo_de_audio}")
 tiempo_inicio = time.time()
 
-# Aquí hago la transcripción con diferentes niveles de parámetros
 try:
-    # Primero intento con parámetros avanzados
     try:
         resultado_transcripcion = modelo_whisper.transcribe(
             archivo_de_audio, 
-            language="es",  # Español para el SENA
-            batch_size=8,
+            language="es",  
+            batch_size=tamano_lote,
             condition_on_previous_text=False,
             no_speech_threshold=0.6,
             logprob_threshold=-1.0,
@@ -82,7 +152,7 @@ try:
         print(f"⚠️ Parámetros avanzados no funcionaron: {e}")
         print("🔄 Intentando con parámetros básicos...")
         try:
-            resultado_transcripcion = modelo_whisper.transcribe(archivo_de_audio, language="es", batch_size=8)
+            resultado_transcripcion = modelo_whisper.transcribe(archivo_de_audio, language="es", batch_size=tamano_lote)
             print("✅ Transcripción básica completada")
         except TypeError:
             resultado_transcripcion = modelo_whisper.transcribe(archivo_de_audio, language="es")
@@ -105,8 +175,8 @@ except Exception as e:
 
 print("👥 Aplicando separación de hablantes...")
 try:
-    pipeline_diarizacion = DiarizationPipeline(use_auth_token=token_hf)
-    print("🔄 Procesando diarización (esto puede tardar un poco)...")
+    pipeline_diarizacion = DiarizationPipeline(use_auth_token=token_hf, device=dispositivo)
+    print(f"🖥️ Diarización usando dispositivo: {pipeline_diarizacion.device}")
     segmentos_hablantes = pipeline_diarizacion(archivo_de_audio)
     print("✅ Separación de hablantes completada")
 except Exception as e:
@@ -114,7 +184,6 @@ except Exception as e:
     print("🔄 Continuando sin separación de hablantes...")
     segmentos_hablantes = None
 
-# Cargo configuración de nombres de hablantes (si existe)
 archivo_nombres = "hablantes.json"
 try:
     with open(archivo_nombres, "r", encoding="utf-8") as f:
@@ -164,11 +233,9 @@ def obtener_nombre_final(hablante_global):
     if not hablante_global or hablante_global == "DESCONOCIDO":
         return "HABLANTE DESCONOCIDO"
     
-    # Si tengo un nombre personalizado, lo uso
     if hablante_global in mapeo_nombres:
         return mapeo_nombres[hablante_global]
     
-    # Si no, uso el formato HABLANTE X
     try:
         if '_' in hablante_global:
             numero = hablante_global.split('_')[1]
@@ -186,12 +253,10 @@ def encontrar_hablante_para_segmento(inicio_seg, fin_seg, segmentos_hablantes):
     mejor_hablante = "DESCONOCIDO"
     mejor_superposicion = 0
     
-    # Reviso todos los segmentos de hablantes
     for _, fila in segmentos_hablantes.iterrows():
         inicio_h = fila["start"]
         fin_h = fila["end"]
         
-        # Calculo cuánto se superponen los tiempos
         inicio_overlap = max(inicio_seg, inicio_h)
         fin_overlap = min(fin_seg, fin_h)
         
@@ -199,10 +264,8 @@ def encontrar_hablante_para_segmento(inicio_seg, fin_seg, segmentos_hablantes):
             superposicion = fin_overlap - inicio_overlap
             duracion_segmento = fin_seg - inicio_seg
             
-            # Calculo el porcentaje de superposición
             porcentaje_overlap = superposicion / duracion_segmento if duracion_segmento > 0 else 0
             
-            # Si se superpone al menos 15%, lo considero válido
             if porcentaje_overlap >= 0.15 and superposicion > mejor_superposicion:
                 mejor_superposicion = superposicion
                 mejor_hablante = fila["speaker"]
@@ -223,7 +286,6 @@ def formatear_texto_final(texto_final):
     """Formatea el texto para que se vea profesional"""
     print("🎨 Aplicando formato final al texto...")
     
-    # Divido por intervenciones
     patron = r'(INTERVIENE HABLANTE \w+:)'
     partes = re.split(patron, texto_final)
     
@@ -234,16 +296,12 @@ def formatear_texto_final(texto_final):
         parte = partes[i].strip()
         
         if parte.startswith('INTERVIENE HABLANTE'):
-            # Esta es una etiqueta de hablante
             if i + 1 < len(partes):
-                # Obtengo el texto que sigue
                 texto_intervencion = partes[i + 1].strip()
                 
-                # Limpio el texto
                 texto_intervencion = re.sub(r'\s+', ' ', texto_intervencion)
                 texto_intervencion = texto_intervencion.strip()
                 
-                # Agrego con formato correcto
                 if texto_formateado:
                     texto_formateado += "\n\n"
                 
@@ -253,12 +311,10 @@ def formatear_texto_final(texto_final):
             else:
                 i += 1
         else:
-            # Manejo partes sueltas o separadores
             if parte and not parte.startswith('---'):
                 if texto_formateado and not parte.startswith('INTERVIENE'):
                     texto_formateado += " " + parte
             elif parte.startswith('---'):
-                # Mantengo separadores de partes
                 texto_formateado += f"\n\n{parte}\n\n"
             
             i += 1
@@ -283,13 +339,10 @@ def procesar_segmentos_con_hablantes(resultado_alineado, segmentos_hablantes):
         if not texto_segmento or len(texto_segmento) < 1:
             continue
         
-        # Limpio un poco el texto
         texto_segmento = re.sub(r'\s+', ' ', texto_segmento.strip())
         
-        # Encuentro qué hablante corresponde a este segmento
         hablante_local = encontrar_hablante_para_segmento(tiempo_inicio, tiempo_fin, segmentos_hablantes)
         
-        # Convierto a hablante global
         if hablante_local != "DESCONOCIDO":
             hablante_global = asignar_hablante_global(hablante_local)
         else:
@@ -302,17 +355,13 @@ def procesar_segmentos_con_hablantes(resultado_alineado, segmentos_hablantes):
             'texto': texto_segmento
         })
     
-    # Segunda pasada: suavizo cambios bruscos de hablante
-    print("🔧 Suavizando cambios de hablante...")
-    
+    # Segunda pasada: suavizo cambios bruscos de hablante 
     for i in range(len(segmentos_procesados)):
         seg_actual = segmentos_procesados[i]
         
-        # Miro el contexto alrededor
         contexto_anterior = []
         contexto_posterior = []
         
-        # Recopilo contexto de 3 segmentos hacia atrás y adelante
         for j in range(max(0, i-3), i):
             if j < len(segmentos_procesados):
                 contexto_anterior.append(segmentos_procesados[j]['hablante'])
@@ -320,7 +369,6 @@ def procesar_segmentos_con_hablantes(resultado_alineado, segmentos_hablantes):
         for j in range(i+1, min(len(segmentos_procesados), i+4)):
             contexto_posterior.append(segmentos_procesados[j]['hablante'])
         
-        # Si está rodeado por el mismo hablante, probablemente es error
         if (contexto_anterior and contexto_posterior and 
             seg_actual['hablante'] != "DESCONOCIDO"):
             
@@ -348,11 +396,9 @@ def procesar_segmentos_con_hablantes(resultado_alineado, segmentos_hablantes):
                 'cantidad_segmentos': 1
             }
         elif seg['hablante'] == grupo_actual['hablante']:
-            # Mismo hablante, agrego al grupo actual
             grupo_actual['textos'].append(seg['texto'])
             grupo_actual['cantidad_segmentos'] += 1
         else:
-            # Hablante diferente, cierro grupo y creo nuevo
             grupos.append(grupo_actual)
             grupo_actual = {
                 'hablante': seg['hablante'],
@@ -365,19 +411,14 @@ def procesar_segmentos_con_hablantes(resultado_alineado, segmentos_hablantes):
     if grupo_actual:
         grupos.append(grupo_actual)
     
-    # Construyo el texto final
-    print(f"📝 Construyendo texto final con {len(grupos)} intervenciones...")
-    
     texto_final = ""
     
     for i, grupo in enumerate(grupos):
         nombre_para_mostrar = obtener_nombre_final(grupo['hablante'])
         texto_del_grupo = " ".join(grupo['textos'])
         
-        # Limpio el texto final
         texto_del_grupo = limpiar_texto_repetitivo(texto_del_grupo)
         
-        # Solo agrego si tiene contenido suficiente
         if len(texto_del_grupo) > 3:
             texto_final += f"INTERVIENE {nombre_para_mostrar}: {texto_del_grupo} "
     
@@ -385,11 +426,7 @@ def procesar_segmentos_con_hablantes(resultado_alineado, segmentos_hablantes):
     total_segmentos_originales = len(segmentos_procesados)
     total_grupos_procesados = len(grupos)
     
-    print(f"📊 Estadísticas de mi procesamiento:")
-    print(f"   - Segmentos originales: {total_segmentos_originales}")
-    print(f"   - Grupos de hablantes: {total_grupos_procesados}")
-    print(f"   - Caracteres en texto final: {len(texto_final)}")
-    
+
     # Si el texto es muy corto, uso método de respaldo
     if len(texto_final) < 100:
         print("⚠️ Texto muy corto, usando método de respaldo...")
@@ -402,13 +439,10 @@ def procesar_segmentos_con_hablantes(resultado_alineado, segmentos_hablantes):
     
     return texto_final.strip()
 
-# Ejecuto mi algoritmo principal
-print("🎯 Aplicando mi algoritmo de procesamiento...")
 
 if segmentos_hablantes is not None:
     texto_transcrito_final = procesar_segmentos_con_hablantes(resultado_alineado, segmentos_hablantes)
 else:
-    # Si no tengo separación de hablantes, proceso todo como un solo hablante
     print("📝 Sin separación de hablantes, procesando como hablante único...")
     texto_transcrito_final = "INTERVIENE HABLANTE DESCONOCIDO: "
     
@@ -422,19 +456,23 @@ else:
             if texto_seg.strip():
                 texto_transcrito_final += texto_seg + " "
 
-# Verifico la longitud antes del formateo
-print(f"📏 Longitud antes del formateo: {len(texto_transcrito_final)} caracteres")
-
 # Limpio y formato el texto final
 texto_transcrito_final = limpiar_texto_repetitivo(texto_transcrito_final)
 texto_transcrito_final = formatear_texto_final(texto_transcrito_final)
 
-print(f"📏 Longitud después del formateo: {len(texto_transcrito_final)} caracteres")
 
 # Guardo el resultado en un archivo
 archivo_salida = f"{nombre_sin_extension}_transcripcion.txt"
 with open(archivo_salida, "w", encoding="utf-8") as f:
     f.write(texto_transcrito_final)
+
+try:
+    del modelo_whisper
+    if "pipeline_diarizacion" in locals():
+        del pipeline_diarizacion
+    torch.cuda.empty_cache()
+except Exception:
+    pass
 
 tiempo_final = time.time()
 print("✅ ¡Transcripción y separación de hablantes completadas!")
@@ -445,29 +483,4 @@ print(f"📄 Texto guardado en: {archivo_salida}")
 intervenciones_detectadas = [linea for linea in texto_transcrito_final.split('\n') if linea.strip().startswith('INTERVIENE')]
 print(f"👥 Total de intervenciones detectadas: {len(intervenciones_detectadas)}")
 
-# Muestro una preview del resultado
-print("\n📋 Primeras líneas de mi transcripción:")
-print("-" * 60)
-lineas = texto_transcrito_final.split('\n')
-for i, linea in enumerate(lineas[:3]):
-    if linea.strip():
-        print(f"{i+1}: {linea[:100]}...")
-
-# Muestro el mapeo de hablantes que usé
-print("\n🗺️ Hablantes que identifiqué en este audio:")
-hablantes_usados = set()
-for speaker_local, hablante_global in hablantes_globales.items():
-    numero = hablante_global.split('_')[1] if '_' in hablante_global else hablante_global
-    if f"HABLANTE {numero}" in texto_transcrito_final:
-        nombre_final = obtener_nombre_final(hablante_global)
-        print(f"   {speaker_local} → {nombre_final}")
-        hablantes_usados.add(hablante_global)
-
-if not hablantes_usados:
-    print("   ℹ️ No identifiqué hablantes específicos en este audio")
-
-print(f"\n📋 Archivos de configuración:")
-print(f"   - Mapeo global: {archivo_mapeo_global}")
-print(f"   - Nombres personalizados: {archivo_nombres}")
-print("🔧 Para personalizar nombres: python src/python/gestionar_nombres.py")
 print("\n🎉 ¡Proceso completado! Este fue mi aporte al proyecto del SENA.")

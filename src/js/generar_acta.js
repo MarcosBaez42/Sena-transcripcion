@@ -47,6 +47,28 @@ class GeneradorDeActasSENA {
         }).filter(Boolean).join('\n');
     }
 
+    // Intento adivinar los artículos del reglamento que podrían aplicar
+    // comparando palabras clave de la transcripción con cada artículo
+    detectarArticulosDesdeTexto(texto = '') {
+        if (typeof texto !== 'string' || !texto.trim()) return [];
+
+        const palabras = new Set(
+            texto.toLowerCase().split(/\W+/).filter(p => p.length > 4)
+        );
+
+        const puntajes = Object.entries(this.reglamento).map(([codigo, cuerpo]) => {
+            const palabrasArticulo = new Set(cuerpo.toLowerCase().split(/\W+/));
+            let score = 0;
+            palabras.forEach(p => {
+                if (palabrasArticulo.has(p)) score++;
+            });
+            return { codigo, score };
+        }).filter(p => p.score > 0);
+
+        puntajes.sort((a, b) => b.score - a.score);
+        return puntajes.slice(0, 3).map(p => p.codigo);
+    }
+
     async configurarConexionConGemini() {
         try {
             // Importo la librería de Google (me costó entender cómo usarla al principio)
@@ -88,8 +110,8 @@ Debes generar un acta **siguiendo exactamente esta estructura y formato**.
 
 **CIUDAD Y FECHA:** [Extraer de transcripción]  
 **HORA INICIO:** [Extraer o estimar]  
-**HORA FIN:** [Calcular]  
-**LUGAR:** [Virtual/Presencial o extraer]
+**HORA FIN:** [Extraer o estimar]  
+**LUGAR:** [Virtual/Presencial extraer o estimar]
 
 ---
 
@@ -124,18 +146,28 @@ Verificada la asistencia y existiendo quórum para sesionar y decidir, se da ini
 - **REPRESENTANTE DE CENTRO:** [Nombre]
 - **VOCERO:** [Nombre]
 
-### 3. HECHOS QUE SERÁN OBJETO DE ESTUDIO
-[Extrae con claridad los hechos reportados por los instructores, mencionando fechas, fallas, evidencias, y normas del reglamento del aprendiz.]
+### 3. HECHOS QUE SERÁN OBJETO DE ESTUDIO EN EL COMITÉ
+[Enumera cada hecho con números consecutivos **y pon cada hecho en un párrafo separado**. Extrae con claridad los hechos reportados por los instructores, mencionando fechas, fallas y evidencias. Por ejemplo: "1) El día 13 de diciembre del 2024 el aprendiz falla la prueba de conocimiento por segunda vez, teniendo en cuenta que previamente se había asignado una actividad complementaria. etc."].
+
+Se indica la preocupación acerca del tema, el cual radica en que se evidencia incumplimiento del REGLAMENTO DEL APRENDIZ: en el [Cita el artículo exacto del reglamento del aprendiz que describa el incumplimiento Por ejemplo: CAPITULO III DEBERES DEL APRENDIZ SENA; Artículo 22º Deberes del aprendiz, en su numeral cita: Numeral 6 Cumplir con todas las actividades de aprendizaje propias de su proceso formativo, presentando las evidencias según la planeación pedagógica, guías de aprendizaje y cronograma, en los plazos o en la oportunidad que estas deban presentarse o reportarse, a través de los medios dispuestos para ello Numeral 7. Realizar una dedicación efectiva del tiempo, priorizando las actividades de aprendizaje y manteniendo un compromiso constante para alcanzar los resultados de aprendizaje propuestos en el programa de formación.]
+
+Hechos Instructor(a) [Nombre del instructor]:
+
+El aprendiz [Nombre del aprendiz], (agregar numero de CC o TI) se reporta a comité de tipo [Tipo de comité, por ejemplo: "academico", "disciplinario", etc.] 
+Instructor(a): [Cargo y nombre del instructor]: [extrae los hechos reportados por el instructor, incluyendo fechas, fallas y evidencias. Por ejemplo: "El aprendiz no participó en las actividades de socialización, no subió evidencias al drive, no participó en exposiciones ni en actividades de bienestar del aprendiz."]
+
+Se indica la preocupación acerca del tema, el cual radica en que se evidencia incumplimiento del REGLAMENTO DEL APRENDIZ: en el [Cita el artículo exacto del reglamento del aprendiz que describa el incumplimiento Por ejemplo: "CAPITULO III DEBERES DEL APRENDIZ SENA; Articulo No.9 Deberes del aprendiz, en su numeral 4, el cual cita: Participar en las actividades complementarias o de profundización, relacionadas con el programa de formación, con el fin de gestionar su proceso de aprendizaje."]
+
+Por lo anterior y respetando el debido proceso, se cita al aprendiz [Nombre del aprendiz] del programa [extraer programa y numero de la ficha. Por ejemplo: "TECNICO DE ASISTECIA ADMINISTRATIVA FICHA 3065626"]. para la presentación de sus descargos ante el Comité de Evaluación y Seguimiento, respetando el derecho que le asiste a controvertir las pruebas allegadas o que se alleguen en su contra y a aportar y/o solicitar la práctica de las pruebas que considere pertinentes.
 
 ### 4. INSTALACIÓN DEL COMITÉ POR PARTE DEL COORDINADOR
 El coordinador JOHON FREDY SANABRIA MUÑOZ da un saludo de bienvenida a los presentes en el comité. El Comité de Evaluación y Seguimiento es una instancia académica fundamental en nuestra institución. Su propósito principal es orientar y apoyar de manera integral el proceso de formación de nuestros aprendices, asegurando que se lleve a cabo con los más altos estándares de calidad. Este comité desempeña un papel fundamental al analizar y evaluar de manera constante los programas de estudio, los métodos pedagógicos y los resultados obtenidos. Además, se encarga de proponer mejoras, ajustes y estrategias que contribuyan a optimizar la experiencia educativa de nuestros aprendices. Nuestro objetivo común es formar profesionales competentes, éticos y comprometidos con su desarrollo personal y con la sociedad. A través del trabajo conjunto del Comité de Evaluación y Seguimiento, podremos garantizar que estamos cumpliendo con nuestra misión de ofrecer una educación de calidad.
 
-### 5. DESARROLLO DEL COMITÉ / DESCARGOS DEL APRENDIZ / ANÁLISIS
-**Intervenciones de los participantes:**  
-[Extrae lo mas importante dicho por los participantes del comite cada vez que un partisipante intervenga comieza con Interviene [Cargo y nombre] incluye justificaciones, compromisos y motivos opiniones, preocupaciones, o análisis del comité.]
+### 5. DESARROLLO DEL COMITÉ / ANALISIS DEL CASO, DESCARGOS DEL APRENDIZ Y PRÁCTICA DE PRUEBAS A QUE HAYA LUGAR
+[Intervenciones de los participantes comieza con Interviene [Cargo y nombre]:, extrae y resume lo mas relevante dicho por los participantes, extrae los puntos tratados análisis del caso, descargos del aprendiz, pruebas realizadas y cualquier otro detalle relevante.]
 
 ### 6. CONCLUSIONES
-[Especifica tipo de falta, gravedad, medidas, planes de mejoramiento.]
+[Resume lo mas que se pueda el tipo de falta, gravedad, medidas, planes de mejoramiento.]
 
 ---
 
@@ -156,6 +188,9 @@ De acuerdo con La Ley 1581 de 2012, Protección de Datos Personales, el Servicio
 - Usa **"No especificado en transcripción"** si falta algún dato.
 - Respeta **el orden y títulos exactos** del formato.
 - Usa Markdown correctamente (títulos con #, negritas con **).
+- si en las intervenciones no reconoces el nombre de un participante, elije de la sección de participantes y utiliza el nombre que creas que corresponde teniendo en cuenta lo que esta dicendo el texto.
+- resume lo maximo posible las intervenciones de los participantes, no copies textualmente lo que dicen, extrae lo mas relevante de cada intervención.
+- resume lo mas que se pueda las conclusiones, no copies textualmente lo que dicen los participantes.
 
 Ahora redacta el acta en formato Markdown con base en la siguiente transcripción.`;
     }
@@ -174,7 +209,7 @@ Ahora redacta el acta en formato Markdown con base en la siguiente transcripció
         return rutaCarpetaCompleta;
     }
 
-    // Extraigo metadatos básicos del acta en formato Markdown
+    // Extraigo la tabla de compromisos y otros metadatos del acta en Markdown
     extraerMetadatosDelActa(textoActa) {
         const obtener = (regex) => {
             const m = textoActa.match(regex);
@@ -199,7 +234,49 @@ Ahora redacta el acta en formato Markdown con base en la siguiente transcripció
             }
         }
 
-        return { fecha, horaInicio, horaFin, participantes };
+        const obtenerSeccion = (regex) => {
+            const partes = textoActa.split(regex);
+            if (partes.length < 2) return null;
+            const despues = partes.slice(1).join('\n');
+            return partes[1]
+                .split(/\n##\s+/)[0]
+                .split(/\n###\s*\d+\./)[0]
+                .trim();
+        };
+
+        const hechos = obtenerSeccion(/###\s*3\.?[^\n]*HECHOS[^\n]*/i);
+        const desarrolloComite = obtenerSeccion(/###\s*5\.?[^\n]*DESARROLLO[^\n]*/i);
+        const conclusiones = obtenerSeccion(/###\s*6\.?[^\n]*CONCLUSIONES[^\n]*/i);
+
+        const objetivosMatch = textoActa.split(/##\s*OBJETIVO\(S\)? DE LA REUNIÓN[^\n]*\n/i);
+        let objetivos = null;
+        if (objetivosMatch.length > 1) {
+            objetivos = objetivosMatch[1].split(/\n##\s*/)[0].trim();
+        }
+
+        const compromisos = this.extraerCompromisos(textoActa);
+        return { fecha, horaInicio, horaFin, participantes, hechos, desarrolloComite, conclusiones, compromisos, objetivos };
+    }
+
+    // Parsea la sección de compromisos y seguimiento para obtener cada fila de la tabla
+    extraerCompromisos(texto = '') {
+        const seccion = texto.split(/##\s*COMPROMISOS Y SEGUIMIENTO/i)[1];
+        if (!seccion) return [];
+        const filas = [];
+        for (const linea of seccion.split(/\r?\n/)) {
+            const l = linea.trim();
+            if (l.startsWith('##')) break;
+            if (!l.startsWith('|')) continue;
+            const partes = l.split('|').map(p => p.trim());
+            if (partes.length < 4) continue;
+            if (/^-{3,}$/.test(partes[1])) continue; // salto separadores
+            filas.push({
+                actividad: partes[1],
+                fecha: partes[2],
+                responsable: partes[3]
+            });
+        }
+        return filas;
     }
 
     async generarMiActa(textoTranscripcion, informacionExtra = {}) {
@@ -214,7 +291,11 @@ Ahora redacta el acta en formato Markdown con base en la siguiente transcripció
     ? textoTranscripcion.slice(0, 4900) + "\n[...transcripción truncada por longitud...]"
     : textoTranscripcion;
 
-        const articulos = this.obtenerTextoReglamento(informacionExtra.articulosReglamento);
+        let articulosSeleccionados = informacionExtra.articulosReglamento;
+        if (!Array.isArray(articulosSeleccionados) || articulosSeleccionados.length === 0) {
+            articulosSeleccionados = this.detectarArticulosDesdeTexto(textoTranscripcion);
+        }
+        const articulos = this.obtenerTextoReglamento(articulosSeleccionados);
         const promptCompleto = `${this.obtenerPlantillaDelActa()}
 
 TRANSCRIPCIÓN DEL COMITÉ QUE NECESITO PROCESAR:
@@ -289,7 +370,11 @@ Por favor ayúdame a generar el acta formal completa siguiendo exactamente el fo
 
         console.log("🤖 Generando acta en dos llamadas a Gemini...");
 
-        const articulos = this.obtenerTextoReglamento(informacionExtra.articulosReglamento);
+        let articulosSeleccionados = informacionExtra.articulosReglamento;
+        if (!Array.isArray(articulosSeleccionados) || articulosSeleccionados.length === 0) {
+            articulosSeleccionados = this.detectarArticulosDesdeTexto(textoTranscripcion);
+        }
+        const articulos = this.obtenerTextoReglamento(articulosSeleccionados);
         const promptBase = `${this.obtenerPlantillaDelActa()}
 
 TRANSCRIPCIÓN DEL COMITÉ QUE NECESITO PROCESAR:
@@ -497,10 +582,9 @@ async function procesarTranscripcionParaGenerarActa(archivoDeTranscripcion, info
             // Creo la versión final
             const archivoFinal = await miGenerador.crearVersionFinalDelActa(mejorVersion, informacionCompleta);
             
-            console.log(`\n🎉 ¡COMPLETÉ MI PROCESO DE GENERACIÓN DE ACTAS!`);
+            console.log(`\n🎉 ¡PROCESO DE GENERACIÓN DE ACTAS COMPLETADO!`);
             console.log(`📄 Acta final: ${archivoFinal}`);
             console.log(`📁 Versiones generadas: ${versionesGeneradas.length}`);
-            console.log("¡Estoy muy orgulloso de este resultado!");
             
             return {
                 archivoFinal: archivoFinal,
@@ -565,10 +649,7 @@ module.exports = {
 
 // Esta parte se ejecuta cuando llamo al archivo directamente
 if (require.main === module) {
-    console.log("🎓 GENERADOR DE ACTAS - PROYECTO DE PRÁCTICAS SENA");
-    console.log("Desarrollado por un estudiante en formación");
-    console.log("¡Espero que funcione bien!");
-    console.log("=" .repeat(60));
+    console.log("🎓 GENERADOR DE ACTAS SENA");
     
     // Verifico los argumentos que me pasaron
     if (process.argv.length > 2) {
@@ -578,7 +659,6 @@ if (require.main === module) {
         const articulos = extraArg ? extraArg.replace('--articulos=', '').split(',').map(a => a.trim()) : [];
         console.log(`📁 Voy a procesar específicamente: ${archivoEspecifico}`);
         procesarTranscripcionParaGenerarActa(archivoEspecifico, { articulosReglamento: articulos });
-        procesarTranscripcionParaGenerarActa(archivoEspecifico);
     } else {
         // Modo automático: procesar todas las transcripciones que encuentre
         console.log("🔄 Modo automático: voy a procesar todas las transcripciones");

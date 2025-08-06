@@ -9,6 +9,7 @@ Este proyecto automatiza la transcripción de audio de reuniones del SENA y gene
 - Instalar dependencias:
   - `npm install`
   - `pip install -r requirements.txt`
+  - El propio PyTorch a la instalación del desde PyPI, por lo que **sin necesidad** especificar un `--url de índice adicional`.
 - Configurar las siguientes variables de entorno en un archivo `.env`:
   - `GEMINI_API_KEY` – clave para usar Google Gemini.
   - `MODELO_GEMINI` – nombre del modelo Gemini (opcional).
@@ -19,8 +20,7 @@ Este proyecto automatiza la transcripción de audio de reuniones del SENA y gene
 ## Comandos principales
 
 - `npm run transcribir` – procesa los audios y genera archivos de texto.
-- `npm run generar-acta` – crea un acta a partir de una transcripción.
-- `npm run generar-acta` – crea un acta a partir de una transcripción. Puedes añadir `--articulos=...` para citar artículos del reglamento.
+- `npm run generar-acta [--articulos=...]` – crea un acta a partir de una transcripción; usa `--articulos` para citar artículos del reglamento.
 - `npm run generar-acta-partes` – acepta uno o dos archivos de transcripción y genera el acta completa.
 - `npm run corregir-transcripcion -- ruta/al/archivo.txt` – genera una versión corregida de la transcripción.
 
@@ -51,6 +51,10 @@ Para mejorar la detección de nombres, instala el modelo de spaCy para español 
 python -m spacy download es_core_news_sm
 ```
 
+Cuando confirmes los nombres se guardarán en el archivo `hablantes.json`. Luego
+debes volver a ejecutar `transcribir.py` (o `npm run transcribir`) para que los
+nombres aparezcan tanto en la transcripción como en las actas generadas.
+
 ### Referenciar el Reglamento del Aprendiz
 
 Puedes agregar citas del Reglamento del Aprendiz de forma automática. Crea el archivo `config/reglamento.json` (ya se incluye un ejemplo) con los artículos que quieras referenciar. Al generar un acta, pasa una lista de artículos a través del parámetro `articulosReglamento`:
@@ -65,3 +69,28 @@ generador.generarMiActa(texto, { articulosReglamento: [
 ```
 
 El texto completo de esos artículos se añadirá al prompt para que aparezcan en la sección **Hechos que serán objeto de estudio** del acta.
+
+Si no se proporcionan artículos explícitos, el generador intentará deducirlos automáticamente. Para ello analiza la transcripción y busca coincidencias con el texto del reglamento, seleccionando los artículos más relevantes y agregándolos al prompt.
+
+### Generar reglamento.json
+
+Para extraer todos los artículos del PDF oficial ejecuta:
+
+```bash
+python scripts/extraer_reglamento.py ruta/al/Reglamento.pdf config/reglamento.json
+```
+
+El archivo `config/reglamento.json` incluirá cada numeral con una clave del tipo `"CAPITULO III - Articulo 8 - Numeral 6"`.
+
+### Placeholders de la plantilla Word
+
+La plantilla `config/plantilla.docx` usa marcadores de reemplazo entre `[[` y `]]` que se completan al generar el documento final. Los campos disponibles son:
+
+- `[[FECHA]]`
+- `[[HORA_INICIO]]`
+- `[[HORA_FIN]]`
+- `[[PARTICIPANTES]]`
+- `[[HECHOS]]`
+- `[[DESARROLLO_COMITE]]`
+- `[[CONCLUSIONES]]`
+- `[[OBJETIVOS]]` para el objetivo de la reunión.
