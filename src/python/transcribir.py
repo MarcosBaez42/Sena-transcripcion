@@ -22,7 +22,8 @@ if QUIET_MODE:
 # Token de Hugging Face desde variable de entorno
 token_hf = os.getenv("HF_TOKEN")
 if not token_hf:
-    print("⚠️  Variable HF_TOKEN no configurada; la diarización podría fallar.")
+    print("⚠️  Variable HF_TOKEN no configurada; la diarización no se ejecutará.")
+    print("💡  Configura tu token con: export HF_TOKEN=tu_token_de_huggingface")
 
 # Configuración para que funcione bien en Windows 
 os.environ['PYTHONIOENCODING'] = 'utf-8'
@@ -129,7 +130,7 @@ if dispositivo == "cuda":
     torch.backends.cudnn.benchmark = True
     torch.set_float32_matmul_precision("high")
 
-modelo_whisper = whisperx.load_model("medium", dispositivo, compute_type=tipo_computo)
+modelo_whisper = whisperx.load_model("large-v2", dispositivo, compute_type=tipo_computo)
 print("✅ Modelo cargado correctamente")
 
 print(f"🎙️ Comenzando transcripción de: {archivo_de_audio}")
@@ -173,26 +174,30 @@ except Exception as e:
     print("🔄 Continuando sin alineación precisa...")
     resultado_alineado = resultado_transcripcion
 
-print("👥 Aplicando separación de hablantes...")
-try:
-    pipeline_diarizacion = DiarizationPipeline(use_auth_token=token_hf, device=dispositivo)
-    print(f"🖥️ Diarización usando dispositivo: {pipeline_diarizacion.device}")
-    segmentos_hablantes = pipeline_diarizacion(archivo_de_audio)
-    resultado_alineado = whisperx.assign_word_speakers(segmentos_hablantes, resultado_alineado)
+segmentos_hablantes = None
+if token_hf:
+    print("👥 Aplicando separación de hablantes...")
+    try:
+        pipeline_diarizacion = DiarizationPipeline(use_auth_token=token_hf, device=dispositivo)
+        print(f"🖥️ Diarización usando dispositivo: {dispositivo}")
+        segmentos_hablantes = pipeline_diarizacion(archivo_de_audio)
+        resultado_alineado = whisperx.assign_word_speakers(segmentos_hablantes, resultado_alineado)
 
-    for segment in resultado_alineado.get("segments", []):
-        speakers = [word.get("speaker") for word in segment.get("words", []) if word.get("speaker")]
+        for segment in resultado_alineado.get("segments", []):
+            speakers = [word.get("speaker") for word in segment.get("words", []) if word.get("speaker")]
 
-        if speakers:
-            segment["speaker"] = max(set(speakers), key=speakers.count)
-        else:
-            segment["speaker"] = "DESCONOCIDO"
+            if speakers:
+                segment["speaker"] = max(set(speakers), key=speakers.count)
+            else:
+                segment["speaker"] = "DESCONOCIDO"
 
-    print("✅ Separación de hablantes completada")
-except Exception as e:
-    print(f"⚠️ Problemas con la diarización: {e}")
-    print("🔄 Continuando sin separación de hablantes...")
-    segmentos_hablantes = None
+        print("✅ Separación de hablantes completada")
+    except Exception as e:
+        print(f"⚠️ Problemas con la diarización: {e}")
+        print("🔄 Continuando sin separación de hablantes...")
+else:
+    print("⚠️  Se omitirá la diarización porque HF_TOKEN no está configurado.")
+    print("💡  Establece la variable de entorno HF_TOKEN para habilitar la separación de hablantes.")
 
 archivo_nombres = "hablantes.json"
 try:
