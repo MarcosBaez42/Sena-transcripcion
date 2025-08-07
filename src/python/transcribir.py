@@ -178,6 +178,16 @@ try:
     pipeline_diarizacion = DiarizationPipeline(use_auth_token=token_hf, device=dispositivo)
     print(f"🖥️ Diarización usando dispositivo: {pipeline_diarizacion.device}")
     segmentos_hablantes = pipeline_diarizacion(archivo_de_audio)
+    resultado_alineado = whisperx.assign_word_speakers(segmentos_hablantes, resultado_alineado)
+
+    for segment in resultado_alineado.get("segments", []):
+        speakers = [word.get("speaker") for word in segment.get("words", []) if word.get("speaker")]
+
+        if speakers:
+            segment["speaker"] = max(set(speakers), key=speakers.count)
+        else:
+            segment["speaker"] = "DESCONOCIDO"
+
     print("✅ Separación de hablantes completada")
 except Exception as e:
     print(f"⚠️ Problemas con la diarización: {e}")
@@ -245,33 +255,6 @@ def obtener_nombre_final(hablante_global):
     except (IndexError, ValueError):
         return f"HABLANTE {hablante_global}"
 
-def encontrar_hablante_para_segmento(inicio_seg, fin_seg, segmentos_hablantes):
-    """Encuentra qué hablante corresponde a cada segmento de audio"""
-    if segmentos_hablantes is None:
-        return "DESCONOCIDO"
-    
-    mejor_hablante = "DESCONOCIDO"
-    mejor_superposicion = 0
-    
-    for _, fila in segmentos_hablantes.iterrows():
-        inicio_h = fila["start"]
-        fin_h = fila["end"]
-        
-        inicio_overlap = max(inicio_seg, inicio_h)
-        fin_overlap = min(fin_seg, fin_h)
-        
-        if inicio_overlap < fin_overlap:
-            superposicion = fin_overlap - inicio_overlap
-            duracion_segmento = fin_seg - inicio_seg
-            
-            porcentaje_overlap = superposicion / duracion_segmento if duracion_segmento > 0 else 0
-            
-            if porcentaje_overlap >= 0.15 and superposicion > mejor_superposicion:
-                mejor_superposicion = superposicion
-                mejor_hablante = fila["speaker"]
-    
-    return mejor_hablante
-
 def limpiar_texto_repetitivo(texto):
     """Limpia repeticiones molestas en el texto transcrito"""
     # Elimino repeticiones excesivas de muletillas
@@ -321,33 +304,33 @@ def formatear_texto_final(texto_final):
     
     return texto_formateado.strip()
 
-def procesar_segmentos_con_hablantes(resultado_alineado, segmentos_hablantes):
+def procesar_segmentos_con_hablantes(resultado_alineado):
     """Esta es mi función principal para procesar toda la transcripción"""
-    
+
     segmentos = resultado_alineado["segments"] if isinstance(resultado_alineado, dict) else resultado_alineado
-    
+
     print(f"🎯 Procesando {len(segmentos)} segmentos de audio...")
-    
+
     # Primera pasada: asigno hablantes a cada segmento
     segmentos_procesados = []
-    
+
     for i, seg in enumerate(segmentos):
         tiempo_inicio = seg.get("start", 0)
         tiempo_fin = seg.get("end", tiempo_inicio + 1)
         texto_segmento = seg.get("text", "").strip()
-        
+
         if not texto_segmento or len(texto_segmento) < 1:
             continue
-        
+
         texto_segmento = re.sub(r'\s+', ' ', texto_segmento.strip())
-        
-        hablante_local = encontrar_hablante_para_segmento(tiempo_inicio, tiempo_fin, segmentos_hablantes)
-        
+
+        hablante_local = seg.get("speaker") or "DESCONOCIDO"
+
         if hablante_local != "DESCONOCIDO":
             hablante_global = asignar_hablante_global(hablante_local)
         else:
             hablante_global = "DESCONOCIDO"
-        
+
         segmentos_procesados.append({
             'indice': i,
             'tiempo': tiempo_inicio,
@@ -427,9 +410,9 @@ def procesar_segmentos_con_hablantes(resultado_alineado, segmentos_hablantes):
     total_grupos_procesados = len(grupos)
     
 
-    # Si el texto es muy corto, uso método de respaldo
-    if len(texto_final) < 100:
-        print("⚠️ Texto muy corto, usando método de respaldo...")
+    # Si no se generó texto con hablantes, uso método de respaldo
+    if not texto_final.strip():
+        print("⚠️ No se pudo asignar hablantes, usando método de respaldo...")
         texto_final = "INTERVIENE HABLANTE DESCONOCIDO: "
         
         for seg in segmentos:
@@ -441,16 +424,16 @@ def procesar_segmentos_con_hablantes(resultado_alineado, segmentos_hablantes):
 
 
 if segmentos_hablantes is not None:
-    texto_transcrito_final = procesar_segmentos_con_hablantes(resultado_alineado, segmentos_hablantes)
+    texto_transcrito_final = procesar_segmentos_con_hablantes(resultado_alineado)
 else:
     print("📝 Sin separación de hablantes, procesando como hablante único...")
     texto_transcrito_final = "INTERVIENE HABLANTE DESCONOCIDO: "
-    
+
     segmentos = resultado_alineado["segments"] if isinstance(resultado_alineado, dict) else resultado_alineado
-    
+
     for seg in segmentos:
         texto_seg = seg.get("text", "").strip()
-        
+
         if texto_seg:
             texto_seg = limpiar_texto_repetitivo(texto_seg)
             if texto_seg.strip():
