@@ -84,7 +84,7 @@ class GeneradorDeActasSENA {
                     temperature: parseFloat(process.env.TEMPERATURA) || 0.3,  // No muy creativo, más formal
                     topK: 20,
                     topP: 0.8,
-                    maxOutputTokens: parseInt(process.env.MAX_TOKENS) || 4900,
+                    maxOutputTokens: parseInt(process.env.MAX_TOKENS) || 5500,
                 }
             });
             console.log(`✅ ¡Logré conectar con Gemini! Usando modelo: ${modeloQueVoyAUsar}`);
@@ -287,8 +287,8 @@ Ahora redacta el acta en formato Markdown con base en la siguiente transcripció
 
         console.log("🤖 Generando acta con mi sistema de IA...");
 
-        const textoReducido = textoTranscripcion.length > 4900
-    ? textoTranscripcion.slice(0, 4900) + "\n[...transcripción truncada por longitud...]"
+        const textoReducido = textoTranscripcion.length > 5500
+    ? textoTranscripcion.slice(0, 5500) + "\n[...transcripción truncada por longitud...]"
     : textoTranscripcion;
 
         let articulosSeleccionados = informacionExtra.articulosReglamento;
@@ -396,8 +396,14 @@ Por favor escribe la primera mitad del acta. Finaliza con la etiqueta <<CONTINUA
 
             const segundaParte = await chat.sendMessage("Continúa la redacción del acta justo donde quedó la etiqueta <<CONTINUAR>> y termina el documento.");
             const textoSegunda = (await segundaParte.response).text();
-
-            const actaFinal = (textoPrimera.replace('<<CONTINUAR>>', '') + '\n' + textoSegunda).trim();
+            const primera = textoPrimera.replace('<<CONTINUAR>>', '').trim();
+            const segmento = primera.slice(-400);
+            let segunda = textoSegunda;
+            if (segunda.startsWith(segmento)) {
+                segunda = segunda.slice(segmento.length);
+            }
+            segunda = segunda.trimStart();
+            const actaFinal = (primera + '\n' + segunda).trim();
 
             const nombreProyecto = informacionExtra.nombreDelProyecto || 'acta_comite';
             const carpetaDelProyecto = this.crearCarpetaParaElProyecto(nombreProyecto, informacionExtra.esVersionFinal);
