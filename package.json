@@ -9,7 +9,7 @@
     "generar-acta-partes": "node src/js/generar_acta_en_partes.js",
     "corregir-transcripcion": "node src/js/corregir_transcripcion.js",
     "preprocesar": "node src/js/preprocesar_audio.js",
-    "test": "echo \"No tests specified\""
+    "test": "node --test"
   },
   "dependencies": {
     "@google/generative-ai": "^0.2.1",

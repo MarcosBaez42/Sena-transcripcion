@@ -5,6 +5,7 @@
 
 const fs = require("fs");
 const path = require("path");
+const { fusionarPartes } = require("./fusionar_partes");
 
 // Cargo las variables de entorno 
 require('dotenv').config();
@@ -84,7 +85,7 @@ class GeneradorDeActasSENA {
                     temperature: parseFloat(process.env.TEMPERATURA) || 0.3,  // No muy creativo, más formal
                     topK: 20,
                     topP: 0.8,
-                    maxOutputTokens: parseInt(process.env.MAX_TOKENS) || 5500,
+                    maxOutputTokens: parseInt(process.env.MAX_TOKENS) || 5000,
                 }
             });
             console.log(`✅ ¡Logré conectar con Gemini! Usando modelo: ${modeloQueVoyAUsar}`);
@@ -108,12 +109,11 @@ Debes generar un acta **siguiendo exactamente esta estructura y formato**.
 # ACTA No. [NÚMERO]
 ## COMITÉ DE EVALUACIÓN Y SEGUIMIENTO
 
-**CIUDAD Y FECHA:** [Extraer de transcripción]  
-**HORA INICIO:** [Extraer o estimar]  
-**HORA FIN:** [Extraer o estimar]  
-**LUGAR:** [Virtual/Presencial extraer o estimar]
+**CIUDAD Y FECHA:** [Extraer o inferir. Ejemplo: "Bogotá D.C., 14 de agosto de 2024"]
+**HORA INICIO:** [Extraer o inferir en formato HH:MM (24h). Ejemplo: "08:00"]
+**HORA FIN:** [Extraer o inferir en formato HH:MM (24h). Ejemplo: "10:30"]
+**LUGAR:** [Extraer o inferir. Ejemplo: "Sala 301" o "Google Meet"]
 
----
 
 ## AGENDA O PUNTOS PARA DESARROLLAR:
 **1. Saludo** 
@@ -123,12 +123,10 @@ Debes generar un acta **siguiendo exactamente esta estructura y formato**.
 **5. Desarrollo del Comité/ Análisis del Caso, descargos del aprendiz y practica de pruebas a que haya lugar.**
 **6. Análisis y conclusiones realizadas por el Comité.**
 
----
 
 ## OBJETIVO(S) DE LA REUNIÓN:
-Analizar el caso del aprendiz [Extraer de transcripción] DEL PROGRAMA [Extraer de transcripción] FICHA: [Extraer de transcripción]  
+Analizar el caso del aprendiz [Nombre del aprendiz; ej. "Juan Pérez"] DEL PROGRAMA [Nombre del programa; ej. "Técnico en Asistencia Administrativa"] FICHA: [Número de ficha; ej. "1234567"]
 
----
 
 ## DESARROLLO DE LA REUNIÓN
 
@@ -139,15 +137,15 @@ Se da inicio con el saludo de bienvenida.
 Verificada la asistencia y existiendo quórum para sesionar y decidir, se da inicio al comité y se procede de conformidad al orden del día.
 
 ## PARTICIPANTES
-- **COORDINACIÓN ACADÉMICA:** [Nombre y cargo]
-- **BIENESTAR DEL APRENDIZ:** [Nombre y cargo]
-- **INSTRUCTORES:** [Lista de instructores]
-- **APRENDIZ CITADO:** [Nombre del aprendiz]
-- **REPRESENTANTE DE CENTRO:** [Nombre]
-- **VOCERO:** [Nombre]
+- **COORDINACIÓN ACADÉMICA:** [Nombre; ej. "María Pérez"]
+- **BIENESTAR DEL APRENDIZ:** [Cargo y Nombre; ej. "DR. Luis Gómez"]
+- **INSTRUCTORES:** [Lista de instructores; ej. "Ana Díaz"]
+- **APRENDIZ CITADO:** [Nombre del aprendiz; ej. "Juan López"]
+- **REPRESENTANTE DE CENTRO:** [Nombre; ej. "Pedro Martínez"]
+- **VOCERO:** [Nombre; ej. "Laura Sánchez"]
 
 ### 3. HECHOS QUE SERÁN OBJETO DE ESTUDIO EN EL COMITÉ
-[Enumera cada hecho con números consecutivos **y pon cada hecho en un párrafo separado**. Extrae con claridad los hechos reportados por los instructores, mencionando fechas, fallas y evidencias. Por ejemplo: "1) El día 13 de diciembre del 2024 el aprendiz falla la prueba de conocimiento por segunda vez, teniendo en cuenta que previamente se había asignado una actividad complementaria. etc."].
+[Enumera cada hecho con números consecutivos y pon cada hecho en un párrafo separado. Extrae con claridad los hechos reportados por los instructores, mencionando fechas, fallas y evidencias. Por ejemplo: "1) El día 13 de diciembre del 2024 el aprendiz falla la prueba de conocimiento por segunda vez, teniendo en cuenta que previamente se había asignado una actividad complementaria. etc."].
 
 Se indica la preocupación acerca del tema, el cual radica en que se evidencia incumplimiento del REGLAMENTO DEL APRENDIZ: en el [Cita el artículo exacto del reglamento del aprendiz que describa el incumplimiento Por ejemplo: CAPITULO III DEBERES DEL APRENDIZ SENA; Artículo 22º Deberes del aprendiz, en su numeral cita: Numeral 6 Cumplir con todas las actividades de aprendizaje propias de su proceso formativo, presentando las evidencias según la planeación pedagógica, guías de aprendizaje y cronograma, en los plazos o en la oportunidad que estas deban presentarse o reportarse, a través de los medios dispuestos para ello Numeral 7. Realizar una dedicación efectiva del tiempo, priorizando las actividades de aprendizaje y manteniendo un compromiso constante para alcanzar los resultados de aprendizaje propuestos en el programa de formación.]
 
@@ -185,7 +183,7 @@ De acuerdo con La Ley 1581 de 2012, Protección de Datos Personales, el Servicio
 ## INSTRUCCIONES ADICIONALES:
 - Usa **tercera persona** y lenguaje formal.
 - **No inventes contenido** si no está en la transcripción.
-- Usa **"No especificado en transcripción"** si falta algún dato.
+- Si falta algún dato, realiza la mejor inferencia posible o deja el campo vacío.
 - Respeta **el orden y títulos exactos** del formato.
 - Usa Markdown correctamente (títulos con #, negritas con **).
 - si en las intervenciones no reconoces el nombre de un participante, elije de la sección de participantes y utiliza el nombre que creas que corresponde teniendo en cuenta lo que esta dicendo el texto.
@@ -287,8 +285,8 @@ Ahora redacta el acta en formato Markdown con base en la siguiente transcripció
 
         console.log("🤖 Generando acta con mi sistema de IA...");
 
-        const textoReducido = textoTranscripcion.length > 5500
-    ? textoTranscripcion.slice(0, 5500) + "\n[...transcripción truncada por longitud...]"
+        const textoReducido = textoTranscripcion.length > 5000
+    ? textoTranscripcion.slice(0, 5000) + "\n[...transcripción truncada por longitud...]"
     : textoTranscripcion;
 
         let articulosSeleccionados = informacionExtra.articulosReglamento;
@@ -396,14 +394,7 @@ Por favor escribe la primera mitad del acta. Finaliza con la etiqueta <<CONTINUA
 
             const segundaParte = await chat.sendMessage("Continúa la redacción del acta justo donde quedó la etiqueta <<CONTINUAR>> y termina el documento.");
             const textoSegunda = (await segundaParte.response).text();
-            const primera = textoPrimera.replace('<<CONTINUAR>>', '').trim();
-            const segmento = primera.slice(-400);
-            let segunda = textoSegunda;
-            if (segunda.startsWith(segmento)) {
-                segunda = segunda.slice(segmento.length);
-            }
-            segunda = segunda.trimStart();
-            const actaFinal = (primera + '\n' + segunda).trim();
+            const actaFinal = fusionarPartes(textoPrimera, textoSegunda);
 
             const nombreProyecto = informacionExtra.nombreDelProyecto || 'acta_comite';
             const carpetaDelProyecto = this.crearCarpetaParaElProyecto(nombreProyecto, informacionExtra.esVersionFinal);

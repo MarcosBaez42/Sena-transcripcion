@@ -130,7 +130,7 @@ if dispositivo == "cuda":
     torch.backends.cudnn.benchmark = True
     torch.set_float32_matmul_precision("high")
 
-modelo_whisper = whisperx.load_model("large-v2", dispositivo, compute_type=tipo_computo)
+modelo_whisper = whisperx.load_model("medium", dispositivo, compute_type=tipo_computo)
 print("✅ Modelo cargado correctamente")
 
 print(f"🎙️ Comenzando transcripción de: {archivo_de_audio}")

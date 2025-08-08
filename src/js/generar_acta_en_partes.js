@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { GeneradorActas } = require('./generar_acta');
-const { generarDocumentoWord } = require('./transcribir');
+const { generarDocumentoWord, extraerInformacionDelAudio } = require('./transcribir');
 
 async function generarActaEnDosPartes(parte1, parte2 = null, info = {}) {
     const textos = [];
@@ -9,12 +9,16 @@ async function generarActaEnDosPartes(parte1, parte2 = null, info = {}) {
     if (parte2) textos.push(fs.readFileSync(parte2, 'utf8'));
     const textoCompleto = textos.join('\n\n');
 
+    const nombreBase = info.nombreDelProyecto || (parte1 ? path.basename(parte1).replace('_transcripcion', '').replace(path.extname(parte1), '') : 'acta');
+    const infoDetectada = extraerInformacionDelAudio(nombreBase, textoCompleto);
+    const infoFinal = { ...infoDetectada, ...info, nombreDelProyecto: nombreBase };
+
     const generador = new GeneradorActas();
     await generador.init();
-    const resultado = await generador.generarActaEnDosPartes(textoCompleto, info);
+    const resultado = await generador.generarActaEnDosPartes(textoCompleto, infoFinal);
 
     if (resultado) {
-        generarDocumentoWord(resultado.textoDelActa, info.nombreDelProyecto, {
+        generarDocumentoWord(resultado.textoDelActa, infoFinal.nombreDelProyecto, {
             fecha: resultado.fecha,
             horaInicio: resultado.horaInicio,
             horaFin: resultado.horaFin,
@@ -27,7 +31,7 @@ async function generarActaEnDosPartes(parte1, parte2 = null, info = {}) {
         });
 
         const projectRoot = path.resolve(__dirname, '../../');
-        const docxName = `${info.nombreDelProyecto}_acta_completa.docx`;
+        const docxName = `${infoFinal.nombreDelProyecto}_acta_completa.docx`;
         const docxOrigen = path.join(projectRoot, docxName);
         const destino = path.join(path.dirname(resultado.archivo), docxName);
 
@@ -44,14 +48,41 @@ async function generarActaEnDosPartes(parte1, parte2 = null, info = {}) {
 
 if (require.main === module) {
     (async () => {
-        const [parte1, parte2] = process.argv.slice(2);
-       if (!parte1) {
-            console.error('Uso: node generar_acta_en_partes.js PARTE1 [PARTE2]');
+        const args = process.argv.slice(2);
+        const archivos = [];
+        const overrides = {};
+
+        for (const arg of args) {
+            if (arg.startsWith('--')) {
+                const [flag, valor] = arg.split('=');
+                if (!valor) continue;
+                switch (flag) {
+                    case '--fecha':
+                        overrides.fechaDeHoy = valor;
+                        break;
+                    case '--programa':
+                        overrides.programaAcademico = valor;
+                        break;
+                    case '--ficha':
+                        overrides.numeroFicha = valor;
+                        break;
+                    case '--aprendiz':
+                        overrides.nombreAprendiz = valor;
+                        break;
+                }
+            } else {
+                archivos.push(arg);
+            }
+        }
+
+        const [parte1, parte2] = archivos;
+        if (!parte1) {
+            console.error('Uso: node generar_acta_en_partes.js PARTE1 [PARTE2] [--programa=.. --ficha=.. --fecha=.. --aprendiz=..]');
             process.exit(1);
         }
 
         const nombreProyecto = path.basename(parte1).replace('_transcripcion', '').replace(path.extname(parte1), '');
-        const info = { nombreDelProyecto: nombreProyecto };
+        const info = { nombreDelProyecto: nombreProyecto, ...overrides };
 
         const resultado = await generarActaEnDosPartes(parte1, parte2, info);
         if (resultado) {
