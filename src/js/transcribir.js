@@ -3,12 +3,12 @@ const path = require('path');
 
 try { require('dotenv').config(); } catch { console.warn('⚠️  No pude cargar el archivo .env'); }
 
-const { buscarArchivosDeAudioProcesado } = require('./audioParts');
-const { transcribirUnaParte } = require('./transcribePart');
-const { combinarTodasLasTranscripciones, verificarSiHablantesEstanRegistrados } = require('./combineTranscripts');
-const { generarDocumentoWord } = require('./docGenerator');
-const { extraerInformacionDelAudio } = require('./metadata');
-const { generarActaConInteligenciaArtificial, puedeUsarGemini } = require('./actaGenerator');
+const { buscarArchivosDeAudioProcesado } = require('./partes_audio');
+const { transcribirUnaParte } = require('./transcribir_parte');
+const { combinarTodasLasTranscripciones, verificarSiHablantesEstanRegistrados } = require('./combinar_transcripciones');
+const { generarDocumentoWord } = require('./generador_documento');
+const { extraerInformacionDelAudio } = require('./metadatos');
+const { generarActaConInteligenciaArtificial, puedeUsarGemini } = require('./generador_actas');
 
 const directorioDelProyecto = path.resolve(__dirname, '../../'),
       carpetaAudioProcesado = path.join(directorioDelProyecto, 'audio_procesado'),
