@@ -6,44 +6,26 @@ Script para gestionar nombres de hablantes de forma interactiva
 
 from __future__ import annotations
 
-import json
 import os
 import sys
 
+from nombre_utils import cargar_json, guardar_json
+
 def cargar_mapeo_global():
     """Carga el mapeo global de hablantes"""
-    try:
-        with open("mapeo_hablantes_global.json", "r", encoding="utf-8") as f:
-            return json.load(f)
-    except FileNotFoundError:
-        print("No se encontró mapeo_hablantes_global.json")
-        return {}
+    return cargar_json("mapeo_hablantes_global.json", {})
 
 def cargar_nombres():
     """Carga los nombres personalizados"""
-    try:
-        with open("hablantes.json", "r", encoding="utf-8") as f:
-            return json.load(f)
-    except FileNotFoundError:
-        return {}
+    return cargar_json("hablantes.json", {})
 
 def cargar_sugerencias():
     """Carga sugerencias de nombres si existen"""
-    try:
-        with open("sugerencias.json", "r", encoding="utf-8") as f:
-            return json.load(f)
-    except FileNotFoundError:
-        return {}
+    return cargar_json("sugerencias.json", {})
 
 def guardar_nombres(nombres):
     """Guarda los nombres personalizados"""
-    try:
-        with open("hablantes.json", "w", encoding="utf-8") as f:
-            json.dump(nombres, f, indent=2, ensure_ascii=False)
-        return True
-    except Exception as e:
-        print(f"Error al guardar: {e}")
-        return False
+    return guardar_json("hablantes.json", nombres)
 
 def mostrar_hablantes_detectados():
     """Muestra todos los hablantes que han sido detectados"""
@@ -87,8 +69,7 @@ def asignar_nombres_interactivo(archivo_transcripcion: str | None = None) -> Non
         try:
             from detectar_nombres import detectar_nombres
             sugerencias = detectar_nombres(archivo_transcripcion)
-            with open("sugerencias.json", "w", encoding="utf-8") as f:
-                json.dump(sugerencias, f, indent=2, ensure_ascii=False)
+            guardar_json("sugerencias.json", sugerencias)
             if sugerencias:
                 print("\n✓ Sugerencias generadas automáticamente")
         except Exception as e:  # pragma: no cover - detección es best-effort

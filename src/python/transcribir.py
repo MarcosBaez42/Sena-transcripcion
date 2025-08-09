@@ -5,12 +5,13 @@
 import argparse
 import builtins
 import io
-import json
 import os
 import re
 import sys
 import time
 import warnings
+
+from nombre_utils import cargar_json, guardar_json
 
 try:  # noqa: WPS440 - se desea informar errores al usuario final
     import torch
@@ -200,32 +201,25 @@ def format_output(
     """Procesa el resultado y guarda la transcripción en disco."""
 
     archivo_nombres = "hablantes.json"
-    try:
-        with open(archivo_nombres, "r", encoding="utf-8") as handle:
-            mapeo_nombres = json.load(handle)
-    except FileNotFoundError:
-        mapeo_nombres = {}
+    if not os.path.exists(archivo_nombres):
         print(f"ℹ️ No encontré {archivo_nombres}, crearé uno nuevo")
+    mapeo_nombres = cargar_json(archivo_nombres, {})
 
     archivo_mapeo_global = "mapeo_hablantes_global.json"
-    try:
-        with open(archivo_mapeo_global, "r", encoding="utf-8") as handle:
-            hablantes_globales = json.load(handle)
-            contador_global = (
-                max(
-                    [
-                        int(h.split("_")[1])
-                        for h in hablantes_globales.values()
-                        if h.startswith("HABLANTE_")
-                    ],
-                    default=0,
-                )
-                + 1
-            )
-    except FileNotFoundError:
-        hablantes_globales = {}
-        contador_global = 1
+    if not os.path.exists(archivo_mapeo_global):
         print("ℹ️ Creando nuevo sistema de mapeo de hablantes")
+    hablantes_globales = cargar_json(archivo_mapeo_global, {})
+    contador_global = (
+        max(
+            [
+                int(h.split("_")[1])
+                for h in hablantes_globales.values()
+                if h.startswith("HABLANTE_")
+            ],
+            default=0,
+        )
+        + 1
+    )
 
     def asignar_hablante_global(speaker_local: str) -> str:
         nonlocal contador_global, hablantes_globales
@@ -237,11 +231,8 @@ def format_output(
         hablantes_globales[speaker_local] = nuevo_hablante
         contador_global += 1
         print(f"🆕 Nuevo hablante detectado: {speaker_local} → {nuevo_hablante}")
-        try:
-            with open(archivo_mapeo_global, "w", encoding="utf-8") as handle:
-                json.dump(hablantes_globales, handle, indent=2, ensure_ascii=False)
-        except Exception as exc:  # noqa: WPS440
-            print(f"⚠️ No pude guardar el mapeo: {exc}")
+        if not guardar_json(archivo_mapeo_global, hablantes_globales):
+            print("⚠️ No pude guardar el mapeo")
         return nuevo_hablante
 
     def obtener_nombre_final(hablante_global: str) -> str:
