@@ -16,9 +16,9 @@ const directorioDelProyecto = path.resolve(__dirname, '../../'),
       archivoHablantes = path.join(directorioDelProyecto, 'config/hablantes.json'),
       scriptPythonTranscribir = path.join(directorioDelProyecto, 'src/python/transcribir.py');
 
-const isQuiet = process.argv.includes('--quiet');
-if (isQuiet) process.argv = process.argv.filter(arg => arg !== '--quiet');
-const pythonExtraArgs = isQuiet ? ['--quiet'] : [];
+const modoSilencioso = process.argv.includes('--quiet');
+if (modoSilencioso) process.argv = process.argv.filter(argumento => argumento !== '--quiet');
+const argumentosExtraPython = modoSilencioso ? ['--quiet'] : [];
 
 async function transcribirAudioCompletoPorPartes() {
   const archivosParaProcesar = buscarArchivosDeAudioProcesado(carpetaAudioProcesado);
@@ -28,18 +28,18 @@ async function transcribirAudioCompletoPorPartes() {
     return;
   }
   console.log(`📋 Encontré ${archivosParaProcesar.length} partes para transcribir:`);
-  archivosParaProcesar.forEach(p => console.log(`   - Parte ${p.numeroParte}: ${p.nombreArchivo}`));
+  archivosParaProcesar.forEach(parte => console.log(`   - Parte ${parte.numeroParte}: ${parte.nombreArchivo}`));
 
   const transcripciones = [];
   for (const parte of archivosParaProcesar) {
     try {
       console.log(`\n📝 PROCESANDO PARTE ${parte.numeroParte}/${archivosParaProcesar.length}`);
       const inicio = Date.now();
-      const t = await transcribirUnaParte(parte, scriptPythonTranscribir, directorioDelProyecto, pythonExtraArgs);
-      console.log(`✅ Parte ${t.parte} completada en ${((Date.now()-inicio)/1000).toFixed(1)}s`);
-      transcripciones.push(t);
-    } catch (e) {
-      console.error(`❌ Problemas con la parte ${parte.numeroParte}:`, e.message);
+      const transcripcion = await transcribirUnaParte(parte, scriptPythonTranscribir, directorioDelProyecto, argumentosExtraPython);
+      console.log(`✅ Parte ${transcripcion.parte} completada en ${((Date.now()-inicio)/1000).toFixed(1)}s`);
+      transcripciones.push(transcripcion);
+    } catch (error) {
+      console.error(`❌ Problemas con la parte ${parte.numeroParte}:`, error.message);
     }
   }
   if (!transcripciones.length) return console.error('❌ No pude transcribir ninguna parte.');
@@ -47,7 +47,7 @@ async function transcribirAudioCompletoPorPartes() {
   const combinado = combinarTodasLasTranscripciones(transcripciones);
   const nombreBase = path.basename(archivosParaProcesar[0].nombreArchivo, path.extname(archivosParaProcesar[0].nombreArchivo));
   const nombreDelProyecto = nombreBase.replace(/_parte_\d+$/, '');
-  const info = extraerInformacionDelAudio(nombreDelProyecto, combinado.textoCompleto);
+  const informacion = extraerInformacionDelAudio(nombreDelProyecto, combinado.textoCompleto);
 
   const carpetaProyecto = path.join(directorioDelProyecto, nombreDelProyecto);
   if (!fs.existsSync(carpetaProyecto)) fs.mkdirSync(carpetaProyecto, { recursive: true });
@@ -55,9 +55,9 @@ async function transcribirAudioCompletoPorPartes() {
   fs.writeFileSync(archivoTranscripcionCompleta, combinado.textoCompleto, 'utf-8');
 
   let actaIA = null;
-  if (puedeUsarGemini) actaIA = await generarActaConInteligenciaArtificial(combinado.textoCompleto, info);
+  if (puedeUsarGemini) actaIA = await generarActaConInteligenciaArtificial(combinado.textoCompleto, informacion);
 
-  console.log(`👥 Hablantes detectados: ${combinado.listaHablantes.sort((a,b)=>a-b).map(h=>`HABLANTE ${h}`).join(', ')}`);
+  console.log(`👥 Hablantes detectados: ${combinado.listaHablantes.sort((primero, segundo) => primero - segundo).map(hablante => `HABLANTE ${hablante}`).join(', ')}`);
   if (verificarSiHablantesEstanRegistrados(combinado.listaHablantes, archivoHablantes)) {
     generarDocumentoWord(combinado.textoCompleto, nombreDelProyecto, {}, archivoPlantillaWord, directorioDelProyecto);
   }
@@ -72,7 +72,7 @@ async function transcribirUnSoloArchivo(rutaCompletaDelAudio) {
   const archivoTranscripcionEsperado = path.join(carpetaDelArchivo, `${nombreDelArchivo}_transcripcion.txt`);
 
   try {
-    await transcribirUnaParte({ nombreArchivo: path.basename(rutaCompletaDelAudio), rutaCompleta: rutaCompletaDelAudio, numeroParte: 1 }, scriptPythonTranscribir, directorioDelProyecto, pythonExtraArgs);
+    await transcribirUnaParte({ nombreArchivo: path.basename(rutaCompletaDelAudio), rutaCompleta: rutaCompletaDelAudio, numeroParte: 1 }, scriptPythonTranscribir, directorioDelProyecto, argumentosExtraPython);
 
     let archivoEncontrado = archivoTranscripcionEsperado;
     if (!fs.existsSync(archivoEncontrado)) {
@@ -80,7 +80,7 @@ async function transcribirUnSoloArchivo(rutaCompletaDelAudio) {
         path.join(directorioDelProyecto, `${nombreDelArchivo}_transcripcion.txt`),
         path.join(carpetaDelArchivo, `${nombreDelArchivo}_transcripcion.txt`)
       ];
-      archivoEncontrado = alternativas.find(r => fs.existsSync(r));
+      archivoEncontrado = alternativas.find(ruta => fs.existsSync(ruta));
       if (!archivoEncontrado) throw new Error('No se encontró la transcripción');
     }
 
@@ -90,10 +90,10 @@ async function transcribirUnSoloArchivo(rutaCompletaDelAudio) {
     if (archivoEncontrado !== destinoFinal) { fs.renameSync(archivoEncontrado, destinoFinal); archivoEncontrado = destinoFinal; }
 
     const textoTranscrito = fs.readFileSync(archivoEncontrado, 'utf-8');
-    const hablantes = [...new Set([...textoTranscrito.matchAll(/HABLANTE (\w+|\d+)/g)].map(m => m[1]))];
-    const info = extraerInformacionDelAudio(nombreDelArchivo, textoTranscrito);
+    const hablantes = [...new Set([...textoTranscrito.matchAll(/HABLANTE (\w+|\d+)/g)].map(coincidencia => coincidencia[1]))];
+    const informacion = extraerInformacionDelAudio(nombreDelArchivo, textoTranscrito);
     let acta = null;
-    if (puedeUsarGemini) acta = await generarActaConInteligenciaArtificial(textoTranscrito, info);
+    if (puedeUsarGemini) acta = await generarActaConInteligenciaArtificial(textoTranscrito, informacion);
 
     if (verificarSiHablantesEstanRegistrados(hablantes, archivoHablantes)) {
       generarDocumentoWord(textoTranscrito, nombreDelArchivo, {}, archivoPlantillaWord, directorioDelProyecto);
@@ -101,10 +101,10 @@ async function transcribirUnSoloArchivo(rutaCompletaDelAudio) {
 
     console.log(`📄 Transcripción: ${archivoEncontrado}`);
     if (acta) console.log(`🤖 Acta con Gemini: ${acta.archivoGenerado}`);
-    return { transcripcion: archivoEncontrado, acta, informacion: info };
-  } catch (e) {
-    console.error('❌ Tuve problemas procesando los archivos:', e);
-    throw e;
+    return { transcripcion: archivoEncontrado, acta, informacion };
+  } catch (error) {
+    console.error('❌ Tuve problemas procesando los archivos:', error);
+    throw error;
   }
 }
 
@@ -113,9 +113,9 @@ if (require.main === module) {
   if (process.argv.length > 2) {
     const archivoDeAudio = process.argv[2];
     console.log(`📁 Voy a procesar el archivo: ${archivoDeAudio}`);
-    transcribirUnSoloArchivo(archivoDeAudio).catch(err => { console.error('❌ Error:', err.message); process.exit(1); });
+    transcribirUnSoloArchivo(archivoDeAudio).catch(error => { console.error('❌ Error:', error.message); process.exit(1); });
   } else {
-    transcribirAudioCompletoPorPartes().catch(err => { console.error('❌ Error:', err.message); process.exit(1); });
+    transcribirAudioCompletoPorPartes().catch(error => { console.error('❌ Error:', error.message); process.exit(1); });
   }
 }
 

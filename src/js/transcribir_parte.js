@@ -2,27 +2,27 @@ const fs = require('fs');
 const path = require('path');
 const { spawn } = require('child_process');
 
-async function transcribirUnaParte(archivoParteInfo, scriptPythonTranscribir, directorioDelProyecto, pythonExtraArgs = []) {
+async function transcribirUnaParte(archivoParteInfo, scriptPythonTranscribir, directorioDelProyecto, argumentosExtraPython = []) {
     console.log(`🔊 Transcribiendo ${archivoParteInfo.nombreArchivo}...`);
 
     try {
-        await new Promise((resolve, reject) => {
-            const child = spawn('python', [scriptPythonTranscribir, archivoParteInfo.rutaCompleta, ...pythonExtraArgs], {
+        await new Promise((resolver, rechazar) => {
+            const subproceso = spawn('python', [scriptPythonTranscribir, archivoParteInfo.rutaCompleta, ...argumentosExtraPython], {
                 cwd: directorioDelProyecto,
                 stdio: ['ignore', 'pipe', 'pipe']
             });
 
-            child.stdout.pipe(process.stdout);
-            child.stderr.pipe(process.stderr);
+            subproceso.stdout.pipe(process.stdout);
+            subproceso.stderr.pipe(process.stderr);
 
-            child.on('close', code => {
-                if (code === 0) {
-                    resolve();
+            subproceso.on('close', codigo => {
+                if (codigo === 0) {
+                    resolver();
                 } else {
-                    reject(new Error(`transcribir.py exited with code ${code}`));
+                    rechazar(new Error(`transcribir.py terminó con código ${codigo}`));
                 }
             });
-            child.on('error', reject);
+            subproceso.on('error', rechazar);
         });
 
         const nombreBase = path.basename(archivoParteInfo.rutaCompleta, path.extname(archivoParteInfo.rutaCompleta));
