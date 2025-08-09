@@ -11,6 +11,8 @@ import sys
 import time
 import warnings
 
+from typing import Optional, Tuple
+
 from utilidades_nombres import cargar_json, guardar_json
 
 try:  # noqa: WPS440 - se desea informar errores al usuario final
@@ -64,7 +66,7 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def setup_environment(args: argparse.Namespace) -> tuple[str | None, str]:
+def setup_environment(args: argparse.Namespace) -> Tuple[Optional[str], str]:
     """Configura variables de entorno y selecciona el dispositivo."""
 
     quiet_env = os.getenv("QUIET_MODE", "").lower() not in ("", "0", "false", "no")
@@ -157,7 +159,7 @@ def ejecutar_diarizacion(
     resultado_alineado: dict,
     audio_file: str,
     device: str,
-    token_hf: str | None,
+    token_hf: Optional[str],
 ):
     """Aplica la diarización para separar hablantes."""
 
@@ -195,7 +197,7 @@ def ejecutar_diarizacion(
 
 def formatear_salida(
     resultado_alineado: dict,
-    segmentos_hablantes: dict | None,
+    segmentos_hablantes: Optional[dict],
     nombre_sin_extension: str,
 ):
     """Procesa el resultado y guarda la transcripción en disco."""

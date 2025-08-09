@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 import json
-from typing import Any
+from typing import Any, Optional
 
 
-def cargar_json(path: str, default: Any | None = None) -> Any:
+def cargar_json(path: str, default: Optional[Any] = None) -> Any:
     """Carga el contenido JSON de ``path``.
 
     Si el archivo no existe o contiene datos no válidos, se devuelve

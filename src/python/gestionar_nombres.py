@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import os
 import sys
+from typing import Optional
 
 from utilidades_nombres import cargar_json, guardar_json
 
@@ -52,12 +53,12 @@ def mostrar_hablantes_detectados():
         print(f"\n{hablante_global} -> {nombre_actual}")
         print(f"   Detectado como: {', '.join(speakers_locales)}")
 
-def asignar_nombres_interactivo(archivo_transcripcion: str | None = None) -> None:
+def asignar_nombres_interactivo(archivo_transcripcion: Optional[str] = None) -> None:
     """Permite asignar nombres de forma interactiva.
 
     Parameters
     ----------
-    archivo_transcripcion : str | None, optional
+    archivo_transcripcion : Optional[str], optional
         Ruta al archivo de transcripción. Si se especifica y no existe
         ``sugerencias.json``, se generarán sugerencias automáticamente.
     """
@@ -201,8 +202,9 @@ def main():
         elif opcion == "5":
             print("¡Hasta luego!")
             break
-        else:
-            print("Opción no válida")
+    else:
+        print("Opción no válida")
+
 
 if __name__ == "__main__":
     main()
