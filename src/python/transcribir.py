@@ -11,7 +11,7 @@ import sys
 import time
 import warnings
 
-from nombre_utils import cargar_json, guardar_json
+from python.utilidades_nombres import cargar_json, guardar_json
 
 try:  # noqa: WPS440 - se desea informar errores al usuario final
     import torch
@@ -23,8 +23,8 @@ except ImportError as exc:  # pragma: no cover - se ejecuta antes de las pruebas
     sys.exit(1)
 
 
-BATCH_SIZE_DEF = 8
-COMPUTE_TYPE_DEF = "float16"
+TAMANO_LOTE_DEF = 8
+TIPO_COMPUTO_DEF = "float16"
 TIPOS_PERMITIDOS = {
     "float16",
     "float32",
@@ -42,12 +42,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--batch-size",
         type=int,
-        default=int(os.getenv("BATCH_SIZE", BATCH_SIZE_DEF)),
+        default=int(os.getenv("BATCH_SIZE", TAMANO_LOTE_DEF)),
         help="Tamaño del lote para la transcripción",
     )
     parser.add_argument(
         "--compute-type",
-        default=os.getenv("COMPUTE_TYPE", COMPUTE_TYPE_DEF),
+        default=os.getenv("COMPUTE_TYPE", TIPO_COMPUTO_DEF),
         choices=TIPOS_PERMITIDOS,
         help="Tipo de cómputo a utilizar",
     )
@@ -88,7 +88,7 @@ def setup_environment(args: argparse.Namespace) -> tuple[str | None, str]:
     return token_hf, device
 
 
-def run_transcription(
+def ejecutar_transcripcion(
     audio_file: str,
     device: str,
     batch_size: int,
@@ -153,7 +153,7 @@ def run_transcription(
     return modelo_whisper, resultado_alineado
 
 
-def run_diarization(
+def ejecutar_diarizacion(
     resultado_alineado: dict,
     audio_file: str,
     device: str,
@@ -193,7 +193,7 @@ def run_diarization(
     return resultado_alineado, segmentos_hablantes
 
 
-def format_output(
+def formatear_salida(
     resultado_alineado: dict,
     segmentos_hablantes: dict | None,
     nombre_sin_extension: str,
@@ -411,13 +411,13 @@ def main() -> None:
     )
 
     tiempo_inicio = time.time()
-    modelo_whisper, resultado = run_transcription(
+    modelo_whisper, resultado = ejecutar_transcripcion(
         audio_file, device, args.batch_size, compute_type
     )
-    resultado, segmentos_hablantes = run_diarization(
+    resultado, segmentos_hablantes = ejecutar_diarizacion(
         resultado, audio_file, device, token_hf
     )
-    texto_transcrito_final, archivo_salida = format_output(
+    texto_transcrito_final, archivo_salida = formatear_salida(
         resultado, segmentos_hablantes, nombre_sin_extension
     )
 

@@ -9,7 +9,7 @@ from __future__ import annotations
 import os
 import sys
 
-from nombre_utils import cargar_json, guardar_json
+from python.utilidades_nombres import cargar_json, guardar_json
 
 def cargar_mapeo_global():
     """Carga el mapeo global de hablantes"""
