@@ -11,7 +11,7 @@ import sys
 import time
 import warnings
 
-from python.utilidades_nombres import cargar_json, guardar_json
+from utilidades_nombres import cargar_json, guardar_json
 
 try:  # noqa: WPS440 - se desea informar errores al usuario final
     import torch
