@@ -35,19 +35,27 @@ async function corregirTranscripcion(inputPath, outputPath, modelo) {
     for (let index = 0; index < partes.length; index++) {
         const parte = partes[index];
         const prompt = "Corrige la gramatica del texto no le adiciones nada solo corrige " + parte;
-
-        const res = await modelInstance.generateContent(prompt);
-        const resp = await res.response;
-        let textoCorregido = resp.text();
-        if (index > 0 && overlapWords > 0) {
-            const palabrasCorregidas = textoCorregido.split(/\s+/).slice(overlapWords);
-            textoCorregido = palabrasCorregidas.join(' ');
+        try {
+            const res = await modelInstance.generateContent(prompt);
+            const resp = await res.response;
+            let textoCorregido = resp.text();
+            if (index > 0 && overlapWords > 0) {
+                const palabrasCorregidas = textoCorregido.split(/\s+/).slice(overlapWords);
+                textoCorregido = palabrasCorregidas.join(' ');
+            }
+            resultadoCompleto += textoCorregido + '\n';
+        } catch (error) {
+            console.error(`⚠️ Error en el segmento ${index + 1}:`, error.message);
+            resultadoCompleto += `[SEGMENTO ${index + 1} NO PROCESADO]\n`;
         }
-        resultadoCompleto += textoCorregido + '\n';
     }
 
-    fs.writeFileSync(outputPath, resultadoCompleto, 'utf8');
-    console.log(`✅ Transcripción corregida guardada en: ${outputPath}`);
+    try {
+        fs.writeFileSync(outputPath, resultadoCompleto, 'utf8');
+        console.log(`✅ Transcripción corregida guardada en: ${outputPath}`);
+    } catch (error) {
+        console.error(`❌ No se pudo guardar la transcripción corregida: ${error.message}`);
+    }
 }
 
 if (require.main === module) {
