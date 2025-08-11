@@ -1,7 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 const { GeneradorActas } = require('./generar_acta');
-const { generarDocumentoWord, extraerInformacionDelAudio } = require('./transcribir');
+const { generarDocumentoWord } = require('./generador_documento');
+const { extraerInformacionDelAudio } = require('./metadatos');
 
 async function generarActaEnDosPartes(parte1, parte2 = null, info = {}) {
     const textos = [];
@@ -18,6 +19,9 @@ async function generarActaEnDosPartes(parte1, parte2 = null, info = {}) {
     const resultado = await generador.generarActaEnDosPartes(textoCompleto, infoFinal);
 
     if (resultado) {
+        const directorioDelProyecto = path.resolve(__dirname, '../../');
+        const archivoPlantillaWord = path.join(directorioDelProyecto, 'config/plantilla.docx');
+
         generarDocumentoWord(resultado.textoDelActa, infoFinal.nombreDelProyecto, {
             fecha: resultado.fecha,
             horaInicio: resultado.horaInicio,
@@ -28,11 +32,10 @@ async function generarActaEnDosPartes(parte1, parte2 = null, info = {}) {
             desarrolloComite: resultado.desarrolloComite,
             conclusiones: resultado.conclusiones,
             compromisos: resultado.compromisos
-        });
+        }, archivoPlantillaWord, directorioDelProyecto);
 
-        const projectRoot = path.resolve(__dirname, '../../');
         const docxName = `${infoFinal.nombreDelProyecto}_acta_completa.docx`;
-        const docxOrigen = path.join(projectRoot, docxName);
+        const docxOrigen = path.join(directorioDelProyecto, docxName);
         const destino = path.join(path.dirname(resultado.archivo), docxName);
 
         try {
