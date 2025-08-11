@@ -21,10 +21,11 @@ async function corregirTranscripcion(inputPath, outputPath, modelo) {
     });
 
     const texto = fs.readFileSync(inputPath, 'utf8');
+    const chunkWords = parseInt(process.env.CHUNK_WORDS) || 1500;
+    const palabras = texto.split(/\s+/);
     const partes = [];
-    const chunkSize = 4000;
-    for (let i = 0; i < texto.length; i += chunkSize) {
-        partes.push(texto.slice(i, i + chunkSize));
+    for (let i = 0; i < palabras.length; i += chunkWords) {
+        partes.push(palabras.slice(i, i + chunkWords).join(' '));
     }
 
     let resultadoCompleto = '';
