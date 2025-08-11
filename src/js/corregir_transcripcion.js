@@ -22,19 +22,28 @@ async function corregirTranscripcion(inputPath, outputPath, modelo) {
 
     const texto = fs.readFileSync(inputPath, 'utf8');
     const chunkWords = parseInt(process.env.CHUNK_WORDS) || 1500;
+    const overlapEnv = parseInt(process.env.OVERLAP_WORDS, 10);
+    const overlapWords = isNaN(overlapEnv) ? 20 : overlapEnv;
     const palabras = texto.split(/\s+/);
     const partes = [];
-    for (let i = 0; i < palabras.length; i += chunkWords) {
+    const step = Math.max(chunkWords - overlapWords, 1);
+    for (let i = 0; i < palabras.length; i += step) {
         partes.push(palabras.slice(i, i + chunkWords).join(' '));
     }
 
     let resultadoCompleto = '';
-    for (const parte of partes) {
+    for (let index = 0; index < partes.length; index++) {
+        const parte = partes[index];
         const prompt = "Corrige la gramatica del texto no le adiciones nada solo corrige " + parte;
-        
+
         const res = await modelInstance.generateContent(prompt);
         const resp = await res.response;
-        resultadoCompleto += resp.text() + '\n';
+        let textoCorregido = resp.text();
+        if (index > 0 && overlapWords > 0) {
+            const palabrasCorregidas = textoCorregido.split(/\s+/).slice(overlapWords);
+            textoCorregido = palabrasCorregidas.join(' ');
+        }
+        resultadoCompleto += textoCorregido + '\n';
     }
 
     fs.writeFileSync(outputPath, resultadoCompleto, 'utf8');
