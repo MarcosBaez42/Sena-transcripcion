@@ -8,7 +8,8 @@ const { transcribirUnaParte } = require('./transcribir_parte');
 const { combinarTodasLasTranscripciones, verificarSiHablantesEstanRegistrados } = require('./combinar_transcripciones');
 const { generarDocumentoWord } = require('./generador_documento');
 const { extraerInformacionDelAudio } = require('./metadatos');
-const { generarActaConInteligenciaArtificial, puedeUsarGemini } = require('./generador_actas');
+const { generarActaDesdeArchivos } = require('./generar_acta');
+const { puedeUsarGemini } = require('./generador_actas');
 
 const directorioDelProyecto = path.resolve(__dirname, '../../'),
       carpetaAudioProcesado = path.join(directorioDelProyecto, 'audio_procesado'),
@@ -49,13 +50,13 @@ async function transcribirAudioCompletoPorPartes() {
   const nombreDelProyecto = nombreBase.replace(/_parte_\d+$/, '');
   const informacion = extraerInformacionDelAudio(nombreDelProyecto, combinado.textoCompleto);
 
-  const carpetaProyecto = path.join(directorioDelProyecto, nombreDelProyecto);
+  const carpetaProyecto = path.join(directorioDelProyecto, 'transcripciones', nombreDelProyecto);
   if (!fs.existsSync(carpetaProyecto)) fs.mkdirSync(carpetaProyecto, { recursive: true });
-  const archivoTranscripcionCompleta = path.join(carpetaProyecto, `${nombreDelProyecto}_transcripcion.txt`);
+  const archivoTranscripcionCompleta = path.join(carpetaProyecto, `${nombreDelProyecto}.txt`);
   fs.writeFileSync(archivoTranscripcionCompleta, combinado.textoCompleto, 'utf-8');
 
   let actaIA = null;
-  if (puedeUsarGemini) actaIA = await generarActaConInteligenciaArtificial(combinado.textoCompleto, informacion);
+  if (puedeUsarGemini) actaIA = await generarActaDesdeArchivos(archivoTranscripcionCompleta, null, informacion);
 
   console.log(`👥 Hablantes detectados: ${combinado.listaHablantes.sort((primero, segundo) => primero - segundo).map(hablante => `HABLANTE ${hablante}`).join(', ')}`);
   if (verificarSiHablantesEstanRegistrados(combinado.listaHablantes, archivoHablantes)) {
@@ -63,7 +64,10 @@ async function transcribirAudioCompletoPorPartes() {
   }
 
   console.log(`📄 Transcripción: ${archivoTranscripcionCompleta}`);
-  if (actaIA) console.log(`🤖 Acta con Gemini: ${actaIA.archivoGenerado}`);
+  if (actaIA) {
+    console.log(`🤖 Acta con Gemini: ${actaIA.archivo}`);
+    if (actaIA.archivoDocx) console.log(`📄 Acta Word: ${actaIA.archivoDocx}`);
+  }
 }
 
 async function transcribirUnSoloArchivo(rutaCompletaDelAudio) {
@@ -84,7 +88,7 @@ async function transcribirUnSoloArchivo(rutaCompletaDelAudio) {
       if (!archivoEncontrado) throw new Error('No se encontró la transcripción');
     }
 
-    const carpetaDestino = path.join(directorioDelProyecto, nombreDelArchivo);
+    const carpetaDestino = path.join(directorioDelProyecto, 'transcripciones', nombreDelArchivo);
     if (!fs.existsSync(carpetaDestino)) fs.mkdirSync(carpetaDestino, { recursive: true });
     const destinoFinal = path.join(carpetaDestino, `${nombreDelArchivo}_transcripcion.txt`);
     if (archivoEncontrado !== destinoFinal) { fs.renameSync(archivoEncontrado, destinoFinal); archivoEncontrado = destinoFinal; }
@@ -93,14 +97,17 @@ async function transcribirUnSoloArchivo(rutaCompletaDelAudio) {
     const hablantes = [...new Set([...textoTranscrito.matchAll(/HABLANTE (\w+|\d+)/g)].map(coincidencia => coincidencia[1]))];
     const informacion = extraerInformacionDelAudio(nombreDelArchivo, textoTranscrito);
     let acta = null;
-    if (puedeUsarGemini) acta = await generarActaConInteligenciaArtificial(textoTranscrito, informacion);
+    if (puedeUsarGemini) acta = await generarActaDesdeArchivos(archivoEncontrado, null, informacion);
 
     if (verificarSiHablantesEstanRegistrados(hablantes, archivoHablantes)) {
       generarDocumentoWord(textoTranscrito, nombreDelArchivo, {}, archivoPlantillaWord, directorioDelProyecto);
     }
 
     console.log(`📄 Transcripción: ${archivoEncontrado}`);
-    if (acta) console.log(`🤖 Acta con Gemini: ${acta.archivoGenerado}`);
+    if (acta) {
+      console.log(`🤖 Acta con Gemini: ${acta.archivo}`);
+      if (acta.archivoDocx) console.log(`📄 Acta Word: ${acta.archivoDocx}`);
+    }
     return { transcripcion: archivoEncontrado, acta, informacion };
   } catch (error) {
     console.error('❌ Tuve problemas procesando los archivos:', error);
