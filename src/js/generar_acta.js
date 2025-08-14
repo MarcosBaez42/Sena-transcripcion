@@ -6,6 +6,8 @@
 const fs = require("fs");
 const path = require("path");
 const { fusionarPartes } = require("./fusionar_partes");
+const { generarDocumentoWord } = require('./generador_documento');
+const { extraerInformacionDelAudio } = require('./metadatos');
 
 // Cargo las variables de entorno 
 require('dotenv').config();
@@ -637,28 +639,108 @@ async function buscarYProcesarTodasLasTranscripciones() {
     }
 }
 
+async function generarActaDesdeArchivos(parte1, parte2 = null, info = {}) {
+    const textos = [];
+    if (parte1) textos.push(fs.readFileSync(parte1, 'utf8'));
+    if (parte2) textos.push(fs.readFileSync(parte2, 'utf8'));
+    const textoCompleto = textos.join('\n\n');
+
+    const nombreBase = info.nombreDelProyecto ||
+        (parte1 ? path.basename(parte1).replace('_transcripcion', '').replace(path.extname(parte1), '') : 'acta');
+    const infoDetectada = extraerInformacionDelAudio(nombreBase, textoCompleto);
+    const infoFinal = { ...infoDetectada, ...info, nombreDelProyecto: nombreBase };
+
+    const generador = new GeneradorDeActasSENA();
+    await generador.init();
+    const resultado = await generador.generarActaEnDosPartes(textoCompleto, infoFinal);
+
+    if (resultado) {
+        const directorioDelProyecto = path.resolve(__dirname, '../../');
+        const archivoPlantillaWord = path.join(directorioDelProyecto, 'config/plantilla.docx');
+
+        generarDocumentoWord(resultado.textoDelActa, infoFinal.nombreDelProyecto, {
+            fecha: resultado.fecha,
+            horaInicio: resultado.horaInicio,
+            horaFin: resultado.horaFin,
+            participantes: resultado.participantes,
+            objetivos: resultado.objetivos,
+            hechos: resultado.hechos,
+            desarrolloComite: resultado.desarrolloComite,
+            conclusiones: resultado.conclusiones,
+            compromisos: resultado.compromisos
+        }, archivoPlantillaWord, directorioDelProyecto);
+
+        const docxName = `${infoFinal.nombreDelProyecto}_acta_completa.docx`;
+        const docxOrigen = path.join(directorioDelProyecto, docxName);
+        const destino = path.join(path.dirname(resultado.archivo), docxName);
+        try {
+            fs.renameSync(docxOrigen, destino);
+            resultado.archivoDocx = destino;
+        } catch (err) {
+            console.error(`No pude mover el archivo Word: ${err.message}`);
+        }
+    }
+
+    return resultado;
+}
+
 // Exporto mis funciones para que otros archivos las puedan usar
 module.exports = {
     GeneradorActas: GeneradorDeActasSENA,  // Mantengo el nombre original para compatibilidad
     procesarTranscripcionConGemini: procesarTranscripcionParaGenerarActa,  // Alias para compatibilidad
-    integrarConTranscriptor: buscarYProcesarTodasLasTranscripciones
+    integrarConTranscriptor: buscarYProcesarTodasLasTranscripciones,
+    generarActaDesdeArchivos
 };
 
 // Esta parte se ejecuta cuando llamo al archivo directamente
 if (require.main === module) {
     console.log("🎓 GENERADOR DE ACTAS SENA");
-    
-    // Verifico los argumentos que me pasaron
-    if (process.argv.length > 2) {
-        // Modo específico: procesar un archivo específico
-        const archivoEspecifico = process.argv[2];
-        const extraArg = process.argv.find(a => a.startsWith('--articulos='));
-        const articulos = extraArg ? extraArg.replace('--articulos=', '').split(',').map(a => a.trim()) : [];
-        console.log(`📁 Voy a procesar específicamente: ${archivoEspecifico}`);
-        procesarTranscripcionParaGenerarActa(archivoEspecifico, { articulosReglamento: articulos });
-    } else {
-        // Modo automático: procesar todas las transcripciones que encuentre
-        console.log("🔄 Modo automático: voy a procesar todas las transcripciones");
-        buscarYProcesarTodasLasTranscripciones();
-    }
+
+    (async () => {
+        const args = process.argv.slice(2);
+        const archivos = [];
+        const overrides = {};
+
+        for (const arg of args) {
+            if (arg.startsWith('--')) {
+                const [flag, valor] = arg.split('=');
+                if (!valor) continue;
+                switch (flag) {
+                    case '--fecha':
+                        overrides.fechaDeHoy = valor;
+                        break;
+                    case '--programa':
+                        overrides.programaAcademico = valor;
+                        break;
+                    case '--ficha':
+                        overrides.numeroFicha = valor;
+                        break;
+                    case '--aprendiz':
+                        overrides.nombreAprendiz = valor;
+                        break;
+                }
+            } else {
+                archivos.push(arg);
+            }
+        }
+
+        if (archivos.length > 0) {
+            const [parte1, parte2] = archivos;
+            const nombreProyecto = path.basename(parte1).replace('_transcripcion', '').replace(path.extname(parte1), '');
+            const info = { nombreDelProyecto: nombreProyecto, ...overrides };
+
+            const resultado = await generarActaDesdeArchivos(parte1, parte2, info);
+            if (resultado) {
+                console.log(`Acta generada en: ${resultado.archivo}`);
+                if (resultado.archivoDocx) {
+                    console.log(`Documento Word guardado en: ${resultado.archivoDocx}`);
+                }
+            } else {
+                console.error('No se generó el acta.');
+            }
+        } else {
+            console.log("🔄 Modo automático: voy a procesar todas las transcripciones");
+            buscarYProcesarTodasLasTranscripciones();
+        }
+    })();
 }
