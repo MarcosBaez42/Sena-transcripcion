@@ -37,8 +37,24 @@ async function corregirTranscripcion(inputPath, outputPath, modelo) {
         const prompt = "Corrige la gramatica del texto no le adiciones nada solo corrige " + parte;
         try {
             const res = await modelInstance.generateContent(prompt);
-            const resp = await res.response;
-            let textoCorregido = resp.text();
+            const resp = res.response;
+            let textoCorregido = '';
+
+            if (resp?.text) {
+                // SDK ofrece helper text()
+                textoCorregido = resp.text();
+            } else if (resp?.candidates?.length) {
+                // Fallback manual a los candidatos
+                textoCorregido = resp.candidates
+                    .map(c => c.content?.parts?.map(p => p.text || '').join(''))
+                    .join('\n');
+            }
+
+            if (!textoCorregido.trim()) {
+                console.warn(`⚠️ Gemini no devolvió texto para el segmento ${index + 1}`);
+                textoCorregido = parte;
+            }
+
             if (index > 0 && overlapWords > 0) {
                 const palabrasCorregidas = textoCorregido.split(/\s+/).slice(overlapWords);
                 textoCorregido = palabrasCorregidas.join(' ');
