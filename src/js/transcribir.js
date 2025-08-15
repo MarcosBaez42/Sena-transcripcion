@@ -9,7 +9,21 @@ const { combinarTodasLasTranscripciones, verificarSiHablantesEstanRegistrados } 
 const { generarDocumentoWord } = require('./generador_documento');
 const { extraerInformacionDelAudio } = require('./metadatos');
 const { generarActaDesdeArchivos } = require('./generar_acta');
-const { puedeUsarGemini } = require('./generador_actas');
+const puedoUsarGemini = Boolean(process.env.GEMINI_API_KEY);
+
+try {
+    if (puedoUsarGemini) {
+        console.log('🤖 Gemini ✅ HABILITADO');
+        const { GeneradorActas } = require('./generar_acta');
+        GeneradorActasConIA = GeneradorActas;
+        modoGenerador = 'gemini';
+    } else {
+        console.log('ℹ️  No hay modelo de IA configurado. Solo se hará transcripción.');
+    }
+} catch (error) {
+    console.warn('⚠️  No se pudo cargar el generador de actas:', error.message);
+}
+
 
 const directorioDelProyecto = path.resolve(__dirname, '../../'),
       carpetaAudioProcesado = path.join(directorioDelProyecto, 'audio_procesado'),
