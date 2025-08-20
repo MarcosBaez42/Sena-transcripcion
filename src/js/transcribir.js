@@ -1,10 +1,10 @@
 const fs = require('fs');
 const path = require('path');
+const { spawn } = require('child_process');
 
 try { require('dotenv').config(); } catch { console.warn('⚠️  No pude cargar el archivo .env'); }
 
 const { buscarArchivosDeAudioProcesado } = require('./partes_audio');
-const { transcribirUnaParte } = require('./transcribir_parte');
 const { combinarTodasLasTranscripciones, verificarSiHablantesEstanRegistrados } = require('./combinar_transcripciones');
 const { generarDocumentoWord } = require('./generador_documento');
 const { extraerInformacionDelAudio } = require('./metadatos');
@@ -34,6 +34,47 @@ const directorioDelProyecto = path.resolve(__dirname, '../../'),
 const modoSilencioso = process.argv.includes('--quiet');
 if (modoSilencioso) process.argv = process.argv.filter(argumento => argumento !== '--quiet');
 const argumentosExtraPython = modoSilencioso ? ['--quiet'] : [];
+
+async function transcribirUnaParte(archivoParteInfo, scriptPythonTranscribir, directorioDelProyecto, argumentosExtraPython = []) {
+  console.log(`🔊 Transcribiendo ${archivoParteInfo.nombreArchivo}...`);
+
+  try {
+    await new Promise((resolver, rechazar) => {
+      const subproceso = spawn('python', [scriptPythonTranscribir, archivoParteInfo.rutaCompleta, ...argumentosExtraPython], {
+        cwd: directorioDelProyecto,
+        stdio: ['ignore', 'pipe', 'pipe']
+      });
+
+      subproceso.stdout.pipe(process.stdout);
+      subproceso.stderr.pipe(process.stderr);
+
+      subproceso.on('close', codigo => {
+        if (codigo === 0) {
+          resolver();
+        } else {
+          rechazar(new Error(`transcribir.py terminó con código ${codigo}`));
+        }
+      });
+      subproceso.on('error', rechazar);
+    });
+
+    const nombreBase = path.basename(archivoParteInfo.rutaCompleta, path.extname(archivoParteInfo.rutaCompleta));
+    const archivoTranscripcionEsperado = path.join(path.dirname(archivoParteInfo.rutaCompleta), `${nombreBase}_transcripcion.txt`);
+
+    if (!fs.existsSync(archivoTranscripcionEsperado)) {
+      throw new Error(`No encontré la transcripción: ${archivoTranscripcionEsperado}`);
+    }
+
+    return {
+      parte: archivoParteInfo.numeroParte,
+      archivo: archivoTranscripcionEsperado,
+      contenido: fs.readFileSync(archivoTranscripcionEsperado, 'utf-8')
+    };
+  } catch (error) {
+    console.error(`❌ Error transcribiendo ${archivoParteInfo.nombreArchivo}:`, error.message);
+    throw error;
+  }
+}
 
 async function transcribirAudioCompletoPorPartes() {
   const archivosParaProcesar = buscarArchivosDeAudioProcesado(carpetaAudioProcesado);
