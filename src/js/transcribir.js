@@ -9,10 +9,10 @@ const { combinarTodasLasTranscripciones, verificarSiHablantesEstanRegistrados } 
 const { generarDocumentoWord } = require('./generador_documento');
 const { extraerInformacionDelAudio } = require('./metadatos');
 const { generarActaDesdeArchivos } = require('./generar_acta');
-const puedoUsarGemini = Boolean(process.env.GEMINI_API_KEY);
+const puedeUsarGemini = Boolean(process.env.GEMINI_API_KEY);
 
 try {
-    if (puedoUsarGemini) {
+    if (puedeUsarGemini) {
         console.log('🤖 Gemini ✅ HABILITADO');
         const { GeneradorActas } = require('./generar_acta');
         GeneradorActasConIA = GeneradorActas;
