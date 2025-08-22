@@ -8,6 +8,7 @@ try { require('dotenv').config(); } catch {}
 const { transcribirUnSoloArchivo } = require('../js/transcribir');
 
 const app = express();
+fs.mkdirSync('uploads', { recursive: true });
 const upload = multer({ dest: 'uploads/' });
 
 // Servir archivos estáticos de la carpeta public
@@ -29,6 +30,11 @@ app.post('/api/transcribir', upload.single('audio'), async (req, res) => {
     console.log('Enviando respuesta con transcripción en:', resultado.transcripcion);
 
     res.json({ ruta: resultado.transcripcion, contenido });
+    fs.unlink(req.file.path, (err) => {
+      if (err) {
+        console.error('Error al eliminar el archivo temporal:', err);
+      }
+    });
   } catch (error) {
     console.error('Error en /api/transcribir:', error);
     return res.status(500).json({ error: 'Error al transcribir el archivo' });
