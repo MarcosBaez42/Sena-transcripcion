@@ -17,6 +17,10 @@ form.addEventListener('submit', async (e) => {
       method: 'POST',
       body: data,
     });
+    if (!res.ok) {
+      const errorText = await res.text();
+      throw new Error(errorText);
+    }
     const json = await res.json();
     if (json.error) throw new Error(json.error);
     addMessage(json.contenido, 'bot');

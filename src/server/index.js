@@ -20,13 +20,18 @@ app.post('/api/transcribir', upload.single('audio'), async (req, res) => {
     }
 
     const rutaAbsoluta = path.resolve(req.file.path);
+    console.log('Llamando a transcribirUnSoloArchivo con:', rutaAbsoluta);
     const resultado = await transcribirUnSoloArchivo(rutaAbsoluta);
+    if (!resultado || typeof resultado !== 'object' || !resultado.transcripcion) {
+      throw new Error('transcribirUnSoloArchivo no devolvió una ruta de transcripción');
+    }
     const contenido = fs.readFileSync(resultado.transcripcion, 'utf-8');
+    console.log('Enviando respuesta con transcripción en:', resultado.transcripcion);
 
     res.json({ ruta: resultado.transcripcion, contenido });
   } catch (error) {
     console.error('Error en /api/transcribir:', error);
-    res.status(500).json({ error: 'Error al transcribir el archivo' });
+    return res.status(500).json({ error: 'Error al transcribir el archivo' });
   }
 });
 
