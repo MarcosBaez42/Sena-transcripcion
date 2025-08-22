@@ -18,8 +18,13 @@ form.addEventListener('submit', async (e) => {
       body: data,
     });
     if (!res.ok) {
-      const errorText = await res.text();
-      throw new Error(errorText);
+      try {
+        const data = await res.json();
+        throw new Error(data.error || 'Error en la solicitud');
+      } catch {
+        const errorText = await res.text();
+        throw new Error(errorText || 'Error en la solicitud');
+      }
     }
     const json = await res.json();
     if (json.error) throw new Error(json.error);

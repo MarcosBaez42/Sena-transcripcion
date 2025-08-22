@@ -37,7 +37,7 @@ app.post('/api/transcribir', upload.single('audio'), async (req, res) => {
     });
   } catch (error) {
     console.error('Error en /api/transcribir:', error);
-    return res.status(500).json({ error: 'Error al transcribir el archivo' });
+    return res.status(500).json({ error: error.message });
   }
 });
 
