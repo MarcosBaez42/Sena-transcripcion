@@ -10,6 +10,9 @@ const { transcribirUnSoloArchivo } = require('../js/transcribir');
 const app = express();
 const upload = multer({ dest: 'uploads/' });
 
+// Servir archivos estáticos de la carpeta public
+app.use(express.static(path.join(__dirname, '..', '..', 'public')));
+
 app.post('/api/transcribir', upload.single('audio'), async (req, res) => {
   try {
     if (!req.file) {
