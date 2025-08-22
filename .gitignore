@@ -10,3 +10,6 @@ audio_procesado/
 *.pyc
 __pycache__/
 .env
+transcripciones/
+versiones/
+uploads/
