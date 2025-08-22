@@ -106,7 +106,7 @@ def ejecutar_transcripcion(
         torch.backends.cudnn.benchmark = True
         torch.set_float32_matmul_precision("high")
 
-    modelo_whisper = whisperx.load_model("medium", device, compute_type=compute_type)
+    modelo_whisper = whisperx.load_model("large-v3", device, compute_type=compute_type)
     print("✅ Modelo cargado correctamente")
 
     print(f"🎙️ Comenzando transcripción de: {audio_file}")
