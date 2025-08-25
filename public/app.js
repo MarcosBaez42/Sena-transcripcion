@@ -1,6 +1,12 @@
 const form = document.getElementById('upload-form');
 const fileInput = document.getElementById('file-input');
 const messages = document.getElementById('messages');
+const fileName = document.getElementById('file-name');
+
+fileInput.addEventListener('change', () => {
+  const file = fileInput.files[0];
+  fileName.textContent = file ? file.name : '';
+});
 
 form.addEventListener('submit', async (e) => {
   e.preventDefault();

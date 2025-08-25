@@ -112,3 +112,9 @@ button:hover, .upload-label:hover {
   color: var(--sena-blanco);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
+
+#file-name {
+  margin-left: 0.5rem;
+  font-style: italic;
+  color: var(--sena-blanco);
+}
