@@ -54,23 +54,39 @@ header h1 {
 
 .message {
   padding: 10px 15px;
-  border-radius: 8px;
+  border-radius: 20px;
+  margin: 0.5rem 0;
   max-width: 80%;
   white-space: pre-wrap;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.message.user::before,
+.message.bot::before {
+  font-size: 1.2rem;
+}
+
+.message.user::before {
+  content: "👤";
+}
+
+.message.bot::before {
+  content: "🤖";
 }
 
 .user {
   align-self: flex-end;
   background: var(--sena-verde);
   color: var(--sena-blanco);
-  box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
 }
 
 .bot {
   align-self: flex-start;
-  background: var(--sena-gris-medio);
-  color: var(--sena-blanco);
-  box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+  background: var(--sena-gris-claro);
+  color: var(--sena-gris-oscuro);
 }
 
 form {
