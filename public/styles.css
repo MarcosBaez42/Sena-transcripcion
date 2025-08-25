@@ -1,6 +1,15 @@
+:root {
+  --sena-verde: #39a900;
+  --sena-naranja: #ff6a00;
+  --sena-blanco: #ffffff;
+  --sena-gris-oscuro: #343541;
+  --sena-gris-medio: #444654;
+  --sena-gris-claro: #ececec;
+}
+
 body {
-  background-color: #343541;
-  color: #ececec;
+  background-color: var(--sena-gris-oscuro);
+  color: var(--sena-gris-claro);
   font-family: system-ui, sans-serif;
   height: 100vh;
   margin: 0;
@@ -35,13 +44,16 @@ body {
 
 .user {
   align-self: flex-end;
-  background: #10a37f;
-  color: #fff;
+  background: var(--sena-verde);
+  color: var(--sena-blanco);
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
 }
 
 .bot {
   align-self: flex-start;
-  background: #444654;
+  background: var(--sena-gris-medio);
+  color: var(--sena-blanco);
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
 }
 
 form {
@@ -50,14 +62,17 @@ form {
 }
 
 button {
-  background: #10a37f;
+  background: var(--sena-verde);
   border: none;
-  color: #fff;
+  color: var(--sena-blanco);
   padding: 0.5rem 1rem;
   border-radius: 4px;
   cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 button:hover {
-  opacity: 0.9;
+  background: var(--sena-naranja);
+  color: var(--sena-blanco);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
