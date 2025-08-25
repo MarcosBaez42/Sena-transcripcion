@@ -23,7 +23,12 @@ form.addEventListener('submit', async (e) => {
     }
     const json = await res.json();
     if (json.error) throw new Error(json.error);
-    addMessage(json.contenido, 'bot');
+
+    const intervenciones = json.contenido
+      .split(/\n+/)
+      .filter(Boolean);
+
+    intervenciones.forEach((line) => addMessage(line, 'bot'));
   } catch (err) {
     addMessage('Error: ' + err.message, 'bot');
   }
