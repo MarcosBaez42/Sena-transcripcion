@@ -9,15 +9,16 @@
 <body>
     <header>
         <img src="logo-sena.png" alt="Logo SENA">
-        <h1>Transcripción SENA</h1>
+        <h1>Transcriptor SENA</h1>
     </header>
     <div id="chat-container">
     <div id="messages"></div>
     <form id="upload-form">
-      <input type="file" id="file-input" accept="audio/*" />
+      <input type="file" id="file-input" accept="audio/*" style="display:none" />
+      <label for="file-input" class="upload-label">Seleccionar audio</label>
       <button type="submit">Subir</button>
     </form>
   </div>
   <script src="app.js"></script>
-</body>
-</html>
+  </body>
+  </html>

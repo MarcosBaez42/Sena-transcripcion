@@ -70,11 +70,7 @@ header h1 {
 }
 
 .message.user::before {
-  content: "👤";
-}
-
-.message.bot::before {
-  content: "🤖";
+  content: "🔊";
 }
 
 .user {
@@ -92,9 +88,14 @@ header h1 {
 form {
   display: flex;
   gap: 0.5rem;
+  justify-content: center;
+  position: sticky;
+  bottom: 0;
+  background: var(--sena-gris-oscuro);
+  padding: 0.5rem 0;
 }
 
-button {
+button, .upload-label {
   background: var(--sena-verde);
   border: none;
   color: var(--sena-blanco);
@@ -102,9 +103,11 @@ button {
   border-radius: 4px;
   cursor: pointer;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  display: inline-block;
 }
 
-button:hover {
+button:hover, .upload-label:hover {
   background: var(--sena-naranja);
   color: var(--sena-blanco);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
