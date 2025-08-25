@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const express = require('express');
 const multer = require('multer');
+const { randomUUID } = require('crypto');
 
 try { require('dotenv').config(); } catch {}
 
@@ -11,8 +12,22 @@ const app = express();
 fs.mkdirSync('uploads', { recursive: true });
 const upload = multer({ dest: 'uploads/' });
 
+// Conexiones SSE activas
+const conexiones = new Map();
+
 // Servir archivos estáticos de la carpeta public
 app.use(express.static(path.join(__dirname, '..', '..', 'public')));
+
+// Endpoint SSE para escuchar el progreso de la transcripción
+app.get('/api/progreso/:id', (req, res) => {
+  const { id } = req.params;
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+  res.flushHeaders && res.flushHeaders();
+  conexiones.set(id, res);
+  req.on('close', () => conexiones.delete(id));
+});
 
 app.post('/api/transcribir', upload.single('audio'), async (req, res) => {
   try {
@@ -20,19 +35,45 @@ app.post('/api/transcribir', upload.single('audio'), async (req, res) => {
       return res.status(400).json({ error: 'No se recibió ningún archivo' });
     }
 
+    const id = randomUUID();
+    res.json({ id });
+
     const rutaAbsoluta = path.resolve(req.file.path);
     console.log('Llamando a transcribirUnSoloArchivo con:', rutaAbsoluta);
-    const resultado = await transcribirUnSoloArchivo(rutaAbsoluta);
-    if (!resultado || typeof resultado !== 'object' || !resultado.transcripcion) {
-      throw new Error('transcribirUnSoloArchivo no devolvió una ruta de transcripción');
-    }
-    const contenido = fs.readFileSync(resultado.transcripcion, 'utf-8');
-    console.log('Enviando respuesta con transcripción en:', resultado.transcripcion);
 
-    res.json({ ruta: resultado.transcripcion, contenido });
-    fs.unlink(req.file.path, (err) => {
-      if (err) {
-        console.error('Error al eliminar el archivo temporal:', err);
+    const enviar = (payload) => {
+      const cliente = conexiones.get(id);
+      if (cliente) {
+        cliente.write(`data: ${JSON.stringify(payload)}\n\n`);
+      }
+    };
+
+    const finalizar = () => {
+      const cliente = conexiones.get(id);
+      if (cliente) {
+        cliente.end();
+        conexiones.delete(id);
+      }
+    };
+
+    setImmediate(async () => {
+      try {
+        const resultado = await transcribirUnSoloArchivo(rutaAbsoluta, (msg) => {
+          enviar({ progreso: msg });
+        });
+        if (!resultado || typeof resultado !== 'object' || !resultado.transcripcion) {
+          throw new Error('transcribirUnSoloArchivo no devolvió una ruta de transcripción');
+        }
+        const contenido = fs.readFileSync(resultado.transcripcion, 'utf-8');
+        enviar({ final: contenido });
+      } catch (err) {
+        console.error('Error en transcripción:', err);
+        enviar({ error: err.message });
+      } finally {
+        finalizar();
+        fs.unlink(req.file.path, (err) => {
+          if (err) console.error('Error al eliminar el archivo temporal:', err);
+        });
       }
     });
   } catch (error) {

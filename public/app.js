@@ -39,11 +39,38 @@ form.addEventListener('submit', (e) => {
         const json = JSON.parse(xhr.responseText);
         if (json.error) throw new Error(json.error);
 
-        const intervenciones = json.contenido
-          .split(/\n+/)
-          .filter(Boolean);
+        const { id } = json;
+        const sse = new EventSource('/api/progreso/' + id);
 
-        intervenciones.forEach((line) => addMessage(line, 'bot'));
+        sse.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            if (data.progreso !== undefined) {
+              const percent = parseInt(data.progreso, 10);
+              if (!isNaN(percent)) {
+                progressBar.style.width = `${percent}%`;
+                progressBar.textContent = `${percent}%`;
+              }
+            }
+            if (data.final) {
+              const intervenciones = data.final
+                .split(/\n+/)
+                .filter(Boolean);
+              intervenciones.forEach((line) => addMessage(line, 'bot'));
+              sse.close();
+              progress.style.display = 'none';
+              progressBar.textContent = '';
+            }
+            if (data.error) {
+              addMessage('Error: ' + data.error, 'bot');
+              sse.close();
+              progress.style.display = 'none';
+              progressBar.textContent = '';
+            }
+          } catch (err) {
+            addMessage('Error: ' + err.message, 'bot');
+          }
+        };
       } catch (err) {
         addMessage('Error: ' + err.message, 'bot');
       }
@@ -59,10 +86,7 @@ form.addEventListener('submit', (e) => {
     addMessage('Error de red', 'bot');
   };
 
-  xhr.onloadend = () => {
-    progress.style.display = 'none';
-    progressBar.textContent = '';
-  };
+  xhr.onloadend = () => {};
 
   xhr.send(data);
 });

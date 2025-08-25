@@ -35,21 +35,41 @@ const modoSilencioso = process.argv.includes('--quiet');
 if (modoSilencioso) process.argv = process.argv.filter(argumento => argumento !== '--quiet');
 const argumentosExtraPython = modoSilencioso ? ['--quiet'] : [];
 
-async function transcribirUnaParte(archivoParteInfo, scriptPythonTranscribir, directorioDelProyecto, argumentosExtraPython = []) {
+async function transcribirUnaParte(
+  archivoParteInfo,
+  scriptPythonTranscribir,
+  directorioDelProyecto,
+  argumentosExtraPython = [],
+  onProgress
+) {
   console.log(`🔊 Transcribiendo ${archivoParteInfo.nombreArchivo}...`);
 
   try {
     await new Promise((resolver, rechazar) => {
-      const subproceso = spawn('python', [scriptPythonTranscribir, archivoParteInfo.rutaCompleta, ...argumentosExtraPython], {
-        cwd: directorioDelProyecto,
-        stdio: ['ignore', 'pipe', 'pipe']
+      const subproceso = spawn(
+        'python',
+        [scriptPythonTranscribir, archivoParteInfo.rutaCompleta, ...argumentosExtraPython],
+        {
+          cwd: directorioDelProyecto,
+          stdio: ['ignore', 'pipe', 'pipe']
+        }
+      );
+
+      if (onProgress) onProgress('0');
+
+      subproceso.stdout.on('data', data => {
+        process.stdout.write(data);
+        onProgress && onProgress(data.toString());
       });
 
-      subproceso.stdout.pipe(process.stdout);
-      subproceso.stderr.pipe(process.stderr);
+      subproceso.stderr.on('data', data => {
+        process.stderr.write(data);
+        onProgress && onProgress(data.toString());
+      });
 
       subproceso.on('close', codigo => {
         if (codigo === 0) {
+          onProgress && onProgress('100');
           resolver();
         } else {
           rechazar(new Error(`transcribir.py terminó con código ${codigo}`));
@@ -58,8 +78,14 @@ async function transcribirUnaParte(archivoParteInfo, scriptPythonTranscribir, di
       subproceso.on('error', rechazar);
     });
 
-    const nombreBase = path.basename(archivoParteInfo.rutaCompleta, path.extname(archivoParteInfo.rutaCompleta));
-    const archivoTranscripcionEsperado = path.join(path.dirname(archivoParteInfo.rutaCompleta), `${nombreBase}_transcripcion.txt`);
+    const nombreBase = path.basename(
+      archivoParteInfo.rutaCompleta,
+      path.extname(archivoParteInfo.rutaCompleta)
+    );
+    const archivoTranscripcionEsperado = path.join(
+      path.dirname(archivoParteInfo.rutaCompleta),
+      `${nombreBase}_transcripcion.txt`
+    );
 
     if (!fs.existsSync(archivoTranscripcionEsperado)) {
       throw new Error(`No encontré la transcripción: ${archivoTranscripcionEsperado}`);
@@ -125,14 +151,20 @@ async function transcribirAudioCompletoPorPartes() {
   }
 }
 
-async function transcribirUnSoloArchivo(rutaCompletaDelAudio) {
+async function transcribirUnSoloArchivo(rutaCompletaDelAudio, onProgress) {
   const carpetaDelArchivo = path.dirname(rutaCompletaDelAudio);
   const nombreDelArchivo = path.basename(rutaCompletaDelAudio, path.extname(rutaCompletaDelAudio));
   const archivoTranscripcionEsperado = path.join(carpetaDelArchivo, `${nombreDelArchivo}_transcripcion.txt`);
 
   try {
-    await transcribirUnaParte({ nombreArchivo: path.basename(rutaCompletaDelAudio), rutaCompleta: rutaCompletaDelAudio, numeroParte: 1 }, scriptPythonTranscribir, directorioDelProyecto, argumentosExtraPython);
-
+    await transcribirUnaParte(
+      { nombreArchivo: path.basename(rutaCompletaDelAudio), rutaCompleta: rutaCompletaDelAudio, numeroParte: 1 },
+      scriptPythonTranscribir,
+      directorioDelProyecto,
+      argumentosExtraPython,
+      onProgress
+    );
+    
     let archivoEncontrado = archivoTranscripcionEsperado;
     if (!fs.existsSync(archivoEncontrado)) {
       const alternativas = [
