@@ -118,3 +118,21 @@ button:hover, .upload-label:hover {
   font-style: italic;
   color: var(--sena-blanco);
 }
+
+#progress {
+  width: 100%;
+  height: 20px;
+  background: var(--sena-gris-claro);
+  display: none;
+}
+
+#progress-bar {
+  height: 100%;
+  width: 0%;
+  background: var(--sena-verde);
+  color: var(--sena-blanco);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+}

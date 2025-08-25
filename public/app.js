@@ -2,13 +2,15 @@ const form = document.getElementById('upload-form');
 const fileInput = document.getElementById('file-input');
 const messages = document.getElementById('messages');
 const fileName = document.getElementById('file-name');
+const progress = document.getElementById('progress');
+const progressBar = document.getElementById('progress-bar');
 
 fileInput.addEventListener('change', () => {
   const file = fileInput.files[0];
   fileName.textContent = file ? file.name : '';
 });
 
-form.addEventListener('submit', async (e) => {
+form.addEventListener('submit', (e) => {
   e.preventDefault();
   const file = fileInput.files[0];
   if (!file) return;
@@ -18,26 +20,51 @@ form.addEventListener('submit', async (e) => {
   const data = new FormData();
   data.append('audio', file);
 
-  try {
-    const res = await fetch('/api/transcribir', {
-      method: 'POST',
-      body: data,
-    });
-    if (!res.ok) {
-        const errorText = await res.text();
-        throw new Error(`Error del servidor: ${res.status} ${errorText}`);
+  progress.style.display = 'block';
+  progressBar.style.width = '0%';
+  progressBar.textContent = '0%';
+
+  const xhr = new XMLHttpRequest();
+  xhr.open('POST', '/api/transcribir');
+
+  xhr.upload.addEventListener('progress', (event) => {
+    const percent = Math.round((event.loaded / file.size) * 100);
+    progressBar.style.width = `${percent}%`;
+    progressBar.textContent = `${percent}%`;
+  });
+
+  xhr.onload = () => {
+    if (xhr.status >= 200 && xhr.status < 300) {
+      try {
+        const json = JSON.parse(xhr.responseText);
+        if (json.error) throw new Error(json.error);
+
+        const intervenciones = json.contenido
+          .split(/\n+/)
+          .filter(Boolean);
+
+        intervenciones.forEach((line) => addMessage(line, 'bot'));
+      } catch (err) {
+        addMessage('Error: ' + err.message, 'bot');
+      }
+    } else {
+      addMessage(
+        'Error del servidor: ' + xhr.status + ' ' + xhr.statusText,
+        'bot'
+      );
     }
-    const json = await res.json();
-    if (json.error) throw new Error(json.error);
+  };
 
-    const intervenciones = json.contenido
-      .split(/\n+/)
-      .filter(Boolean);
+  xhr.onerror = () => {
+    addMessage('Error de red', 'bot');
+  };
 
-    intervenciones.forEach((line) => addMessage(line, 'bot'));
-  } catch (err) {
-    addMessage('Error: ' + err.message, 'bot');
-  }
+  xhr.onloadend = () => {
+    progress.style.display = 'none';
+    progressBar.textContent = '';
+  };
+
+  xhr.send(data);
 });
 
 function addMessage(text, role) {
