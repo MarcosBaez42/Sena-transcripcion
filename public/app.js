@@ -4,6 +4,9 @@ const messages = document.getElementById('messages');
 const fileName = document.getElementById('file-name');
 const progress = document.getElementById('progress');
 const progressBar = document.getElementById('progress-bar');
+const downloadSection = document.getElementById('download-section');
+const downloadBtn = document.getElementById('download-btn');
+let currentId = null;
 
 fileInput.addEventListener('change', () => {
   const file = fileInput.files[0];
@@ -14,6 +17,8 @@ form.addEventListener('submit', (e) => {
   e.preventDefault();
   const file = fileInput.files[0];
   if (!file) return;
+
+  downloadSection.style.display = 'none';
 
   addMessage(`Subiendo ${file.name}...`, 'user');
 
@@ -34,6 +39,7 @@ form.addEventListener('submit', (e) => {
         if (json.error) throw new Error(json.error);
 
         const { id } = json;
+        currentId = id;
         const sse = new EventSource('/api/progreso/' + id);
         progressBar.style.width = '0%';
         progressBar.textContent = '0%';
@@ -42,7 +48,7 @@ form.addEventListener('submit', (e) => {
           try {
             const data = JSON.parse(event.data);
             if (data.progreso !== undefined) {
-               const percent = Number(data.progreso);
+              const percent = Number(data.progreso);
               if (!Number.isNaN(percent)) {
                 const limitado = Math.min(percent, 100);
                 progressBar.style.width = `${limitado}%`;
@@ -57,6 +63,7 @@ form.addEventListener('submit', (e) => {
               sse.close();
               progress.style.display = 'none';
               progressBar.textContent = '';
+              downloadSection.style.display = 'block';
             }
             if (data.error) {
               addMessage('Error: ' + data.error, 'bot');
@@ -95,3 +102,30 @@ function addMessage(text, role) {
   messages.appendChild(div);
   messages.scrollTop = messages.scrollHeight;
 }
+
+downloadBtn.addEventListener('click', () => {
+  const formatos = Array.from(
+    downloadSection.querySelectorAll('input[type="checkbox"]:checked')
+  ).map((cb) => cb.value);
+  formatos.forEach((tipo) => {
+    fetch(`/api/descargar?id=${encodeURIComponent(currentId)}&tipo=${tipo}`)
+      .then((res) => {
+        if (!res.ok) throw new Error('No pude descargar ' + tipo);
+        const disposition = res.headers.get('Content-Disposition') || '';
+        const match = /filename="?([^";]+)"?/i.exec(disposition);
+        const nombre = match ? match[1] : `archivo.${tipo}`;
+        return res.blob().then((blob) => ({ blob, nombre }));
+      })
+      .then(({ blob, nombre }) => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = nombre;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      })
+      .catch((err) => addMessage('Error: ' + err.message, 'bot'));
+  });
+});

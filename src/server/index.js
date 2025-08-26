@@ -14,6 +14,8 @@ const upload = multer({ dest: 'uploads/' });
 
 // Conexiones SSE activas
 const conexiones = new Map();
+// Archivos generados por ID
+const archivosGenerados = new Map();
 
 // Servir archivos estáticos de la carpeta public
 app.use(express.static(path.join(__dirname, '..', '..', 'public')));
@@ -36,7 +38,12 @@ app.post('/api/transcribir', upload.single('audio'), async (req, res) => {
     }
 
     const id = randomUUID();
-    res.json({ id });
+    const rutasDescarga = {
+      txt: `/api/descargar?id=${id}&tipo=txt`,
+      md: `/api/descargar?id=${id}&tipo=md`,
+      docx: `/api/descargar?id=${id}&tipo=docx`
+    };
+    res.json({ id, archivos: rutasDescarga });
 
     const rutaAbsoluta = path.resolve(req.file.path);
     console.log('Llamando a transcribirUnSoloArchivo con:', rutaAbsoluta);
@@ -56,30 +63,55 @@ app.post('/api/transcribir', upload.single('audio'), async (req, res) => {
       }
     };
 
-    setImmediate(async () => {
-      try {
-        const resultado = await transcribirUnSoloArchivo(rutaAbsoluta, (msg) => {
-          enviar({ progreso: msg });
-        });
-        if (!resultado || typeof resultado !== 'object' || !resultado.transcripcion) {
-          throw new Error('transcribirUnSoloArchivo no devolvió una ruta de transcripción');
+      setImmediate(async () => {
+        try {
+          const resultado = await transcribirUnSoloArchivo(rutaAbsoluta, (msg) => {
+            enviar({ progreso: msg });
+          });
+          if (!resultado || typeof resultado !== 'object' || !resultado.transcripcion) {
+            throw new Error('transcribirUnSoloArchivo no devolvió una ruta de transcripción');
+          }
+          archivosGenerados.set(id, {
+            txt: resultado.transcripcion,
+            md: resultado.acta && resultado.acta.archivo,
+            docx: resultado.acta && resultado.acta.archivoDocx
+          });
+          const contenido = fs.readFileSync(resultado.transcripcion, 'utf-8');
+          enviar({ final: contenido });
+        } catch (err) {
+          console.error('Error en transcripción:', err);
+          enviar({ error: err.message });
+        } finally {
+          finalizar();
+          fs.unlink(req.file.path, (err) => {
+            if (err) console.error('Error al eliminar el archivo temporal:', err);
+          });
         }
-        const contenido = fs.readFileSync(resultado.transcripcion, 'utf-8');
-        enviar({ final: contenido });
-      } catch (err) {
-        console.error('Error en transcripción:', err);
-        enviar({ error: err.message });
-      } finally {
-        finalizar();
-        fs.unlink(req.file.path, (err) => {
-          if (err) console.error('Error al eliminar el archivo temporal:', err);
-        });
-      }
-    });
+      });
   } catch (error) {
     console.error('Error en /api/transcribir:', error);
     return res.status(500).json({ error: error.message });
   }
+});
+
+app.get('/api/descargar', (req, res) => {
+  const { id, tipo } = req.query;
+  const permitidos = ['txt', 'md', 'docx'];
+  if (!permitidos.includes(tipo)) {
+    return res.status(400).json({ error: 'Tipo no válido' });
+  }
+  const archivos = archivosGenerados.get(id);
+  if (!archivos || !archivos[tipo]) {
+    return res.status(404).json({ error: 'Archivo no disponible' });
+  }
+  const ruta = path.resolve(archivos[tipo]);
+  const base = path.resolve(__dirname, '..', '..');
+  if (!ruta.startsWith(base)) {
+    return res.status(403).json({ error: 'Acceso denegado' });
+  }
+  res.download(ruta, (err) => {
+    if (err) console.error('Error al enviar archivo:', err);
+  });
 });
 
 const PORT = process.env.PORT || 3000;
