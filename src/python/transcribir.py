@@ -36,6 +36,17 @@ TIPOS_PERMITIDOS = {
 }
 
 
+progreso = 0
+
+
+def avanzar(paso: int) -> None:
+    """Incrementa y muestra el avance del proceso."""
+
+    global progreso
+    progreso += paso
+    print(progreso, flush=True)
+
+
 def parse_args() -> argparse.Namespace:
     """Define y analiza los argumentos de la línea de comandos."""
 
@@ -108,7 +119,7 @@ def ejecutar_transcripcion(
 
     modelo_whisper = whisperx.load_model("large-v2", device, compute_type=compute_type)
     print("✅ Modelo cargado correctamente")
-    print("10", flush=True)
+    avanzar(10)
 
     print(f"🎙️ Comenzando transcripción de: {audio_file}")
     try:
@@ -139,7 +150,7 @@ def ejecutar_transcripcion(
         print(f"❌ Error durante la transcripción: {exc}")
         sys.exit(1)
 
-    print("50", flush=True)
+    avanzar(10)
 
     print("🔤 Alineando palabras para mayor precisión...")
     try:
@@ -154,7 +165,7 @@ def ejecutar_transcripcion(
         print(f"⚠️ Problemas con la alineación: {exc}")
         print("🔄 Continuando sin alineación precisa...")
         resultado_alineado = resultado
-        print("10", flush=True)
+        avanzar(10)
     return modelo_whisper, resultado_alineado
 
 
@@ -194,11 +205,10 @@ def ejecutar_diarizacion(
     else:
         print("⚠️  Se omitirá la diarización porque HF_TOKEN no está configurado.")
         print("💡  Establece la variable de entorno HF_TOKEN para habilitar la separación de hablantes.")
-        
+        avanzar(10)
         print("75", flush=True)
 
     return resultado_alineado, segmentos_hablantes
-
 
 def formatear_salida(
     resultado_alineado: dict,
@@ -391,19 +401,21 @@ def formatear_salida(
 
     texto_transcrito_final = limpiar_texto_repetitivo(texto_transcrito_final)
     texto_transcrito_final = formatear_texto_final(texto_transcrito_final)
+    avanzar(10)
 
     archivo_salida = f"{nombre_sin_extension}_transcripcion.txt"
     with open(archivo_salida, "w", encoding="utf-8") as handle:
-        handle.write(texto_transcrito_final)
+        handle.write(texto_transcrito_final)        
 
+    avanzar(10)
     return texto_transcrito_final, archivo_salida
-
 
 def main() -> None:
     """Punto de entrada principal del script."""
 
     args = parse_args()
     token_hf, device = setup_environment(args)
+    avanzar(10)
 
     audio_file = args.audio_file
     if not os.path.exists(audio_file):
@@ -412,6 +424,7 @@ def main() -> None:
         sys.exit(1)
 
     nombre_sin_extension = audio_file.rsplit(".", 1)[0]
+    avanzar(10)
 
     compute_type = args.compute_type or (
         "float16" if device == "cuda" else "int8"
@@ -432,8 +445,9 @@ def main() -> None:
     try:
         del modelo_whisper
         torch.cuda.empty_cache()
-    except Exception:  
+    except Exception:
         pass
+    avanzar(10)
 
     tiempo_final = time.time()
     print("✅ ¡Transcripción y separación de hablantes completadas!")
@@ -443,6 +457,7 @@ def main() -> None:
         linea for linea in texto_transcrito_final.split("\n") if linea.strip().startswith("INTERVIENE")
     ]
     print(f"👥 Total de intervenciones detectadas: {len(intervenciones)}")
+    avanzar(10)
     print("\n🎉 ¡Proceso completado! Este fue mi aporte al proyecto del SENA.")
 
 
