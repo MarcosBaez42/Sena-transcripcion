@@ -19,6 +19,7 @@ form.addEventListener('submit', (e) => {
   if (!file) return;
 
   downloadSection.style.display = 'none';
+  currentId = null;
 
   addMessage(`Subiendo ${file.name}...`, 'user');
 
@@ -39,7 +40,6 @@ form.addEventListener('submit', (e) => {
         if (json.error) throw new Error(json.error);
 
         const { id } = json;
-        currentId = id;
         const sse = new EventSource('/api/progreso/' + id);
         progressBar.style.width = '0%';
         progressBar.textContent = '0%';
@@ -56,6 +56,7 @@ form.addEventListener('submit', (e) => {
               }
             }
             if (data.final) {
+              if (data.id) currentId = data.id;
               const intervenciones = data.final
                 .split(/\n+/)
                 .filter(Boolean);

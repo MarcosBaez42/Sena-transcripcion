@@ -211,7 +211,12 @@ async function transcribirUnSoloArchivo(rutaCompletaDelAudio, onProgress) {
       console.log(`🤖 Acta con Gemini: ${acta.archivo}`);
       if (acta.archivoDocx) console.log(`📄 Acta Word: ${acta.archivoDocx}`);
     }
-    return { transcripcion: archivoEncontrado, acta, informacion };
+    const rutasRelativas = {
+      txt: path.relative(directorioDelProyecto, archivoEncontrado),
+      md: acta && acta.archivo ? path.relative(directorioDelProyecto, acta.archivo) : null,
+      docx: acta && acta.archivoDocx ? path.relative(directorioDelProyecto, acta.archivoDocx) : null
+    };
+    return { transcripcion: archivoEncontrado, acta, informacion, rutasRelativas };
   } catch (error) {
     console.error('❌ Tuve problemas procesando los archivos:', error);
     throw error;

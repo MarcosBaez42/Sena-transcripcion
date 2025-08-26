@@ -71,13 +71,9 @@ app.post('/api/transcribir', upload.single('audio'), async (req, res) => {
           if (!resultado || typeof resultado !== 'object' || !resultado.transcripcion) {
             throw new Error('transcribirUnSoloArchivo no devolvió una ruta de transcripción');
           }
-          archivosGenerados.set(id, {
-            txt: resultado.transcripcion,
-            md: resultado.acta && resultado.acta.archivo,
-            docx: resultado.acta && resultado.acta.archivoDocx
-          });
+          archivosGenerados.set(id, resultado.rutasRelativas);
           const contenido = fs.readFileSync(resultado.transcripcion, 'utf-8');
-          enviar({ final: contenido });
+          enviar({ final: contenido, id });
         } catch (err) {
           console.error('Error en transcripción:', err);
           enviar({ error: err.message });
@@ -101,13 +97,20 @@ app.get('/api/descargar', (req, res) => {
     return res.status(400).json({ error: 'Tipo no válido' });
   }
   const archivos = archivosGenerados.get(id);
-  if (!archivos || !archivos[tipo]) {
+  if (!archivos) {
+    return res.status(404).json({ error: 'ID no válido' });
+  }
+  const relativa = archivos[tipo];
+  if (!relativa) {
     return res.status(404).json({ error: 'Archivo no disponible' });
   }
-  const ruta = path.resolve(archivos[tipo]);
   const base = path.resolve(__dirname, '..', '..');
+  const ruta = path.resolve(base, relativa);
   if (!ruta.startsWith(base)) {
     return res.status(403).json({ error: 'Acceso denegado' });
+  }
+  if (!fs.existsSync(ruta)) {
+    return res.status(404).json({ error: 'Archivo no encontrado' });
   }
   res.download(ruta, (err) => {
     if (err) console.error('Error al enviar archivo:', err);
