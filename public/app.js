@@ -42,9 +42,12 @@ form.addEventListener('submit', (e) => {
           try {
             const data = JSON.parse(event.data);
             if (data.progreso !== undefined) {
-              const percent = Math.min(Number(data.progreso), 100);
-              progressBar.style.width = `${percent}%`;
-              progressBar.textContent = `${percent}%`;
+               const percent = Number(data.progreso);
+              if (!Number.isNaN(percent)) {
+                const limitado = Math.min(percent, 100);
+                progressBar.style.width = `${limitado}%`;
+                progressBar.textContent = `${limitado}%`;
+              }
             }
             if (data.final) {
               const intervenciones = data.final

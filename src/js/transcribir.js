@@ -57,14 +57,30 @@ async function transcribirUnaParte(
 
       if (onProgress) onProgress('0');
 
-      subproceso.stdout.on('data', data => {
-        process.stdout.write(data);
-        onProgress && onProgress(data.toString());
+       subproceso.stdout.on('data', data => {
+        const texto = data.toString();
+        texto.split(/\r?\n/).forEach(linea => {
+          const limpio = linea.trim();
+          if (!limpio) return;
+          if (/^\d+$/.test(limpio)) {
+            onProgress && onProgress(limpio);
+          } else {
+            process.stdout.write(linea + '\n');
+          }
+        });
       });
 
       subproceso.stderr.on('data', data => {
-        process.stderr.write(data);
-        onProgress && onProgress(data.toString());
+        const texto = data.toString();
+        texto.split(/\r?\n/).forEach(linea => {
+          const limpio = linea.trim();
+          if (!limpio) return;
+          if (/^\d+$/.test(limpio)) {
+            onProgress && onProgress(limpio);
+          } else {
+            process.stderr.write(linea + '\n');
+          }
+        });
       });
 
       subproceso.on('close', codigo => {
@@ -164,7 +180,7 @@ async function transcribirUnSoloArchivo(rutaCompletaDelAudio, onProgress) {
       argumentosExtraPython,
       onProgress
     );
-    
+
     let archivoEncontrado = archivoTranscripcionEsperado;
     if (!fs.existsSync(archivoEncontrado)) {
       const alternativas = [
