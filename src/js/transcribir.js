@@ -48,7 +48,7 @@ async function transcribirUnaParte(
     await new Promise((resolver, rechazar) => {
       const subproceso = spawn(
         'python',
-        [scriptPythonTranscribir, archivoParteInfo.rutaCompleta, ...argumentosExtraPython],
+        ['-u', scriptPythonTranscribir, archivoParteInfo.rutaCompleta, ...argumentosExtraPython],
         {
           cwd: directorioDelProyecto,
           stdio: ['ignore', 'pipe', 'pipe']

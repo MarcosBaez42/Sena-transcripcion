@@ -108,7 +108,7 @@ def ejecutar_transcripcion(
 
     modelo_whisper = whisperx.load_model("large-v2", device, compute_type=compute_type)
     print("✅ Modelo cargado correctamente")
-    print("10")
+    print("10", flush=True)
 
     print(f"🎙️ Comenzando transcripción de: {audio_file}")
     try:
@@ -139,6 +139,8 @@ def ejecutar_transcripcion(
         print(f"❌ Error durante la transcripción: {exc}")
         sys.exit(1)
 
+    print("50", flush=True)
+
     print("🔤 Alineando palabras para mayor precisión...")
     try:
         modelo_alineacion, metadatos = whisperx.load_align_model(
@@ -152,7 +154,7 @@ def ejecutar_transcripcion(
         print(f"⚠️ Problemas con la alineación: {exc}")
         print("🔄 Continuando sin alineación precisa...")
         resultado_alineado = resultado
-        print("10")
+        print("10", flush=True)
     return modelo_whisper, resultado_alineado
 
 
@@ -192,7 +194,9 @@ def ejecutar_diarizacion(
     else:
         print("⚠️  Se omitirá la diarización porque HF_TOKEN no está configurado.")
         print("💡  Establece la variable de entorno HF_TOKEN para habilitar la separación de hablantes.")
-        print("75")
+        
+        print("75", flush=True)
+
     return resultado_alineado, segmentos_hablantes
 
 
@@ -423,7 +427,7 @@ def main() -> None:
     texto_transcrito_final, archivo_salida = formatear_salida(
         resultado, segmentos_hablantes, nombre_sin_extension
     )
-    print("90")
+    print("90", flush=True)
 
     try:
         del modelo_whisper
