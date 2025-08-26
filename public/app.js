@@ -27,12 +27,6 @@ form.addEventListener('submit', (e) => {
   const xhr = new XMLHttpRequest();
   xhr.open('POST', '/api/transcribir');
 
-  xhr.upload.addEventListener('progress', (event) => {
-    const percent = Math.round((event.loaded / file.size) * 100);
-    progressBar.style.width = `${percent}%`;
-    progressBar.textContent = `${percent}%`;
-  });
-
   xhr.onload = () => {
     if (xhr.status >= 200 && xhr.status < 300) {
       try {
@@ -41,16 +35,16 @@ form.addEventListener('submit', (e) => {
 
         const { id } = json;
         const sse = new EventSource('/api/progreso/' + id);
+        progressBar.style.width = '0%';
+        progressBar.textContent = '0%';
 
         sse.onmessage = (event) => {
           try {
             const data = JSON.parse(event.data);
             if (data.progreso !== undefined) {
-              const percent = parseInt(data.progreso, 10);
-              if (!isNaN(percent)) {
-                progressBar.style.width = `${percent}%`;
-                progressBar.textContent = `${percent}%`;
-              }
+              const percent = Math.min(Number(data.progreso), 100);
+              progressBar.style.width = `${percent}%`;
+              progressBar.textContent = `${percent}%`;
             }
             if (data.final) {
               const intervenciones = data.final
