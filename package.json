@@ -19,6 +19,7 @@
     "express": "^5.1.0",
     "multer": "^2.0.2",
     "pizzip": "^3.1.4",
-    "zip-stream": "^6.0.1"
+    "zip-stream": "^6.0.1",
+    "docx-preview": "^0.3.6"
   }
 }

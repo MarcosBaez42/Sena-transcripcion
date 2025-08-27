@@ -6,7 +6,10 @@ const progress = document.getElementById('progress');
 const progressBar = document.getElementById('progress-bar');
 const downloadSection = document.getElementById('download-section');
 const downloadBtn = document.getElementById('download-btn');
+const previewContainer = document.getElementById('preview-container');
 let currentId = null;
+
+previewContainer.style.display = 'none';
 
 fileInput.addEventListener('change', () => {
   const file = fileInput.files[0];
@@ -22,6 +25,11 @@ form.addEventListener('submit', (e) => {
   currentId = null;
 
   addMessage(`Subiendo ${file.name}...`, 'user');
+
+  messages.style.display = 'block';
+  messages.innerHTML = '';
+  previewContainer.style.display = 'none';
+  previewContainer.innerHTML = '';
 
   const data = new FormData();
   data.append('audio', file);
@@ -57,14 +65,34 @@ form.addEventListener('submit', (e) => {
             }
             if (data.final) {
               if (data.id) currentId = data.id;
-              const intervenciones = data.final
-                .split(/\n+/)
-                .filter(Boolean);
-              intervenciones.forEach((line) => addMessage(line, 'bot'));
               sse.close();
               progress.style.display = 'none';
               progressBar.textContent = '';
               downloadSection.style.display = 'block';
+              messages.style.display = 'none';
+
+              const urlDocx = `/api/descargar?id=${encodeURIComponent(
+                currentId
+              )}&tipo=docx`;
+              fetch(urlDocx)
+                .then((res) => {
+                  if (!res.ok)
+                    throw new Error('No se pudo obtener el documento');
+                  return res.blob();
+                })
+                .then((blob) => {
+                  previewContainer.style.display = 'block';
+                  previewContainer.innerHTML = '';
+                  window.docx
+                    .renderAsync(blob, previewContainer)
+                    .catch((err) =>
+                      addMessage('Error: ' + err.message, 'bot')
+                    );
+                })
+                .catch((err) => {
+                  messages.style.display = 'block';
+                  addMessage('Error: ' + err.message, 'bot');
+                });
             }
             if (data.error) {
               addMessage('Error: ' + data.error, 'bot');
