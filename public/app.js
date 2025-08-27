@@ -69,25 +69,20 @@ form.addEventListener('submit', (e) => {
               progress.style.display = 'none';
               progressBar.textContent = '';
               downloadSection.style.display = 'block';
-              messages.style.display = 'none';
 
-              const urlDocx = `/api/descargar?id=${encodeURIComponent(
-                currentId
-              )}&tipo=docx`;
-              fetch(urlDocx)
+              fetch(`/api/descargar?id=${currentId}&tipo=docx`)
                 .then((res) => {
                   if (!res.ok)
                     throw new Error('No se pudo obtener el documento');
                   return res.blob();
                 })
                 .then((blob) => {
-                  previewContainer.style.display = 'block';
                   previewContainer.innerHTML = '';
-                  window.docx
-                    .renderAsync(blob, previewContainer)
-                    .catch((err) =>
-                      addMessage('Error: ' + err.message, 'bot')
-                    );
+                  return window.docx.renderAsync(blob, previewContainer);
+                })
+                .then(() => {
+                  previewContainer.style.display = 'block';
+                  messages.style.display = 'none';
                 })
                 .catch((err) => {
                   messages.style.display = 'block';

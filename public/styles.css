@@ -136,3 +136,11 @@ button:hover, .upload-label:hover {
   justify-content: center;
   font-size: 0.8rem;
 }
+
+#preview-container {
+  height: 60vh;
+  overflow-y: auto;
+  background: var(--sena-blanco);
+  color: var(--sena-gris-oscuro);
+  padding: 1rem;
+}
