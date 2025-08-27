@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const express = require('express');
 const multer = require('multer');
+const archiver = require('archiver');
 const { randomUUID } = require('crypto');
 
 try { require('dotenv').config(); } catch {}
@@ -115,6 +116,57 @@ app.get('/api/descargar', (req, res) => {
   res.download(ruta, (err) => {
     if (err) console.error('Error al enviar archivo:', err);
   });
+});
+
+app.get('/api/descargar-zip', (req, res) => {
+  const { id, tipos } = req.query;
+  const permitidos = ['txt', 'md', 'docx'];
+  if (!id || !tipos) {
+    return res.status(400).json({ error: 'Parámetros faltantes' });
+  }
+  const solicitados = tipos
+    .split(',')
+    .map((t) => t.trim())
+    .filter(Boolean);
+  if (
+    !solicitados.length ||
+    solicitados.some((t) => !permitidos.includes(t))
+  ) {
+    return res.status(400).json({ error: 'Tipo no válido' });
+  }
+  const archivos = archivosGenerados.get(id);
+  if (!archivos) {
+    return res.status(404).json({ error: 'ID no válido' });
+  }
+  const base = path.resolve(__dirname, '..', '..');
+  const lista = [];
+  for (const tipo of solicitados) {
+    const relativa = archivos[tipo];
+    if (!relativa) {
+      return res.status(404).json({ error: 'Archivo no disponible' });
+    }
+    const ruta = path.resolve(base, relativa);
+    if (!ruta.startsWith(base) || !fs.existsSync(ruta)) {
+      return res.status(404).json({ error: 'Archivo no encontrado' });
+    }
+    lista.push({ ruta, nombre: path.basename(relativa) });
+  }
+
+  const zipName = `transcripcion-${id}.zip`;
+  res.setHeader('Content-Type', 'application/zip');
+  res.setHeader(
+    'Content-Disposition',
+    `attachment; filename="${zipName}"`
+  );
+
+  const archive = archiver('zip', { zlib: { level: 9 } });
+  archive.on('error', (err) => {
+    console.error('Error al crear ZIP:', err);
+    res.status(500).end();
+  });
+  archive.pipe(res);
+  lista.forEach((f) => archive.file(f.ruta, { name: f.nombre }));
+  archive.finalize();
 });
 
 const PORT = process.env.PORT || 3000;

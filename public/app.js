@@ -108,7 +108,10 @@ downloadBtn.addEventListener('click', () => {
   const formatos = Array.from(
     downloadSection.querySelectorAll('input[type="checkbox"]:checked')
   ).map((cb) => cb.value);
-  formatos.forEach((tipo) => {
+  if (formatos.length === 0) return;
+
+  if (formatos.length === 1) {
+    const tipo = formatos[0];
     fetch(`/api/descargar?id=${encodeURIComponent(currentId)}&tipo=${tipo}`)
       .then((res) => {
         if (!res.ok) throw new Error('No pude descargar ' + tipo);
@@ -128,5 +131,29 @@ downloadBtn.addEventListener('click', () => {
         URL.revokeObjectURL(url);
       })
       .catch((err) => addMessage('Error: ' + err.message, 'bot'));
-  });
+    return;
+  }
+
+  const urlZip = `/api/descargar-zip?id=${encodeURIComponent(
+    currentId
+  )}&tipos=${formatos.join(',')}`;
+  fetch(urlZip)
+    .then((res) => {
+      if (!res.ok) throw new Error('No pude descargar ZIP');
+      const disposition = res.headers.get('Content-Disposition') || '';
+      const match = /filename="?([^";]+)"?/i.exec(disposition);
+      const nombre = match ? match[1] : 'archivos.zip';
+      return res.blob().then((blob) => ({ blob, nombre }));
+    })
+    .then(({ blob, nombre }) => {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = nombre;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    })
+    .catch((err) => addMessage('Error: ' + err.message, 'bot'));
 });
