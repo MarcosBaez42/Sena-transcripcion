@@ -1,15 +1,24 @@
 :root {
-  --sena-verde: #39a900;
-  --sena-naranja: #ff6a00;
-  --sena-blanco: #ffffff;
-  --sena-gris-oscuro: #343541;
-  --sena-gris-medio: #444654;
-  --sena-gris-claro: #ececec;
+  --color_bg: #343541;
+  --color_text: #ececec;
+  --color_header_text: #ffffff;
+  --color_card: #39a900;
+  --color_text_card: #ffffff;
+  --color_card_bot: #ececec;
+  --color_text_card_bot: #343541;
+  --color_button: #39a900;
+  --color_text_button: #ffffff;
+  --color_button_hover: #ff6a00;
+  --color_progress_bg: #ececec;
+  --color_progress_bar: #39a900;
+  --color_progress_text: #ffffff;
+  --color_preview_bg: #ffffff;
+  --color_preview_text: #343541;
 }
 
 body {
-  background-color: var(--sena-gris-oscuro);
-  color: var(--sena-gris-claro);
+  background-color: var(--color_bg);
+  color: var(--color_text);
   font-family: system-ui, sans-serif;
   height: 100vh;
   margin: 0;
@@ -40,7 +49,7 @@ header {
   align-items: center;
   gap: 0.5rem;
   margin: 1rem 0;
-  color: var(--sena-blanco);
+  color: var(--color_header_text);
 }
 
 header img {
@@ -82,14 +91,14 @@ header h1 {
 
 .user {
   align-self: flex-end;
-  background: var(--sena-verde);
-  color: var(--sena-blanco);
+  background: var(--color_card);
+  color: var(--color_text_card);
 }
 
 .bot {
   align-self: flex-start;
-  background: var(--sena-gris-claro);
-  color: var(--sena-gris-oscuro);
+  background: var(--color_card_bot);
+  color: var(--color_text_card_bot);
 }
 
 form {
@@ -98,14 +107,14 @@ form {
   justify-content: center;
   position: sticky;
   bottom: 0;
-  background: var(--sena-gris-oscuro);
+  background: var(--color_bg);
   padding: 0.5rem 0;
 }
 
 button, .upload-label {
-  background: var(--sena-verde);
+  background: var(--color_button);
   border: none;
-  color: var(--sena-blanco);
+  color: var(--color_text_button);
   padding: 0.5rem 1rem;
   border-radius: 4px;
   cursor: pointer;
@@ -115,29 +124,29 @@ button, .upload-label {
 }
 
 button:hover, .upload-label:hover {
-  background: var(--sena-naranja);
-  color: var(--sena-blanco);
+  background: var(--color_button_hover);
+  color: var(--color_text_button);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 #file-name {
   margin-left: 0.5rem;
   font-style: italic;
-  color: var(--sena-blanco);
+  color: var(--color_header_text);
 }
 
 #progress {
   width: 100%;
   height: 20px;
-  background: var(--sena-gris-claro);
+  background: var(--color_progress_bg);
   display: none;
 }
 
 #progress-bar {
   height: 100%;
   width: 0%;
-  background: var(--sena-verde);
-  color: var(--sena-blanco);
+  background: var(--color_progress_bar);
+  color: var(--color_progress_text);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -149,7 +158,7 @@ button:hover, .upload-label:hover {
   width: 100%;
   overflow-y: auto;
   overflow-x: auto;
-  background: var(--sena-blanco);
-  color: var(--sena-gris-oscuro);
+  background: var(--color_preview_bg);
+  color: var(--color_preview_text);
   padding: 1rem;
 }
