@@ -32,55 +32,75 @@ async function corregirTranscripcion(inputPath, outputPath, modelo) {
     }
 
     let resultadoCompleto = '';
+
+    async function corregirSegmento(parte, nivel = 0) {
+        const prompt = "Corrige la gramatica del texto no le adiciones nada solo corrige " + parte;
+        const maxIntentos = 3;
+        let intentos = 0;
+        let resp;
+        let textoCorregido = '';
+        let ultimoError;
+
+        while (intentos < maxIntentos && !textoCorregido.trim()) {
+            intentos++;
+            try {
+                const res = await modelInstance.generateContent(prompt);
+                resp = res.response;
+
+                if (resp?.text) {
+                    // SDK ofrece helper text()
+                    textoCorregido = resp.text();
+                } else if (resp?.candidates?.length) {
+                    // Fallback manual a los candidatos
+                    textoCorregido = resp.candidates
+                        .map(c => c.content?.parts?.map(p => p.text || '').join(''))
+                        .join('\n');
+                }
+
+                if (!textoCorregido.trim()) {
+                    console.warn(`⚠️ Intento ${intentos} sin texto (nivel ${nivel})`);
+                }
+            } catch (error) {
+                ultimoError = error;
+                console.error(`⚠️ Error en el segmento (nivel ${nivel}), intento ${intentos}:`, error.message);
+            }
+        }
+
+        console.log(`Intentos realizados (nivel ${nivel}): ${intentos}`);
+
+        const finishReason = resp?.candidates?.[0]?.finishReason;
+        if (finishReason === 'MAX_TOKENS') {
+            console.warn(`⚠️ Segmento excede tokens, subdividiendo (nivel ${nivel})`);
+            const palabras = parte.split(/\s+/);
+            if (palabras.length <= 1) {
+                return textoCorregido || parte;
+            }
+            const mitad = Math.ceil(palabras.length / 2);
+            const primera = palabras.slice(0, mitad).join(' ');
+            const segunda = palabras.slice(mitad).join(' ');
+            const primeraCorregida = await corregirSegmento(primera, nivel + 1);
+            const segundaCorregida = await corregirSegmento(segunda, nivel + 1);
+            return `${primeraCorregida} ${segundaCorregida}`.trim();
+        }
+
+        if (!textoCorregido.trim()) {
+            if (ultimoError) throw ultimoError;
+            console.warn(`⚠️ Gemini no devolvió texto (nivel ${nivel})`);
+            console.log(JSON.stringify(resp, null, 2));
+            const blockReason = resp?.promptFeedback?.blockReason;
+            if (finishReason || blockReason) {
+                console.warn(`Motivo: ${finishReason || blockReason}`);
+            }
+            textoCorregido = parte;
+        }
+
+        return textoCorregido;
+    }
+
     for (let index = 0; index < partes.length; index++) {
         const parte = partes[index];
-        const prompt = "Corrige la gramatica del texto no le adiciones nada solo corrige " + parte;
         try {
-            const maxIntentos = 3;
-            let intentos = 0;
-            let resp;
-            let textoCorregido = '';
-            let ultimoError;
-
-            while (intentos < maxIntentos && !textoCorregido.trim()) {
-                intentos++;
-                try {
-                    const res = await modelInstance.generateContent(prompt);
-                    resp = res.response;
-
-                    if (resp?.text) {
-                        // SDK ofrece helper text()
-                        textoCorregido = resp.text();
-                    } else if (resp?.candidates?.length) {
-                        // Fallback manual a los candidatos
-                        textoCorregido = resp.candidates
-                            .map(c => c.content?.parts?.map(p => p.text || '').join(''))
-                            .join('\n');
-                    }
-
-                    if (!textoCorregido.trim()) {
-                        console.warn(`⚠️ Intento ${intentos} sin texto para el segmento ${index + 1}`);
-                    }
-                } catch (error) {
-                    ultimoError = error;
-                    console.error(`⚠️ Error en el segmento ${index + 1}, intento ${intentos}:`, error.message);
-                }
-            }
-
-            console.log(`Intentos realizados para el segmento ${index + 1}: ${intentos}`);
-
-            if (!textoCorregido.trim()) {
-                if (ultimoError) throw ultimoError;
-                console.warn(`⚠️ Gemini no devolvió texto para el segmento ${index + 1}`);
-                console.log(JSON.stringify(resp, null, 2));
-                const finishReason = resp?.candidates?.[0]?.finishReason;
-                const blockReason = resp?.promptFeedback?.blockReason;
-                if (finishReason || blockReason) {
-                    console.warn(`Motivo: ${finishReason || blockReason}`);
-                }
-                textoCorregido = parte;
-            }
-
+            let textoCorregido = await corregirSegmento(parte);
             if (index > 0 && overlapWords > 0) {
                 const palabrasCorregidas = textoCorregido.split(/\s+/).slice(overlapWords);
                 textoCorregido = palabrasCorregidas.join(' ');
