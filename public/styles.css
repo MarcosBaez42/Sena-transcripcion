@@ -1,23 +1,27 @@
 :root {
-  --color_bg: #343541;
-  --color_text: #ececec;
+  --color_box: #ffffff; /* fondo principal */
+  --color_text: #212121;
+  --color_header: #2e7d32;
   --color_header_text: #ffffff;
-  --color_card: #39a900;
+  --color_card: #318335;
   --color_text_card: #ffffff;
-  --color_card_bot: #ececec;
-  --color_text_card_bot: #343541;
-  --color_button: #39a900;
+  --color_card_bot: #e8f5e9;
+  --color_text_card_bot: #212121;
+  --color_button: #2e7d32;
+  --color_button_hover: #27632a;
+  --color_button_closed: #a5d6a7;
   --color_text_button: #ffffff;
-  --color_button_hover: #ff6a00;
-  --color_progress_bg: #ececec;
-  --color_progress_bar: #39a900;
+  --color_input: #f1f8e9;
+  --color_tooltip: #2e7d32;
+  --color_progress_bg: #e0e0e0;
+  --color_progress_bar: #2e7d32;
   --color_progress_text: #ffffff;
   --color_preview_bg: #ffffff;
-  --color_preview_text: #343541;
+  --color_preview_text: #212121;
 }
 
 body {
-  background-color: var(--color_bg);
+  background-color: var(--color_box);
   color: var(--color_text);
   font-family: system-ui, sans-serif;
   height: 100vh;
@@ -29,7 +33,7 @@ body {
 
 #chat-container {
   width: 90%;
-  max-width: 800px;
+  max-width: 1000px;
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -50,8 +54,12 @@ header {
   flex-direction: column;
   align-items: center;
   gap: 0.5rem;
-  margin: 1rem 0;
+  margin: 0;
+  background: var(--color_header);
   color: var(--color_header_text);
+  padding: 1rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 header img {
@@ -109,7 +117,7 @@ form {
   justify-content: center;
   position: sticky;
   bottom: 0;
-  background: var(--color_bg);
+  background: var(--color_box);
   padding: 0.5rem 0;
 }
 
@@ -129,6 +137,30 @@ button:hover, .upload-label:hover {
   background: var(--color_button_hover);
   color: var(--color_text_button);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+button:disabled {
+  background: var(--color_button_closed);
+  cursor: not-allowed;
+}
+
+input {
+  background: var(--color_input);
+  color: var(--color_text);
+  border: 1px solid var(--color_button);
+  border-radius: 4px;
+  padding: 0.25rem 0.5rem;
+}
+
+input[type="checkbox"] {
+  accent-color: var(--color_button);
+}
+
+.tooltip {
+  background: var(--color_tooltip);
+  color: var(--color_text_button);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
 }
 
 #file-name {
