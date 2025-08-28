@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 require('dotenv').config();
 
-async function corregirTranscripcion(inputPath, outputPath, modelo) {
+async function corregirTranscripcion(inputPath, outputPath, modelo, chunkOverride, overlapOverride) {
     const { GoogleGenerativeAI } = require('@google/generative-ai');
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) throw new Error('GEMINI_API_KEY no configurada');
@@ -21,9 +21,14 @@ async function corregirTranscripcion(inputPath, outputPath, modelo) {
     });
 
     const texto = fs.readFileSync(inputPath, 'utf8');
-    const chunkWords = parseInt(process.env.CHUNK_WORDS) || 1500;
-    const overlapEnv = parseInt(process.env.OVERLAP_WORDS, 10);
-    const overlapWords = isNaN(overlapEnv) ? 20 : overlapEnv;
+    const envChunk = parseInt(process.env.CHUNK_WORDS, 10);
+    const chunkWords = Number.isInteger(chunkOverride)
+        ? chunkOverride
+        : (Number.isInteger(envChunk) ? envChunk : 1500);
+    const envOverlap = parseInt(process.env.OVERLAP_WORDS, 10);
+    const overlapWords = Number.isInteger(overlapOverride)
+        ? overlapOverride
+        : (Number.isInteger(envOverlap) ? envOverlap : 20);
     const palabras = texto.split(/\s+/);
     const partes = [];
     const step = Math.max(chunkWords - overlapWords, 1);
@@ -121,14 +126,36 @@ async function corregirTranscripcion(inputPath, outputPath, modelo) {
 }
 
 if (require.main === module) {
-    const input = process.argv[2];
+    const args = process.argv.slice(2);
+    const input = args[0];
     if (!input) {
-        console.error('Uso: node src/js/corregir_transcripcion.js archivo.txt [salida.txt] [modeloGemini]');
+        console.error('Uso: node src/js/corregir_transcripcion.js archivo.txt [salida.txt] [modeloGemini] [--chunk=n] [--overlap=n]');
         process.exit(1);
     }
-    const output = process.argv[3] || path.join(path.dirname(input), path.basename(input, path.extname(input)) + '_corregida.txt');
-    const modelo = process.argv[4];
-    corregirTranscripcion(input, output, modelo).catch(err => {
+
+    let output;
+    let modelo;
+    let chunk;
+    let overlap;
+
+    for (let i = 1; i < args.length; i++) {
+        const arg = args[i];
+        if (arg.startsWith('--chunk=')) {
+            const val = parseInt(arg.split('=')[1], 10);
+            if (!Number.isNaN(val)) chunk = val;
+        } else if (arg.startsWith('--overlap=')) {
+            const val = parseInt(arg.split('=')[1], 10);
+            if (!Number.isNaN(val)) overlap = val;
+        } else if (!output) {
+            output = arg;
+        } else if (!modelo) {
+            modelo = arg;
+        }
+    }
+
+    output = output || path.join(path.dirname(input), path.basename(input, path.extname(input)) + '_corregida.txt');
+
+    corregirTranscripcion(input, output, modelo, chunk, overlap).catch(err => {
         console.error('❌ Error al corregir transcripción:', err.message);
     });
 }
