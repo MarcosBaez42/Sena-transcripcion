@@ -32,8 +32,9 @@ app.get(['/', '/index.html'], (req, res) => {
 app.use(express.static(publicDir));
 // Conexiones SSE activas
 const conexiones = new Map();
-// Archivos generados por ID
-const archivosGenerados = new Map();
+// Archivos generados por ID con persistencia en disco
+const archivosGenerados = require('./archivosStore');
+archivosGenerados.load();
 
 // Router de la API
 const router = express.Router();
