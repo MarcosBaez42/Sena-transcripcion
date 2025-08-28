@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 require('dotenv').config();
 
-async function corregirTranscripcion(inputPath, outputPath, modelo, chunkOverride, overlapOverride) {
+async function corregirTranscripcion(inputPath, outputPath, modelo, chunkOverride, overlapOverride, promptTemplateOverride) {
     const { GoogleGenerativeAI } = require('@google/generative-ai');
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) throw new Error('GEMINI_API_KEY no configurada');
@@ -16,10 +16,33 @@ async function corregirTranscripcion(inputPath, outputPath, modelo, chunkOverrid
             temperature: parseFloat(process.env.TEMPERATURA) || 0.3,
             topK: 20,
             topP: 0.8,
-            maxOutputTokens: parseInt(process.env.MAX_TOKENS) || 4900,
+            maxOutputTokens: parseInt(process.env.MAX_TOKENS) || 60000,
         }
     });
     const maxTokens = modelInstance.generationConfig.maxOutputTokens;
+
+    const promptTemplate = promptTemplateOverride || `Corrige y reescribe párrafos provenientes de audio con ruido.
+Estilo: Primera persona, registro oral natural y coherente, sin adornos.
+Reglas:
+
+Mantén el orden exacto del documento de entrada.
+
+Conserva etiquetas de hablante si existen (ej.: “INTERVIENE …:”).
+
+Repara gramática, puntuación y muletillas; elimina repeticiones.
+
+No inventes datos: si algo es inaudible, marca [inaudible].
+
+No cambies el sentido; resume solo lo redundante.
+
+Mantén formato de párrafo por intervención.
+Salida: Texto corregido, en primera persona, listo para pegar en el acta. {texto}`;
+
+    function construirPrompt(parte) {
+        return promptTemplate.includes('{texto}')
+            ? promptTemplate.replace('{texto}', parte)
+            : `${promptTemplate} ${parte}`;
+    }
 
     const texto = fs.readFileSync(inputPath, 'utf8');
     const envChunk = parseInt(process.env.CHUNK_WORDS, 10);
@@ -35,12 +58,12 @@ async function corregirTranscripcion(inputPath, outputPath, modelo, chunkOverrid
     let i = 0;
     while (i < palabras.length) {
         let parte = palabras.slice(i, i + chunkWords).join(' ');
-        let prompt = "Corrige la gramatica del texto no le adiciones nada solo corrige " + parte;
+        let prompt = construirPrompt(parte);
         let tokenInfo = await modelInstance.countTokens(prompt);
         while (tokenInfo.totalTokens > maxTokens && chunkWords > 1) {
             chunkWords = Math.max(Math.floor(chunkWords / 2), 1);
             parte = palabras.slice(i, i + chunkWords).join(' ');
-            prompt = "Corrige la gramatica del texto no le adiciones nada solo corrige " + parte;
+            prompt = construirPrompt(parte);
             tokenInfo = await modelInstance.countTokens(prompt);
         }
         partes.push(parte);
@@ -52,8 +75,7 @@ async function corregirTranscripcion(inputPath, outputPath, modelo, chunkOverrid
     const segmentosFallidos = [];
 
     async function corregirSegmento(parte, nivel = 0) {
-        const promptBase = "Corrige la gramatica del texto no le adiciones nada solo corrige ";
-        const prompt = promptBase + parte;
+        const prompt = construirPrompt(parte);
         const tokenInfo = await modelInstance.countTokens(prompt);
         if (tokenInfo.totalTokens > maxTokens) {
             console.warn(`⚠️ Segmento supera tokens (${tokenInfo.totalTokens} > ${maxTokens}), subdividiendo (nivel ${nivel})`);
@@ -166,7 +188,7 @@ if (require.main === module) {
     const args = process.argv.slice(2);
     const input = args[0];
     if (!input) {
-        console.error('Uso: node src/js/corregir_transcripcion.js archivo.txt [salida.txt] [modeloGemini] [--chunk=n] [--overlap=n]');
+        console.error('Uso: node src/js/corregir_transcripcion.js archivo.txt [salida.txt] [modeloGemini] [--chunk=n] [--overlap=n] [--prompt-template="texto"]');
         process.exit(1);
     }
 
@@ -174,6 +196,7 @@ if (require.main === module) {
     let modelo;
     let chunk;
     let overlap;
+    let promptTemplate;
 
     for (let i = 1; i < args.length; i++) {
         const arg = args[i];
@@ -183,6 +206,8 @@ if (require.main === module) {
         } else if (arg.startsWith('--overlap=')) {
             const val = parseInt(arg.split('=')[1], 10);
             if (!Number.isNaN(val)) overlap = val;
+        } else if (arg.startsWith('--prompt-template=')) {
+            promptTemplate = arg.slice('--prompt-template='.length);
         } else if (!output) {
             output = arg;
         } else if (!modelo) {
@@ -192,7 +217,7 @@ if (require.main === module) {
 
     output = output || path.join(path.dirname(input), path.basename(input, path.extname(input)) + '_corregida.txt');
 
-    corregirTranscripcion(input, output, modelo, chunk, overlap)
+    corregirTranscripcion(input, output, modelo, chunk, overlap, promptTemplate)
         .then(({ correctos, fallidos, total, outputPath, pudoGuardar }) => {
             if (fallidos.length > 0) {
                 console.error(`❌ ${fallidos.length} de ${total} segmentos no se corrigieron: ${fallidos.join(', ')}`);
