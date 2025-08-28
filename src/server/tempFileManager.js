@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const TTL = parseInt(process.env.FILE_TTL_MS, 10) || 3600000;
+const TTL = parseInt(process.env.FILE_TTL_MS, 10) || 86400000; // 24 horas por defecto
 
 function scheduleDeletion(targetPath, onDelete) {
   setTimeout(() => {
@@ -43,6 +43,7 @@ function purgeOldFiles(dir) {
 function runStartupPurge() {
   purgeOldFiles(path.resolve('uploads'));
   purgeOldFiles(path.resolve('transcripciones'));
+  purgeOldFiles(path.resolve('actas_gemini/versiones'));
 }
 
 module.exports = { scheduleDeletion, runStartupPurge, TTL };
