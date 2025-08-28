@@ -117,7 +117,7 @@ def ejecutar_transcripcion(
         torch.backends.cudnn.benchmark = True
         torch.set_float32_matmul_precision("high")
 
-    modelo_whisper = whisperx.load_model("large-v2", device, compute_type=compute_type)
+    modelo_whisper = whisperx.load_model("large", device, compute_type=compute_type)
     print("✅ Modelo cargado correctamente")
     avanzar(10)
 

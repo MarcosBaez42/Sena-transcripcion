@@ -52,6 +52,12 @@ async function corregirTranscripcion(inputPath, outputPath, modelo) {
 
             if (!textoCorregido.trim()) {
                 console.warn(`⚠️ Gemini no devolvió texto para el segmento ${index + 1}`);
+                console.log(JSON.stringify(resp, null, 2));
+                const finishReason = resp?.candidates?.[0]?.finishReason;
+                const blockReason = resp?.promptFeedback?.blockReason;
+                if (finishReason || blockReason) {
+                    console.warn(`Motivo: ${finishReason || blockReason}`);
+                }
                 textoCorregido = parte;
             }
 
