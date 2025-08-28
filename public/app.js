@@ -7,6 +7,9 @@ const progressBar = document.getElementById('progress-bar');
 const downloadSection = document.getElementById('download-section');
 const downloadBtn = document.getElementById('download-btn');
 const previewContainer = document.getElementById('preview-container');
+const sidebar = document.getElementById('sidebar');
+const sidebarToggle = document.getElementById('sidebar-toggle');
+const historyList = document.getElementById('history-list');
 let currentId = null;
 
 previewContainer.style.display = 'none';
@@ -65,6 +68,15 @@ form.addEventListener('submit', (e) => {
             }
             if (data.final) {
               if (data.id) currentId = data.id;
+              const history = JSON.parse(
+                localStorage.getItem('historialTranscripciones') || '[]'
+              );
+              history.push({ id: currentId, nombre: file.name, fecha: Date.now() });
+              localStorage.setItem(
+                'historialTranscripciones',
+                JSON.stringify(history)
+              );
+              renderHistory();
               sse.close();
               progress.style.display = 'none';
               progressBar.textContent = '';
@@ -127,6 +139,82 @@ function addMessage(text, role) {
   messages.scrollTop = messages.scrollHeight;
 }
 
+function removeHistory(id) {
+  const history = JSON.parse(
+    localStorage.getItem('historialTranscripciones') || '[]'
+  );
+  const updated = history.filter((item) => item.id !== id);
+  localStorage.setItem('historialTranscripciones', JSON.stringify(updated));
+}
+
+function downloadArchivo(id, tipo) {
+  fetch(
+    `${window.API_BASE}/descargar?id=${encodeURIComponent(id)}&tipo=${tipo}`
+  )
+    .then((res) => {
+      if (res.status === 404) {
+        removeHistory(id);
+        renderHistory();
+        throw new Error('Transcripción no encontrada');
+      }
+      if (!res.ok) throw new Error('No pude descargar ' + tipo);
+      const disposition = res.headers.get('Content-Disposition') || '';
+      const match = /filename="?([^";]+)"?/i.exec(disposition);
+      const nombre = match ? match[1] : `archivo.${tipo}`;
+      return res.blob().then((blob) => ({ blob, nombre }));
+    })
+    .then(({ blob, nombre }) => {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = nombre;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    })
+    .catch((err) => addMessage('Error: ' + err.message, 'bot'));
+}
+
+function renderHistory() {
+  historyList.innerHTML = '';
+  const history = JSON.parse(
+    localStorage.getItem('historialTranscripciones') || '[]'
+  );
+  history.forEach((item) => {
+    const li = document.createElement('li');
+    li.textContent = item.nombre;
+    li.addEventListener('click', () => {
+      currentId = item.id;
+      fetch(
+        `${window.API_BASE}/descargar?id=${encodeURIComponent(item.id)}&tipo=docx`
+      )
+        .then((res) => {
+          if (res.status === 404) {
+            removeHistory(item.id);
+            renderHistory();
+            throw new Error('Transcripción no encontrada');
+          }
+          if (!res.ok) throw new Error('No se pudo obtener el documento');
+          return res.blob();
+        })
+        .then((blob) => {
+          previewContainer.innerHTML = '';
+          return window.docx.renderAsync(blob, previewContainer);
+        })
+        .then(() => {
+          previewContainer.style.display = 'block';
+          messages.style.display = 'none';
+          downloadSection.style.display = 'block';
+          sidebar.classList.add('hidden');
+          sidebar.classList.remove('visible');
+        })
+        .catch((err) => addMessage('Error: ' + err.message, 'bot'));
+    });
+    historyList.appendChild(li);
+  });
+}
+
 downloadBtn.addEventListener('click', () => {
   const formatos = Array.from(
     downloadSection.querySelectorAll('input[type="checkbox"]:checked')
@@ -180,3 +268,10 @@ downloadBtn.addEventListener('click', () => {
     })
     .catch((err) => addMessage('Error: ' + err.message, 'bot'));
 });
+
+sidebarToggle.addEventListener('click', () => {
+  sidebar.classList.toggle('visible');
+  sidebar.classList.toggle('hidden');
+});
+
+document.addEventListener('DOMContentLoaded', renderHistory);

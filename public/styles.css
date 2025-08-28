@@ -60,6 +60,7 @@ header {
   padding: 1rem;
   width: 100%;
   box-sizing: border-box;
+  position: relative;
 }
 
 header img {
@@ -195,4 +196,47 @@ input[type="checkbox"] {
   background: var(--color_preview_bg);
   color: var(--color_preview_text);
   padding: 1rem;
+}
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 250px;
+  height: 100%;
+  background: var(--color_box);
+  overflow-y: auto;
+  transition: transform 0.3s ease;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+.sidebar.hidden {
+  transform: translateX(-100%);
+}
+
+.sidebar.visible {
+  transform: translateX(0);
+}
+
+#sidebar-toggle {
+  position: fixed;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 1101;
+}
+
+#history-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+#history-list li {
+  padding: 0.5rem;
+  cursor: pointer;
+}
+
+#history-list li:hover {
+  background: var(--color_card_bot);
 }
