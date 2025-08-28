@@ -36,21 +36,41 @@ async function corregirTranscripcion(inputPath, outputPath, modelo) {
         const parte = partes[index];
         const prompt = "Corrige la gramatica del texto no le adiciones nada solo corrige " + parte;
         try {
-            const res = await modelInstance.generateContent(prompt);
-            const resp = res.response;
+            const maxIntentos = 3;
+            let intentos = 0;
+            let resp;
             let textoCorregido = '';
+            let ultimoError;
 
-            if (resp?.text) {
-                // SDK ofrece helper text()
-                textoCorregido = resp.text();
-            } else if (resp?.candidates?.length) {
-                // Fallback manual a los candidatos
-                textoCorregido = resp.candidates
-                    .map(c => c.content?.parts?.map(p => p.text || '').join(''))
-                    .join('\n');
+            while (intentos < maxIntentos && !textoCorregido.trim()) {
+                intentos++;
+                try {
+                    const res = await modelInstance.generateContent(prompt);
+                    resp = res.response;
+
+                    if (resp?.text) {
+                        // SDK ofrece helper text()
+                        textoCorregido = resp.text();
+                    } else if (resp?.candidates?.length) {
+                        // Fallback manual a los candidatos
+                        textoCorregido = resp.candidates
+                            .map(c => c.content?.parts?.map(p => p.text || '').join(''))
+                            .join('\n');
+                    }
+
+                    if (!textoCorregido.trim()) {
+                        console.warn(`⚠️ Intento ${intentos} sin texto para el segmento ${index + 1}`);
+                    }
+                } catch (error) {
+                    ultimoError = error;
+                    console.error(`⚠️ Error en el segmento ${index + 1}, intento ${intentos}:`, error.message);
+                }
             }
 
+            console.log(`Intentos realizados para el segmento ${index + 1}: ${intentos}`);
+
             if (!textoCorregido.trim()) {
+                if (ultimoError) throw ultimoError;
                 console.warn(`⚠️ Gemini no devolvió texto para el segmento ${index + 1}`);
                 console.log(JSON.stringify(resp, null, 2));
                 const finishReason = resp?.candidates?.[0]?.finishReason;
@@ -67,8 +87,8 @@ async function corregirTranscripcion(inputPath, outputPath, modelo) {
             }
             resultadoCompleto += textoCorregido + '\n';
         } catch (error) {
-            console.error(`⚠️ Error en el segmento ${index + 1}:`, error.message);
             resultadoCompleto += `[SEGMENTO ${index + 1} NO PROCESADO]\n`;
+            console.error(`⚠️ Error en el segmento ${index + 1}:`, error.message);
         }
     }
 
