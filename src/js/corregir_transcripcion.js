@@ -37,6 +37,8 @@ async function corregirTranscripcion(inputPath, outputPath, modelo, chunkOverrid
     }
 
     let resultadoCompleto = '';
+    let segmentosCorrectos = 0;
+    const segmentosFallidos = [];
 
     async function corregirSegmento(parte, nivel = 0) {
         const prompt = "Corrige la gramatica del texto no le adiciones nada solo corrige " + parte;
@@ -111,18 +113,27 @@ async function corregirTranscripcion(inputPath, outputPath, modelo, chunkOverrid
                 textoCorregido = palabrasCorregidas.join(' ');
             }
             resultadoCompleto += textoCorregido + '\n';
+            segmentosCorrectos++;
         } catch (error) {
             resultadoCompleto += `[SEGMENTO ${index + 1} NO PROCESADO]\n`;
+            segmentosFallidos.push(index + 1);
             console.error(`⚠️ Error en el segmento ${index + 1}:`, error.message);
         }
     }
-
+    let pudoGuardar = true;
     try {
         fs.writeFileSync(outputPath, resultadoCompleto, 'utf8');
-        console.log(`✅ Transcripción corregida guardada en: ${outputPath}`);
     } catch (error) {
+        pudoGuardar = false;
         console.error(`❌ No se pudo guardar la transcripción corregida: ${error.message}`);
     }
+
+    const total = partes.length;
+    const fallidos = segmentosFallidos.length;
+    const correctos = segmentosCorrectos;
+    console.log(`Segmentos correctos: ${correctos}, fallidos: ${fallidos}`);
+
+    return { correctos, fallidos: segmentosFallidos, total, outputPath, pudoGuardar };
 }
 
 if (require.main === module) {
@@ -155,9 +166,21 @@ if (require.main === module) {
 
     output = output || path.join(path.dirname(input), path.basename(input, path.extname(input)) + '_corregida.txt');
 
-    corregirTranscripcion(input, output, modelo, chunk, overlap).catch(err => {
-        console.error('❌ Error al corregir transcripción:', err.message);
-    });
+    corregirTranscripcion(input, output, modelo, chunk, overlap)
+        .then(({ correctos, fallidos, total, outputPath, pudoGuardar }) => {
+            if (fallidos.length > 0) {
+                console.error(`❌ ${fallidos.length} de ${total} segmentos no se corrigieron: ${fallidos.join(', ')}`);
+                process.exit(1);
+            } else if (!pudoGuardar) {
+                process.exit(1);
+            } else {
+                console.log(`✅ Transcripción corregida guardada en: ${outputPath}`);
+            }
+        })
+        .catch(err => {
+            console.error('❌ Error al corregir transcripción:', err.message);
+            process.exit(1);
+        });
 }
 
 module.exports = { corregirTranscripcion };
