@@ -11,7 +11,7 @@ function load() {
   } catch {
     cache = {};
   }
-  // Remove entries whose files no longer exist
+  // Elimina las entradas cuyos archivos ya no existen
   const base = path.resolve(__dirname, '..', '..');
   for (const [id, rutas] of Object.entries(cache)) {
     const primera = Object.values(rutas).find(Boolean);

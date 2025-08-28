@@ -167,7 +167,7 @@ input[type="checkbox"] {
 #file-name {
   margin-left: 0.5rem;
   font-style: italic;
-  color: var(--color_header_text);
+  color: var(--color_text);
 }
 
 #progress {
@@ -175,6 +175,10 @@ input[type="checkbox"] {
   height: 20px;
   background: var(--color_progress_bg);
   display: none;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+  margin-top: 15px;
 }
 
 #progress-bar {
@@ -186,6 +190,9 @@ input[type="checkbox"] {
   align-items: center;
   justify-content: center;
   font-size: 0.8rem;
+  transition: width 0.3s ease;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
 }
 
 #preview-container {
@@ -229,6 +236,7 @@ input[type="checkbox"] {
 #history-list {
   list-style: none;
   margin: 0;
+  margin-top: 3rem;
   padding: 0;
 }
 
