@@ -4,6 +4,7 @@ const express = require('express');
 const multer = require('multer');
 const archiver = require('archiver');
 const { randomUUID } = require('crypto');
+const { scheduleDeletion, runStartupPurge, TTL } = require('./tempFileManager');
 
 try { require('dotenv').config(); } catch {}
 
@@ -12,6 +13,8 @@ const { transcribirUnSoloArchivo } = require('../js/transcribir');
 const API_BASE_PATH = process.env.API_BASE_PATH || '/api';
 const app = express();
 fs.mkdirSync('uploads', { recursive: true });
+runStartupPurge();
+setInterval(runStartupPurge, TTL);
 const upload = multer({ dest: 'uploads/' });
 
 const publicDir = path.join(__dirname, '..', '..', 'public');
@@ -61,6 +64,7 @@ router.post('/transcribir', upload.single('audio'), async (req, res) => {
     res.json({ id, archivos: rutasDescarga });
 
     const rutaAbsoluta = path.resolve(req.file.path);
+    scheduleDeletion(req.file.path);
     console.log('Llamando a transcribirUnSoloArchivo con:', rutaAbsoluta);
 
     const enviar = (payload) => {
@@ -87,6 +91,11 @@ router.post('/transcribir', upload.single('audio'), async (req, res) => {
             throw new Error('transcribirUnSoloArchivo no devolvió una ruta de transcripción');
           }
           archivosGenerados.set(id, resultado.rutasRelativas);
+          const primeraRuta = Object.values(resultado.rutasRelativas).find(Boolean);
+          if (primeraRuta) {
+            const dir = path.dirname(path.resolve(__dirname, '..', '..', primeraRuta));
+            scheduleDeletion(dir, () => archivosGenerados.delete(id));
+          }
           const contenido = fs.readFileSync(resultado.transcripcion, 'utf-8');
           enviar({ final: contenido, id });
         } catch (err) {
@@ -94,9 +103,6 @@ router.post('/transcribir', upload.single('audio'), async (req, res) => {
           enviar({ error: err.message });
         } finally {
           finalizar();
-          fs.unlink(req.file.path, (err) => {
-            if (err) console.error('Error al eliminar el archivo temporal:', err);
-          });
         }
       });
   } catch (error) {

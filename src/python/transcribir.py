@@ -450,8 +450,10 @@ def main() -> None:
     avanzar(10)
 
     tiempo_final = time.time()
+    tiempo_total_segundos = round(tiempo_final - tiempo_inicio, 2)
+    tiempo_total_minutos = round(tiempo_total_segundos / 60, 2)
     print("✅ ¡Transcripción y separación de hablantes completadas!")
-    print(f"⏱️ Tiempo total: {round(tiempo_final - tiempo_inicio, 2)} segundos")
+    print(f"⏱️ Tiempo total: {tiempo_total_minutos} minutos")
     print(f"📄 Texto guardado en: {archivo_salida}")
     intervenciones = [
         linea for linea in texto_transcrito_final.split("\n") if linea.strip().startswith("INTERVIENE")
