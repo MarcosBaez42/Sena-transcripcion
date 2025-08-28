@@ -19,10 +19,11 @@ async function corregirTranscripcion(inputPath, outputPath, modelo, chunkOverrid
             maxOutputTokens: parseInt(process.env.MAX_TOKENS) || 4900,
         }
     });
+    const maxTokens = modelInstance.generationConfig.maxOutputTokens;
 
     const texto = fs.readFileSync(inputPath, 'utf8');
     const envChunk = parseInt(process.env.CHUNK_WORDS, 10);
-    const chunkWords = Number.isInteger(chunkOverride)
+    let chunkWords = Number.isInteger(chunkOverride)
         ? chunkOverride
         : (Number.isInteger(envChunk) ? envChunk : 1500);
     const envOverlap = parseInt(process.env.OVERLAP_WORDS, 10);
@@ -31,9 +32,19 @@ async function corregirTranscripcion(inputPath, outputPath, modelo, chunkOverrid
         : (Number.isInteger(envOverlap) ? envOverlap : 20);
     const palabras = texto.split(/\s+/);
     const partes = [];
-    const step = Math.max(chunkWords - overlapWords, 1);
-    for (let i = 0; i < palabras.length; i += step) {
-        partes.push(palabras.slice(i, i + chunkWords).join(' '));
+    let i = 0;
+    while (i < palabras.length) {
+        let parte = palabras.slice(i, i + chunkWords).join(' ');
+        let prompt = "Corrige la gramatica del texto no le adiciones nada solo corrige " + parte;
+        let tokenInfo = await modelInstance.countTokens(prompt);
+        while (tokenInfo.totalTokens > maxTokens && chunkWords > 1) {
+            chunkWords = Math.max(Math.floor(chunkWords / 2), 1);
+            parte = palabras.slice(i, i + chunkWords).join(' ');
+            prompt = "Corrige la gramatica del texto no le adiciones nada solo corrige " + parte;
+            tokenInfo = await modelInstance.countTokens(prompt);
+        }
+        partes.push(parte);
+        i += Math.max(chunkWords - overlapWords, 1);
     }
 
     let resultadoCompleto = '';
@@ -41,7 +52,22 @@ async function corregirTranscripcion(inputPath, outputPath, modelo, chunkOverrid
     const segmentosFallidos = [];
 
     async function corregirSegmento(parte, nivel = 0) {
-        const prompt = "Corrige la gramatica del texto no le adiciones nada solo corrige " + parte;
+        const promptBase = "Corrige la gramatica del texto no le adiciones nada solo corrige ";
+        const prompt = promptBase + parte;
+        const tokenInfo = await modelInstance.countTokens(prompt);
+        if (tokenInfo.totalTokens > maxTokens) {
+            console.warn(`⚠️ Segmento supera tokens (${tokenInfo.totalTokens} > ${maxTokens}), subdividiendo (nivel ${nivel})`);
+            const palabras = parte.split(/\s+/);
+            if (palabras.length <= 1) {
+                return parte;
+            }
+            const mitad = Math.ceil(palabras.length / 2);
+            const primera = palabras.slice(0, mitad).join(' ');
+            const segunda = palabras.slice(mitad).join(' ');
+            const primeraCorregida = await corregirSegmento(primera, nivel + 1);
+            const segundaCorregida = await corregirSegmento(segunda, nivel + 1);
+            return `${primeraCorregida} ${segundaCorregida}`.trim();
+        }
         const maxIntentos = 3;
         let intentos = 0;
         let resp;
