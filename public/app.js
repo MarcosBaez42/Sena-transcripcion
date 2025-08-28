@@ -39,7 +39,7 @@ form.addEventListener('submit', (e) => {
   progressBar.textContent = '0%';
 
   const xhr = new XMLHttpRequest();
-  xhr.open('POST', '/api/transcribir');
+    xhr.open('POST', window.API_BASE + '/transcribir');
 
   xhr.onload = () => {
     if (xhr.status >= 200 && xhr.status < 300) {
@@ -47,8 +47,8 @@ form.addEventListener('submit', (e) => {
         const json = JSON.parse(xhr.responseText);
         if (json.error) throw new Error(json.error);
 
-        const { id } = json;
-        const sse = new EventSource('/api/progreso/' + id);
+          const { id } = json;
+          const sse = new EventSource(window.API_BASE + '/progreso/' + id);
         progressBar.style.width = '0%';
         progressBar.textContent = '0%';
 
@@ -70,7 +70,7 @@ form.addEventListener('submit', (e) => {
               progressBar.textContent = '';
               downloadSection.style.display = 'block';
 
-              fetch(`/api/descargar?id=${currentId}&tipo=docx`)
+                fetch(`${window.API_BASE}/descargar?id=${currentId}&tipo=docx`)
                 .then((res) => {
                   if (!res.ok)
                     throw new Error('No se pudo obtener el documento');
@@ -134,8 +134,8 @@ downloadBtn.addEventListener('click', () => {
   if (formatos.length === 0) return;
 
   if (formatos.length === 1) {
-    const tipo = formatos[0];
-    fetch(`/api/descargar?id=${encodeURIComponent(currentId)}&tipo=${tipo}`)
+      const tipo = formatos[0];
+      fetch(`${window.API_BASE}/descargar?id=${encodeURIComponent(currentId)}&tipo=${tipo}`)
       .then((res) => {
         if (!res.ok) throw new Error('No pude descargar ' + tipo);
         const disposition = res.headers.get('Content-Disposition') || '';
@@ -157,9 +157,9 @@ downloadBtn.addEventListener('click', () => {
     return;
   }
 
-  const urlZip = `/api/descargar-zip?id=${encodeURIComponent(
-    currentId
-  )}&tipos=${formatos.join(',')}`;
+    const urlZip = `${window.API_BASE}/descargar-zip?id=${encodeURIComponent(
+      currentId
+    )}&tipos=${formatos.join(',')}`;
   fetch(urlZip)
     .then((res) => {
       if (!res.ok) throw new Error('No pude descargar ZIP');

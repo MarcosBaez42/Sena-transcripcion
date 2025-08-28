@@ -9,20 +9,34 @@ try { require('dotenv').config(); } catch {}
 
 const { transcribirUnSoloArchivo } = require('../js/transcribir');
 
+const API_BASE_PATH = process.env.API_BASE_PATH || '/api';
 const app = express();
 fs.mkdirSync('uploads', { recursive: true });
 const upload = multer({ dest: 'uploads/' });
 
+const publicDir = path.join(__dirname, '..', '..', 'public');
+const indexPath = path.join(publicDir, 'index.html');
+const indexHtml = fs
+  .readFileSync(indexPath, 'utf8')
+  .replace('%API_BASE_PATH%', JSON.stringify(API_BASE_PATH));
+
+// Servir index.html con la variable API_BASE expuesta
+app.get(['/', '/index.html'], (req, res) => {
+  res.setHeader('Content-Type', 'text/html');
+  res.send(indexHtml);
+});
+// Servir archivos estáticos de la carpeta public
+app.use(express.static(publicDir));
 // Conexiones SSE activas
 const conexiones = new Map();
 // Archivos generados por ID
 const archivosGenerados = new Map();
 
-// Servir archivos estáticos de la carpeta public
-app.use(express.static(path.join(__dirname, '..', '..', 'public')));
+// Router de la API
+const router = express.Router();
 
 // Endpoint SSE para escuchar el progreso de la transcripción
-app.get('/api/progreso/:id', (req, res) => {
+router.get('/progreso/:id', (req, res) => {
   const { id } = req.params;
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache');
@@ -32,7 +46,7 @@ app.get('/api/progreso/:id', (req, res) => {
   req.on('close', () => conexiones.delete(id));
 });
 
-app.post('/api/transcribir', upload.single('audio'), async (req, res) => {
+router.post('/transcribir', upload.single('audio'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'No se recibió ningún archivo' });
@@ -40,9 +54,9 @@ app.post('/api/transcribir', upload.single('audio'), async (req, res) => {
 
     const id = randomUUID();
     const rutasDescarga = {
-      txt: `/api/descargar?id=${id}&tipo=txt`,
-      md: `/api/descargar?id=${id}&tipo=md`,
-      docx: `/api/descargar?id=${id}&tipo=docx`
+      txt: `${API_BASE_PATH}/descargar?id=${id}&tipo=txt`,
+      md: `${API_BASE_PATH}/descargar?id=${id}&tipo=md`,
+      docx: `${API_BASE_PATH}/descargar?id=${id}&tipo=docx`
     };
     res.json({ id, archivos: rutasDescarga });
 
@@ -86,12 +100,12 @@ app.post('/api/transcribir', upload.single('audio'), async (req, res) => {
         }
       });
   } catch (error) {
-    console.error('Error en /api/transcribir:', error);
+    console.error(`Error en ${API_BASE_PATH}/transcribir:`, error);
     return res.status(500).json({ error: error.message });
   }
 });
 
-app.get('/api/descargar', (req, res) => {
+router.get('/descargar', (req, res) => {
   const { id, tipo } = req.query;
   const permitidos = ['txt', 'md', 'docx'];
   if (!permitidos.includes(tipo)) {
@@ -118,7 +132,7 @@ app.get('/api/descargar', (req, res) => {
   });
 });
 
-app.get('/api/descargar-zip', (req, res) => {
+router.get('/descargar-zip', (req, res) => {
   const { id, tipos } = req.query;
   const permitidos = ['txt', 'md', 'docx'];
   if (!id || !tipos) {
@@ -168,6 +182,8 @@ app.get('/api/descargar-zip', (req, res) => {
   lista.forEach((f) => archive.file(f.ruta, { name: f.nombre }));
   archive.finalize();
 });
+
+app.use(API_BASE_PATH, router);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
