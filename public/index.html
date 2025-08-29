@@ -17,13 +17,12 @@
     </aside>
     <div id="chat-container">
         <div id="progress"><div id="progress-bar">0%</div></div>
-        <div id="messages"></div>
         <div id="action-container">
-            <div id="download-section" style="display:none">
+            <div id="download-section">
                 <label><input type="checkbox" value="txt"> TXT</label>
                 <label><input type="checkbox" value="md"> Markdown</label>
                 <label><input type="checkbox" value="docx"> Word</label>
-                <button id="download-btn" type="button">Descargar seleccionados</button>
+                <button id="download-btn" type="button" disabled>Descargar seleccionados</button>
             </div>
             <div id="preview-container"></div>
             <form id="upload-form">
@@ -33,6 +32,7 @@
                 <button type="submit">Subir</button>
             </form>
         </div>
+        <div id="messages"></div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/docx-preview/dist/docx-preview.min.js"></script>

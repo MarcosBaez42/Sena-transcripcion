@@ -13,6 +13,7 @@ const historyList = document.getElementById('history-list');
 let currentId = null;
 
 previewContainer.style.display = 'none';
+downloadBtn.disabled = true;
 
 fileInput.addEventListener('change', () => {
   const file = fileInput.files[0];
@@ -23,9 +24,11 @@ form.addEventListener('submit', (e) => {
   e.preventDefault();
   const file = fileInput.files[0];
   if (!file) return;
-
-  downloadSection.style.display = 'none';
   currentId = null;
+  downloadBtn.disabled = true;
+  downloadSection
+    .querySelectorAll('input[type="checkbox"]')
+    .forEach((cb) => (cb.checked = false));
 
   addMessage(`Subiendo ${file.name}...`, 'user');
 
@@ -80,7 +83,7 @@ form.addEventListener('submit', (e) => {
               sse.close();
               progress.style.display = 'none';
               progressBar.textContent = '';
-              downloadSection.style.display = 'flex';
+              downloadBtn.disabled = false;
 
                 fetch(`${window.API_BASE}/descargar?id=${currentId}&tipo=docx`)
                 .then((res) => {
@@ -205,7 +208,7 @@ function renderHistory() {
         .then(() => {
           previewContainer.style.display = 'block';
           messages.style.display = 'none';
-          downloadSection.style.display = 'flex';
+          ddownloadBtn.disabled = false;
           sidebar.classList.add('hidden');
           sidebar.classList.remove('visible');
         })

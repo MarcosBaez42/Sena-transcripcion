@@ -32,7 +32,7 @@ body {
 }
 
 #chat-container {
-  width: 90%;
+  width: 100%;
   max-width: 1000px;
   display: flex;
   flex-direction: column;
@@ -63,7 +63,7 @@ body {
 #preview-container {
   flex: 2;
   height: 71vh;
-  width: 70vh;
+  width: 100%;
   overflow-y: auto;
   overflow-x: auto;
   background: var(--color_preview_bg);
@@ -75,7 +75,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  align-items: flex-start;
+  align-items: center;
   justify-content: flex-start;
   flex: 1;
 }
