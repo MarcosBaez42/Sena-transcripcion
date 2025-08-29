@@ -6,11 +6,15 @@ const progress = document.getElementById('progress');
 const progressBar = document.getElementById('progress-bar');
 const downloadSection = document.getElementById('download-section');
 const downloadBtn = document.getElementById('download-btn');
+const checkboxes = downloadSection.querySelectorAll('input[type="checkbox"]');
 const previewContainer = document.getElementById('preview-container');
 const sidebar = document.getElementById('sidebar');
 const sidebarToggle = document.getElementById('sidebar-toggle');
 const historyList = document.getElementById('history-list');
 let currentId = null;
+
+downloadBtn.disabled = true;
+checkboxes.forEach((cb) => (cb.disabled = true));
 
 previewContainer.style.display = 'none';
 
@@ -24,8 +28,12 @@ form.addEventListener('submit', (e) => {
   const file = fileInput.files[0];
   if (!file) return;
 
-  downloadSection.style.display = 'none';
   currentId = null;
+  downloadBtn.disabled = true;
+  checkboxes.forEach((cb) => {
+    cb.checked = false;
+    cb.disabled = true;
+  });
 
   addMessage(`Subiendo ${file.name}...`, 'user');
 
@@ -80,7 +88,8 @@ form.addEventListener('submit', (e) => {
               sse.close();
               progress.style.display = 'none';
               progressBar.textContent = '';
-              downloadSection.style.display = 'flex';
+              downloadBtn.disabled = false;
+              checkboxes.forEach((cb) => (cb.disabled = false));
 
                 fetch(`${window.API_BASE}/descargar?id=${currentId}&tipo=docx`)
                 .then((res) => {
@@ -205,7 +214,8 @@ function renderHistory() {
         .then(() => {
           previewContainer.style.display = 'block';
           messages.style.display = 'none';
-          downloadSection.style.display = 'flex';
+          downloadBtn.disabled = false;
+          checkboxes.forEach((cb) => (cb.disabled = false));
           sidebar.classList.add('hidden');
           sidebar.classList.remove('visible');
         })
@@ -216,6 +226,7 @@ function renderHistory() {
 }
 
 downloadBtn.addEventListener('click', () => {
+  if (!currentId) return;
   const formatos = Array.from(
     downloadSection.querySelectorAll('input[type="checkbox"]:checked')
   ).map((cb) => cb.value);

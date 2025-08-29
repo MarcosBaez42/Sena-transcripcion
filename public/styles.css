@@ -40,13 +40,15 @@ body {
   flex: 1;
 }
 
-#download-section {
+download-section {
+  position: fixed;
+  top: 100px;
+  left: 20px;
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
   gap: 1rem;
-  align-items: center;
-  text-align: center;
-  margin: 0 auto;
 }
 
 header {
