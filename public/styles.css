@@ -42,15 +42,12 @@ body {
 
 #action-container {
   display: flex;
+  flex-direction: row;
   justify-content: space-between;
   align-items: flex-start;
   gap: 1rem;
   width: 100%;
   margin-top: 1rem;
-  position: sticky;
-  bottom: 0;
-  background: var(--color_box);
-  padding: 0.5rem 0;
 }
 
 #download-section {
@@ -60,6 +57,26 @@ body {
   align-items: flex-start;
   text-align: left;
   margin: 0;
+  flex: 1;
+}
+
+#preview-container {
+  flex: 2;
+  height: 71vh;
+  width: 70vh;
+  overflow-y: auto;
+  overflow-x: auto;
+  background: var(--color_preview_bg);
+  color: var(--color_preview_text);
+  padding: 1rem;
+}
+
+#upload-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: flex-start;
+  justify-content: flex-start;
   flex: 1;
 }
 
@@ -126,11 +143,6 @@ form {
   display: flex;
   gap: 0.5rem;
   justify-content: center;
-}
-
-#upload-form {
-  flex: 1;
-  justify-content: flex-end;
 }
 
 button, .upload-label {
@@ -206,16 +218,6 @@ input[type="checkbox"] {
   box-shadow: 0 2px 4px rgba(0,0,0,0.15);
 }
 
-#preview-container {
-  height: 71vh;
-  width: 100%;
-  overflow-y: auto;
-  overflow-x: auto;
-  background: var(--color_preview_bg);
-  color: var(--color_preview_text);
-  padding: 1rem;
-}
-
 .sidebar {
   position: fixed;
   top: 0;
@@ -264,4 +266,10 @@ input[type="checkbox"] {
 
 #history-list li:hover {
   background: var(--color_card_bot);
+}
+
+@media (max-width: 600px) {
+  #action-container {
+    flex-direction: column;
+  }
 }
