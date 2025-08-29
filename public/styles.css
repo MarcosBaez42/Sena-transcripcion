@@ -40,13 +40,27 @@ body {
   flex: 1;
 }
 
+#action-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  width: 100%;
+  margin-top: 1rem;
+  position: sticky;
+  bottom: 0;
+  background: var(--color_box);
+  padding: 0.5rem 0;
+}
+
 #download-section {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  align-items: center;
-  text-align: center;
-  margin: 0 auto;
+  align-items: flex-start;
+  text-align: left;
+  margin: 0;
+  flex: 1;
 }
 
 header {
@@ -112,10 +126,11 @@ form {
   display: flex;
   gap: 0.5rem;
   justify-content: center;
-  position: sticky;
-  bottom: 0;
-  background: var(--color_box);
-  padding: 0.5rem 0;
+}
+
+#upload-form {
+  flex: 1;
+  justify-content: flex-end;
 }
 
 button, .upload-label {
@@ -204,7 +219,7 @@ input[type="checkbox"] {
 .sidebar {
   position: fixed;
   top: 0;
-  left: 0;
+  right: 0;
   width: 250px;
   height: 100%;
   background: var(--color_box);
@@ -215,7 +230,7 @@ input[type="checkbox"] {
 }
 
 .sidebar.hidden {
-  transform: translateX(-100%);
+  transform: translateX(100%);
 }
 
 .sidebar.visible {
@@ -225,7 +240,7 @@ input[type="checkbox"] {
 #sidebar-toggle {
   position: fixed;
   top: 0.5rem;
-  left: 0.5rem;
+  right: 0.5rem;
   z-index: 1101;
 }
 

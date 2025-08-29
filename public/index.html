@@ -16,18 +16,20 @@
       <div id="progress"><div id="progress-bar">0%</div></div>
       <div id="messages"></div>
       <div id="preview-container"></div>
-      <div id="download-section" style="display:none">
-        <label><input type="checkbox" value="txt"> TXT</label>
-        <label><input type="checkbox" value="md"> Markdown</label>
-        <label><input type="checkbox" value="docx"> Word</label>
-        <button id="download-btn" type="button">Descargar seleccionados</button>
+      <div id="action-container">
+        <div id="download-section" style="display:none">
+          <label><input type="checkbox" value="txt"> TXT</label>
+          <label><input type="checkbox" value="md"> Markdown</label>
+          <label><input type="checkbox" value="docx"> Word</label>
+          <button id="download-btn" type="button">Descargar seleccionados</button>
+        </div>
+        <form id="upload-form">
+          <input type="file" id="file-input" accept="audio/*" style="display:none" />
+          <label for="file-input" class="upload-label">Seleccionar audio</label>
+          <span id="file-name"></span>
+          <button type="submit">Subir</button>
+        </form>
       </div>
-      <form id="upload-form">
-        <input type="file" id="file-input" accept="audio/*" style="display:none" />
-        <label for="file-input" class="upload-label">Seleccionar audio</label>
-        <span id="file-name"></span>
-        <button type="submit">Subir</button>
-      </form>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/docx-preview/dist/docx-preview.min.js"></script>

@@ -80,7 +80,7 @@ form.addEventListener('submit', (e) => {
               sse.close();
               progress.style.display = 'none';
               progressBar.textContent = '';
-              downloadSection.style.display = 'block';
+              downloadSection.style.display = 'flex';
 
                 fetch(`${window.API_BASE}/descargar?id=${currentId}&tipo=docx`)
                 .then((res) => {
@@ -205,7 +205,7 @@ function renderHistory() {
         .then(() => {
           previewContainer.style.display = 'block';
           messages.style.display = 'none';
-          downloadSection.style.display = 'block';
+          downloadSection.style.display = 'flex';
           sidebar.classList.add('hidden');
           sidebar.classList.remove('visible');
         })
