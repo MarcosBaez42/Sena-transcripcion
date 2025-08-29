@@ -16,7 +16,7 @@ async function corregirTranscripcion(inputPath, outputPath, modelo, chunkOverrid
             temperature: parseFloat(process.env.TEMPERATURA) || 0.3,
             topK: 20,
             topP: 0.8,
-            maxOutputTokens: parseInt(process.env.MAX_TOKENS) || 60000,
+            maxOutputTokens: parseInt(process.env.MAX_TOKENS) || 8192,
         }
     });
     const maxTokens = modelInstance.generationConfig.maxOutputTokens;
@@ -48,7 +48,7 @@ Salida: Texto corregido, en primera persona, listo para pegar en el acta. {texto
     const envChunk = parseInt(process.env.CHUNK_WORDS, 10);
     let chunkWords = Number.isInteger(chunkOverride)
         ? chunkOverride
-        : (Number.isInteger(envChunk) ? envChunk : 1500);
+        : (Number.isInteger(envChunk) ? envChunk : 10000);
     const envOverlap = parseInt(process.env.OVERLAP_WORDS, 10);
     const overlapWords = Number.isInteger(overlapOverride)
         ? overlapOverride
@@ -188,7 +188,7 @@ if (require.main === module) {
     const args = process.argv.slice(2);
     const input = args[0];
     if (!input) {
-        console.error('Uso: node src/js/corregir_transcripcion.js archivo.txt [salida.txt] [modeloGemini] [--chunk=n] [--overlap=n] [--prompt-template="texto"]');
+        console.error('Uso: node src/js/corregir_transcripcion_10000.js archivo.txt [salida.txt] [modeloGemini] [--chunk=n] [--overlap=n] [--prompt-template="texto"]');
         process.exit(1);
     }
 

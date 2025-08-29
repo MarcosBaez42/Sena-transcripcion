@@ -87,7 +87,7 @@ class GeneradorDeActasSENA {
                     temperature: parseFloat(process.env.TEMPERATURA) || 0.3,  // No muy creativo, más formal
                     topK: 20,
                     topP: 0.8,
-                    maxOutputTokens: parseInt(process.env.MAX_TOKENS) || 5000,
+                    maxOutputTokens: parseInt(process.env.MAX_TOKENS) || 8192,
                 }
             });
             console.log(`✅ ¡Logré conectar con Gemini! Usando modelo: ${modeloQueVoyAUsar}`);
@@ -106,10 +106,6 @@ class GeneradorDeActasSENA {
 
 Debes generar un acta **siguiendo exactamente esta estructura y formato**.
 
----
-
-# ACTA No. [NÚMERO]
-## COMITÉ DE EVALUACIÓN Y SEGUIMIENTO
 
 **CIUDAD Y FECHA:** [Extraer o inferir. Ejemplo: "Bogotá D.C., 14 de agosto de 2024"]
 **HORA INICIO:** [Extraer o inferir en formato HH:MM (24h). Ejemplo: "08:00"]
@@ -117,26 +113,9 @@ Debes generar un acta **siguiendo exactamente esta estructura y formato**.
 **LUGAR:** [Extraer o inferir. Ejemplo: "Sala 301" o "Google Meet"]
 
 
-## AGENDA O PUNTOS PARA DESARROLLAR:
-**1. Saludo** 
-**2. Verificación del Quórum** 
-**3. Hechos que serán objeto de estudio en el Comité** 
-**4. Instalación del Comité por parte del Coordinador Académico** 
-**5. Desarrollo del Comité/ Análisis del Caso, descargos del aprendiz y practica de pruebas a que haya lugar.**
-**6. Análisis y conclusiones realizadas por el Comité.**
-
-
 ## OBJETIVO(S) DE LA REUNIÓN:
 Analizar el caso del aprendiz [Nombre del aprendiz; ej. "Juan Pérez"] DEL PROGRAMA [Nombre del programa; ej. "Técnico en Asistencia Administrativa"] FICHA: [Número de ficha; ej. "1234567"]
 
-
-## DESARROLLO DE LA REUNIÓN
-
-### 1. SALUDO
-Se da inicio con el saludo de bienvenida.
-
-### 2. VERIFICACIÓN DEL QUÓRUM
-Verificada la asistencia y existiendo quórum para sesionar y decidir, se da inicio al comité y se procede de conformidad al orden del día.
 
 ## PARTICIPANTES
 - **COORDINACIÓN ACADÉMICA:** [Nombre; ej. "María Pérez"]
@@ -147,7 +126,7 @@ Verificada la asistencia y existiendo quórum para sesionar y decidir, se da ini
 - **VOCERO:** [Nombre; ej. "Laura Sánchez"]
 
 ### 3. HECHOS QUE SERÁN OBJETO DE ESTUDIO EN EL COMITÉ
-[Enumera cada hecho con números consecutivos y pon cada hecho en un párrafo separado. Extrae con claridad los hechos reportados por los instructores, mencionando fechas, fallas y evidencias. Por ejemplo: "1) El día 13 de diciembre del 2024 el aprendiz falla la prueba de conocimiento por segunda vez, teniendo en cuenta que previamente se había asignado una actividad complementaria. etc."].
+[Enumera cada hecho con números consecutivos y pon cada hecho en un párrafo separado dandole un renglon de separación entre parrafos. Extrae con claridad los hechos reportados por los instructores, mencionando fechas, fallas y evidencias. Por ejemplo: "1) El día 13 de diciembre del 2024 el aprendiz falla la prueba de conocimiento por segunda vez, teniendo en cuenta que previamente se había asignado una actividad complementaria. etc."].
 
 Se indica la preocupación acerca del tema, el cual radica en que se evidencia incumplimiento del REGLAMENTO DEL APRENDIZ: en el [Cita el artículo exacto del reglamento del aprendiz que describa el incumplimiento Por ejemplo: CAPITULO III DEBERES DEL APRENDIZ SENA; Artículo 22º Deberes del aprendiz, en su numeral cita: Numeral 6 Cumplir con todas las actividades de aprendizaje propias de su proceso formativo, presentando las evidencias según la planeación pedagógica, guías de aprendizaje y cronograma, en los plazos o en la oportunidad que estas deban presentarse o reportarse, a través de los medios dispuestos para ello Numeral 7. Realizar una dedicación efectiva del tiempo, priorizando las actividades de aprendizaje y manteniendo un compromiso constante para alcanzar los resultados de aprendizaje propuestos en el programa de formación.]
 
@@ -178,9 +157,6 @@ El coordinador JOHON FREDY SANABRIA MUÑOZ da un saludo de bienvenida a los pres
 | [Compromiso 1]     | [Fecha]      | [Nombre]    |
 | [Compromiso 2]     | [Fecha]      | [Nombre]    |
 
----
-
-De acuerdo con La Ley 1581 de 2012, Protección de Datos Personales, el Servicio Nacional de Aprendizaje SENA, se compromete a garantizar la seguridad y protección de los datos personales que se encuentran almacenados en este documento, y les dará el tratamiento correspondiente en cumplimiento de lo establecido legalmente.
 
 ## INSTRUCCIONES ADICIONALES:
 - Usa **tercera persona** y lenguaje formal.
