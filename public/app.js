@@ -234,7 +234,8 @@ function renderHistory() {
     .then((history) => {
       history.forEach((item) => {
         const li = document.createElement('li');
-        li.textContent = item.nombre;
+        const fecha = item.fecha ? new Date(item.fecha).toLocaleString() : '';
+        li.textContent = `${item.nombre || `Transcripción ${item.id}`}${fecha ? ` - ${fecha}` : ''}`;
         li.addEventListener('click', () => {
           currentId = item.id;
           fetch(
