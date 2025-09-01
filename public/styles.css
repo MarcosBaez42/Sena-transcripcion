@@ -42,8 +42,8 @@ body {
 
 #download-section {
   position: fixed;      /* o absolute dentro de #chat-container */
-  top: 35%;
-  left: 45px;
+  top: 45%;
+  right: 45px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -112,8 +112,8 @@ header h1 {
 
 #upload-form {
   position: fixed;
-  top: 45%;
-  right: 45px;
+  top: 35%;
+  left: 45px;
   bottom: auto;
   display: flex;
   flex-direction: column;
