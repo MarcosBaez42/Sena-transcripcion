@@ -40,15 +40,15 @@ body {
   flex: 1;
 }
 
-download-section {
-  position: fixed;
-  top: 100px;
-  left: 20px;
+#download-section {
+  position: fixed;      /* o absolute dentro de #chat-container */
+  top: 35%;
+  left: 45px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  text-align: left;
   gap: 1rem;
+  z-index: 1000;        /* opcional, evita que otros elementos se superpongan */
 }
 
 header {
@@ -110,12 +110,16 @@ header h1 {
   color: var(--color_text_card_bot);
 }
 
-form {
+#upload-form {
+  position: fixed;
+  top: 45%;
+  right: 45px;
+  bottom: auto;
   display: flex;
-  gap: 0.5rem;
-  justify-content: center;
-  position: sticky;
-  bottom: 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  z-index: 1000;
   background: var(--color_box);
   padding: 0.5rem 0;
 }
@@ -194,7 +198,7 @@ input[type="checkbox"] {
 }
 
 #preview-container {
-  height: 71vh;
+  height: 85vh;
   width: 100%;
   overflow-y: auto;
   overflow-x: auto;
@@ -206,7 +210,7 @@ input[type="checkbox"] {
 .sidebar {
   position: fixed;
   top: 0;
-  left: 0;
+  right: 0;
   width: 250px;
   height: 100%;
   background: var(--color_box);
@@ -217,7 +221,7 @@ input[type="checkbox"] {
 }
 
 .sidebar.hidden {
-  transform: translateX(-100%);
+  transform: translateX(100%);
 }
 
 .sidebar.visible {
@@ -227,7 +231,7 @@ input[type="checkbox"] {
 #sidebar-toggle {
   position: fixed;
   top: 0.5rem;
-  left: 0.5rem;
+  right: 0.5rem;
   z-index: 1101;
 }
 
