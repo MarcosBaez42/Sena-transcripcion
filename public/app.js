@@ -15,6 +15,18 @@ const dropArea = document.getElementById('drop-area');
 const toastContainer = document.getElementById('toast-container');
 let currentId = null;
 
+function fitPreview() {
+  const wrapper = previewContainer.querySelector('.docx-wrapper');
+  if (!wrapper) return;
+  const containerWidth = previewContainer.clientWidth;
+  const docWidth = wrapper.offsetWidth;
+  const scale = Math.min(1, containerWidth / docWidth);
+  wrapper.style.transformOrigin = 'top center';
+  wrapper.style.transform = `scale(${scale})`;
+}
+
+window.addEventListener('resize', fitPreview);
+
 downloadBtn.disabled = true;
 checkboxes.forEach((cb) => (cb.disabled = true));
 
@@ -121,6 +133,7 @@ form.addEventListener('submit', (e) => {
                 .then(() => {
                   previewContainer.style.display = 'block';
                   messages.style.display = 'none';
+                  fitPreview();
                 })
                 .catch((err) => {
                   messages.style.display = 'block';
@@ -279,6 +292,7 @@ function renderHistory() {
               previewContainer.style.display = 'block';
               messages.style.display = 'none';
               downloadBtn.disabled = false;
+              fitPreview();
               checkboxes.forEach((cb) => (cb.disabled = false));
               sidebar.classList.add('hidden');
               sidebar.classList.remove('visible');
