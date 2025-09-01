@@ -7,13 +7,20 @@ let cache = {};
 
 function load() {
   try {
-    cache = JSON.parse(fs.readFileSync(STORAGE_PATH, 'utf8'));
+    const raw = JSON.parse(fs.readFileSync(STORAGE_PATH, 'utf8'));
+    // Normaliza formato antiguo {id:{txt,md,docx}} a nuevo {id:{rutas:{}, meta:{}}}
+    cache = Object.fromEntries(
+      Object.entries(raw).map(([id, value]) =>
+        value && value.rutas ? [id, value] : [id, { rutas: value, meta: {} }]
+      )
+    );
   } catch {
     cache = {};
   }
   // Elimina las entradas cuyos archivos ya no existen
   const base = path.resolve(__dirname, '..', '..');
-  for (const [id, rutas] of Object.entries(cache)) {
+  for (const [id, entry] of Object.entries(cache)) {
+    const rutas = entry.rutas || {};
     const primera = Object.values(rutas).find(Boolean);
     if (!primera) continue;
     const absoluta = path.resolve(base, primera);
@@ -29,12 +36,20 @@ function save() {
 }
 
 function get(id) {
-  return cache[id];
+  return cache[id] && cache[id].rutas;
 }
 
-function set(id, rutas) {
-  cache[id] = rutas;
+function set(id, rutas, meta = {}) {
+  cache[id] = { rutas, meta };
   save();
+}
+
+function list() {
+  return Object.entries(cache).map(([id, { rutas, meta }]) => ({
+    id,
+    rutas,
+    ...meta,
+  }));
 }
 
 function remove(id) {
@@ -48,5 +63,6 @@ module.exports = {
   load,
   get,
   set,
+  list,
   delete: remove,
 };

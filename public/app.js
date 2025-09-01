@@ -51,7 +51,7 @@ form.addEventListener('submit', (e) => {
   e.preventDefault();
   const file = fileInput.files[0];
   if (!file) return;
-  
+
   currentId = null;
   downloadBtn.disabled = true;
   checkboxes.forEach((cb) => {
@@ -100,14 +100,6 @@ form.addEventListener('submit', (e) => {
             }
             if (data.final) {
               if (data.id) currentId = data.id;
-              const history = JSON.parse(
-                localStorage.getItem('historialTranscripciones') || '[]'
-              );
-              history.push({ id: currentId, nombre: file.name, fecha: Date.now() });
-              localStorage.setItem(
-                'historialTranscripciones',
-                JSON.stringify(history)
-              );
               renderHistory();
               sse.close();
               progress.style.display = 'none';
@@ -195,11 +187,9 @@ function showToast(text, type = 'success') {
 }
 
 function removeHistory(id) {
-  const history = JSON.parse(
-    localStorage.getItem('historialTranscripciones') || '[]'
-  );
-  const updated = history.filter((item) => item.id !== id);
-  localStorage.setItem('historialTranscripciones', JSON.stringify(updated));
+  fetch(`${window.API_BASE}/historial/${encodeURIComponent(id)}`, {
+    method: 'DELETE',
+  }).catch(() => {});
 }
 
 function downloadArchivo(id, tipo) {
@@ -236,45 +226,52 @@ function downloadArchivo(id, tipo) {
 
 function renderHistory() {
   historyList.innerHTML = '';
-  const history = JSON.parse(
-    localStorage.getItem('historialTranscripciones') || '[]'
-  );
-  history.forEach((item) => {
-    const li = document.createElement('li');
-    li.textContent = item.nombre;
-    li.addEventListener('click', () => {
-      currentId = item.id;
-      fetch(
-        `${window.API_BASE}/descargar?id=${encodeURIComponent(item.id)}&tipo=docx`
-      )
-        .then((res) => {
-          if (res.status === 404) {
-            removeHistory(item.id);
-            renderHistory();
-            throw new Error('Transcripción no encontrada');
-          }
-          if (!res.ok) throw new Error('No se pudo obtener el documento');
-          return res.blob();
-        })
-        .then((blob) => {
-          previewContainer.innerHTML = '';
-          return window.docx.renderAsync(blob, previewContainer);
-        })
-        .then(() => {
-          previewContainer.style.display = 'block';
-          messages.style.display = 'none';
-          downloadBtn.disabled = false;
-          checkboxes.forEach((cb) => (cb.disabled = false));
-          sidebar.classList.add('hidden');
-          sidebar.classList.remove('visible');
-        })
-        .catch((err) => {
-          addMessage('Error: ' + err.message, 'bot');
-          showToast('Error: ' + err.message, 'error');
+  fetch(`${window.API_BASE}/historial`)
+    .then((res) => {
+      if (!res.ok) throw new Error('No se pudo obtener historial');
+      return res.json();
+    })
+    .then((history) => {
+      history.forEach((item) => {
+        const li = document.createElement('li');
+        li.textContent = item.nombre;
+        li.addEventListener('click', () => {
+          currentId = item.id;
+          fetch(
+            `${window.API_BASE}/descargar?id=${encodeURIComponent(item.id)}&tipo=docx`
+          )
+            .then((res) => {
+              if (res.status === 404) {
+                removeHistory(item.id);
+                renderHistory();
+                throw new Error('Transcripción no encontrada');
+              }
+              if (!res.ok) throw new Error('No se pudo obtener el documento');
+              return res.blob();
+            })
+            .then((blob) => {
+              previewContainer.innerHTML = '';
+              return window.docx.renderAsync(blob, previewContainer);
+            })
+            .then(() => {
+              previewContainer.style.display = 'block';
+              messages.style.display = 'none';
+              downloadBtn.disabled = false;
+              checkboxes.forEach((cb) => (cb.disabled = false));
+              sidebar.classList.add('hidden');
+              sidebar.classList.remove('visible');
+            })
+            .catch((err) => {
+              addMessage('Error: ' + err.message, 'bot');
+              showToast('Error: ' + err.message, 'error');
+            });
         });
+        historyList.appendChild(li);
+      });
+    })
+    .catch((err) => {
+      console.error('Error cargando historial:', err);
     });
-    historyList.appendChild(li);
-  });
 }
 
 downloadBtn.addEventListener('click', () => {

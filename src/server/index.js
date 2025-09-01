@@ -91,7 +91,10 @@ router.post('/transcribir', upload.single('audio'), async (req, res) => {
           if (!resultado || typeof resultado !== 'object' || !resultado.transcripcion) {
             throw new Error('transcribirUnSoloArchivo no devolvió una ruta de transcripción');
           }
-          archivosGenerados.set(id, resultado.rutasRelativas);
+          archivosGenerados.set(id, resultado.rutasRelativas, {
+            nombre: req.file.originalname,
+            fecha: Date.now(),
+          });
           const primeraRuta = Object.values(resultado.rutasRelativas).find(Boolean);
           if (primeraRuta) {
             const dir = path.dirname(path.resolve(__dirname, '..', '..', primeraRuta));
@@ -188,6 +191,16 @@ router.get('/descargar-zip', (req, res) => {
   archive.pipe(res);
   lista.forEach((f) => archive.file(f.ruta, { name: f.nombre }));
   archive.finalize();
+});
+
+router.get('/historial', (req, res) => {
+  res.json(archivosGenerados.list());
+});
+
+router.delete('/historial/:id', (req, res) => {
+  const { id } = req.params;
+  archivosGenerados.delete(id);
+  res.status(204).end();
 });
 
 app.use(API_BASE_PATH, router);
