@@ -42,13 +42,13 @@ body {
 
 #download-section {
   position: fixed;      /* o absolute dentro de #chat-container */
-  top: 45%;
+  top: 40%;
   right: 45px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 1rem;
-  z-index: 1000;        /* opcional, evita que otros elementos se superpongan */
+  z-index: 100;        /* opcional, evita que otros elementos se superpongan */
 }
 
 header {
@@ -112,7 +112,7 @@ header h1 {
 
 #upload-form {
   position: fixed;
-  top: 35%;
+  top: 45%;
   left: 45px;
   bottom: auto;
   display: flex;
@@ -217,7 +217,7 @@ input[type="checkbox"] {
   overflow-y: auto;
   transition: transform 0.3s ease;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
+  z-index: 1100;
 }
 
 .sidebar.hidden {
