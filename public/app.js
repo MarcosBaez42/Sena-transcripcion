@@ -234,8 +234,29 @@ function renderHistory() {
     .then((history) => {
       history.forEach((item) => {
         const li = document.createElement('li');
+        li.className = 'list-group-item history-item d-flex align-items-start';
+        const icon = document.createElement('i');
+        icon.className = 'fa-solid fa-file-lines text-sena me-2 mt-1';
+        li.appendChild(icon);
+
+        const content = document.createElement('div');
+        content.className = 'flex-grow-1';
+
+        const titulo = document.createElement('div');
+        titulo.className = 'fw-semibold';
+        titulo.textContent = item.nombre || `Transcripción ${item.id}`;
+        content.appendChild(titulo);
+
         const fecha = item.fecha ? new Date(item.fecha).toLocaleString() : '';
-        li.textContent = `${item.nombre || `Transcripción ${item.id}`}${fecha ? ` - ${fecha}` : ''}`;
+        if (fecha) {
+          const date = document.createElement('small');
+          date.className = 'text-muted';
+          date.textContent = fecha;
+          content.appendChild(date);
+        }
+
+        li.appendChild(content);
+
         li.addEventListener('click', () => {
           currentId = item.id;
           fetch(
