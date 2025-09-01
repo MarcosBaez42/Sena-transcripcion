@@ -1,29 +1,32 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');
+
 :root {
   --color_box: #ffffff; /* fondo principal */
   --color_text: #212121;
-  --color_header: #2e7d32;
+  --color_header: #39A900;
   --color_header_text: #ffffff;
-  --color_card: #318335;
+  --color_card: #39A900;
   --color_text_card: #ffffff;
-  --color_card_bot: #e8f5e9;
+  --color_card_bot: #E6F4EA;
   --color_text_card_bot: #212121;
-  --color_button: #2e7d32;
-  --color_button_hover: #27632a;
-  --color_button_closed: #a5d6a7;
+  --color_button: #39A900;
+  --color_button_hover: #2E7D32;
+  --color_button_closed: #A2D5AB;
   --color_text_button: #ffffff;
-  --color_input: #f1f8e9;
-  --color_tooltip: #2e7d32;
+  --color_input: #F0FFF4;
+  --color_tooltip: #39A900;
   --color_progress_bg: #e0e0e0;
-  --color_progress_bar: #2e7d32;
+  --color_progress_bar: #39A900;
   --color_progress_text: #ffffff;
   --color_preview_bg: #ffffff;
   --color_preview_text: #212121;
+  --color_border: #39A900;
 }
 
 body {
   background-color: var(--color_box);
   color: var(--color_text);
-  font-family: system-ui, sans-serif;
+  font-family: 'Montserrat', sans-serif;
   height: 100vh;
   margin: 0;
   display: flex;
@@ -43,7 +46,7 @@ body {
 #download-section {
   position: fixed;      /* o absolute dentro de #chat-container */
   top: 40%;
-  right: 45px;
+  right: 25px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -69,6 +72,10 @@ header h1 {
   margin: 0;
 }
 
+header .logo {
+  height: 60px;
+}
+
 #messages {
   flex: 1;
   overflow-y: auto;
@@ -76,6 +83,7 @@ header h1 {
   flex-direction: column;
   gap: 10px;
 }
+
 
 .message {
   padding: 10px 15px;
@@ -134,6 +142,7 @@ button, .upload-label {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   text-align: center;
   display: inline-block;
+  font-family: inherit;
 }
 
 button:hover, .upload-label:hover {
