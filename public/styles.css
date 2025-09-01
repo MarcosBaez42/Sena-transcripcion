@@ -43,15 +43,19 @@ body {
   flex: 1;
 }
 
+#controls-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+}
+
+
 #download-section {
-  position: fixed;      /* o absolute dentro de #chat-container */
-  top: 40%;
-  right: 25px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 1rem;
-  z-index: 100;        /* opcional, evita que otros elementos se superpongan */
 }
 
 header {
@@ -119,18 +123,14 @@ header .logo {
 }
 
 #upload-form {
-  position: fixed;
-  top: 45%;
-  left: 45px;
-  bottom: auto;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 1rem;
-  z-index: 1000;
   background: var(--color_box);
   padding: 0.5rem 0;
 }
+
 
 button, .upload-label {
   background: var(--color_button);
@@ -264,4 +264,16 @@ input[type="checkbox"] {
 
 #history-list li:hover {
   background: var(--color_card_bot);
+}
+@media (min-width: 768px) {
+  #controls-container {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+
+  #upload-form,
+  #download-section {
+    flex: 1;
+  }
 }
