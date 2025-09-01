@@ -45,11 +45,16 @@ function set(id, rutas, meta = {}) {
 }
 
 function list() {
-  return Object.entries(cache).map(([id, { rutas, meta }]) => ({
-    id,
-    rutas,
-    ...meta,
-  }));
+  return Object.entries(cache).map(([id, value]) => {
+    const rutas = value && value.rutas;
+    const meta = (value && value.meta) || {};
+    return {
+      id,
+      rutas,
+      nombre: meta.nombre || id,
+      fecha: meta.fecha,
+    };
+  });
 }
 
 function remove(id) {

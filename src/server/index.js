@@ -92,7 +92,7 @@ router.post('/transcribir', upload.single('audio'), async (req, res) => {
             throw new Error('transcribirUnSoloArchivo no devolvió una ruta de transcripción');
           }
           archivosGenerados.set(id, resultado.rutasRelativas, {
-            nombre: req.file.originalname,
+            nombre: req.file.originalname || id,
             fecha: Date.now(),
           });
           const primeraRuta = Object.values(resultado.rutasRelativas).find(Boolean);
