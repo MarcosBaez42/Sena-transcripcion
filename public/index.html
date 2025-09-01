@@ -5,34 +5,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Transcripción SENA</title>
     <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body>
     <header>
-        <button id="sidebar-toggle">📁</button>
+        <button id="sidebar-toggle"><i class="fa-solid fa-clock-rotate-left"></i></button>
         <h1>Transcriptor SENA</h1>
     </header>
-    <aside id="sidebar" class="sidebar hidden"><h2 id="history-title">Historial Transcripciones</h2><ul id="history-list"></ul></aside>
+
+    <aside id="sidebar" class="sidebar hidden">
+      <h2 id="history-title">Historial Transcripciones</h2>
+      <ul id="history-list"></ul>
+    </aside>
 
     <div id="chat-container">
       <div id="progress"><div id="progress-bar">0%</div></div>
       <div id="messages"></div>
       <div id="controls-container">
         <form id="upload-form">
-          <input type="file" id="file-input" accept="audio/*" style="display:none" />
-          <label for="file-input" class="upload-label">Seleccionar audio</label>
-          <span id="file-name"></span>
-          <button type="submit">Enviar</button>
+          <div id="drop-area">
+            <input type="file" id="file-input" accept="audio/*" style="display:none" />
+            <label for="file-input" class="upload-label"><i class="fa-solid fa-file-audio"></i> Seleccionar audio</label>
+            <span id="file-name"></span>
+          </div>
+          <button type="submit"><i class="fa-solid fa-upload"></i> Enviar</button>
         </form>
         <div id="download-section">
           <h3>Formatos de descarga:</h3>
           <label><input type="checkbox" value="txt"> TXT</label>
           <label><input type="checkbox" value="md"> Markdown</label>
           <label><input type="checkbox" value="docx"> Word</label>
-          <button id="download-btn" type="button">Descargar seleccionados</button>
+          <button id="download-btn" type="button"><i class="fa-solid fa-download"></i> Descargar seleccionados</button>
         </div>
       </div>
       <div id="preview-container"></div>
     </div>
+    <div id="toast-container"></div>
     <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/docx-preview/dist/docx-preview.min.js"></script>
     <script>window.API_BASE=%API_BASE_PATH%;</script>

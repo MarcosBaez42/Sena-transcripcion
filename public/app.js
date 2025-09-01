@@ -11,6 +11,8 @@ const previewContainer = document.getElementById('preview-container');
 const sidebar = document.getElementById('sidebar');
 const sidebarToggle = document.getElementById('sidebar-toggle');
 const historyList = document.getElementById('history-list');
+const dropArea = document.getElementById('drop-area');
+const toastContainer = document.getElementById('toast-container');
 let currentId = null;
 
 downloadBtn.disabled = true;
@@ -23,11 +25,33 @@ fileInput.addEventListener('change', () => {
   fileName.textContent = file ? file.name : '';
 });
 
+['dragenter', 'dragover'].forEach((eventName) => {
+  dropArea.addEventListener(eventName, (e) => {
+    e.preventDefault();
+    dropArea.classList.add('dragover');
+  });
+});
+
+['dragleave', 'drop'].forEach((eventName) => {
+  dropArea.addEventListener(eventName, (e) => {
+    e.preventDefault();
+    dropArea.classList.remove('dragover');
+  });
+});
+
+dropArea.addEventListener('drop', (e) => {
+  const files = e.dataTransfer.files;
+  if (files && files.length > 0) {
+    fileInput.files = files;
+    fileInput.dispatchEvent(new Event('change'));
+  }
+});
+
 form.addEventListener('submit', (e) => {
   e.preventDefault();
   const file = fileInput.files[0];
   if (!file) return;
-
+  
   currentId = null;
   downloadBtn.disabled = true;
   checkboxes.forEach((cb) => {
@@ -90,6 +114,7 @@ form.addEventListener('submit', (e) => {
               progressBar.textContent = '';
               downloadBtn.disabled = false;
               checkboxes.forEach((cb) => (cb.disabled = false));
+              showToast('Transcripción completada', 'success');
 
                 fetch(`${window.API_BASE}/descargar?id=${currentId}&tipo=docx`)
                 .then((res) => {
@@ -108,31 +133,40 @@ form.addEventListener('submit', (e) => {
                 .catch((err) => {
                   messages.style.display = 'block';
                   addMessage('Error: ' + err.message, 'bot');
+                  showToast('Error: ' + err.message, 'error');
                 });
             }
             if (data.error) {
               addMessage('Error: ' + data.error, 'bot');
+              showToast('Error: ' + data.error, 'error');
               sse.close();
               progress.style.display = 'none';
               progressBar.textContent = '';
             }
           } catch (err) {
             addMessage('Error: ' + err.message, 'bot');
+            showToast('Error: ' + err.message, 'error');
           }
         };
       } catch (err) {
         addMessage('Error: ' + err.message, 'bot');
+        showToast('Error: ' + err.message, 'error');
       }
     } else {
       addMessage(
         'Error del servidor: ' + xhr.status + ' ' + xhr.statusText,
         'bot'
       );
+      showToast(
+        'Error del servidor: ' + xhr.status + ' ' + xhr.statusText,
+        'error'
+      );
     }
   };
 
   xhr.onerror = () => {
     addMessage('Error de red', 'bot');
+    showToast('Error de red', 'error');
   };
 
   xhr.onloadend = () => {};
@@ -146,6 +180,18 @@ function addMessage(text, role) {
   div.textContent = text;
   messages.appendChild(div);
   messages.scrollTop = messages.scrollHeight;
+}
+
+function showToast(text, type = 'success') {
+  const div = document.createElement('div');
+  div.className = `toast toast-${type}`;
+  div.textContent = text;
+  toastContainer.appendChild(div);
+  requestAnimationFrame(() => div.classList.add('toast-show'));
+  setTimeout(() => {
+    div.classList.remove('toast-show');
+    setTimeout(() => div.remove(), 300);
+  }, 3000);
 }
 
 function removeHistory(id) {
@@ -182,7 +228,10 @@ function downloadArchivo(id, tipo) {
       a.remove();
       URL.revokeObjectURL(url);
     })
-    .catch((err) => addMessage('Error: ' + err.message, 'bot'));
+    .catch((err) => {
+      addMessage('Error: ' + err.message, 'bot');
+      showToast('Error: ' + err.message, 'error');
+    });
 }
 
 function renderHistory() {
@@ -219,7 +268,10 @@ function renderHistory() {
           sidebar.classList.add('hidden');
           sidebar.classList.remove('visible');
         })
-        .catch((err) => addMessage('Error: ' + err.message, 'bot'));
+        .catch((err) => {
+          addMessage('Error: ' + err.message, 'bot');
+          showToast('Error: ' + err.message, 'error');
+        });
     });
     historyList.appendChild(li);
   });
@@ -252,7 +304,10 @@ downloadBtn.addEventListener('click', () => {
         a.remove();
         URL.revokeObjectURL(url);
       })
-      .catch((err) => addMessage('Error: ' + err.message, 'bot'));
+      .catch((err) => {
+        addMessage('Error: ' + err.message, 'bot');
+        showToast('Error: ' + err.message, 'error');
+      });
     return;
   }
 
@@ -277,7 +332,10 @@ downloadBtn.addEventListener('click', () => {
       a.remove();
       URL.revokeObjectURL(url);
     })
-    .catch((err) => addMessage('Error: ' + err.message, 'bot'));
+    .catch((err) => {
+      addMessage('Error: ' + err.message, 'bot');
+      showToast('Error: ' + err.message, 'error');
+    });
 });
 
 sidebarToggle.addEventListener('click', () => {

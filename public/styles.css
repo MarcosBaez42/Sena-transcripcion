@@ -143,17 +143,23 @@ button, .upload-label {
   text-align: center;
   display: inline-block;
   font-family: inherit;
+  transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 button:hover, .upload-label:hover {
   background: var(--color_button_hover);
   color: var(--color_text_button);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transform: scale(1.05);
 }
 
 button:disabled {
   background: var(--color_button_closed);
   cursor: not-allowed;
+}
+
+button:active, .upload-label:active {
+  transform: scale(0.95);
 }
 
 input {
@@ -201,9 +207,51 @@ input[type="checkbox"] {
   align-items: center;
   justify-content: center;
   font-size: 0.8rem;
-  transition: width 0.3s ease;
+  transition: width 0.3s ease, transform 0.3s ease;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+}
+
+#drop-area {
+  border: 2px dashed var(--color_border);
+  padding: 1rem;
+  text-align: center;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+#drop-area.dragover {
+  background: var(--color_card_bot);
+  transform: scale(1.02);
+}
+
+#toast-container {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 1200;
+}
+
+.toast {
+  margin-top: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  color: #fff;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.toast-show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.toast-success {
+  background: #4caf50;
+}
+
+.toast-error {
+  background: #f44336;
 }
 
 #preview-container {
