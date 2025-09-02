@@ -42,5 +42,16 @@
       "nombre": "ejemplo.mp3",
       "fecha": 1756760863621
     }
+  },
+  "be913be2-41b1-4164-970c-30150793d550": {
+    "rutas": {
+      "txt": "transcripciones\\9eaf59024743ee761555c9ef53e03795\\9eaf59024743ee761555c9ef53e03795_transcripcion.txt",
+      "md": "actas_gemini\\versiones\\9eaf59024743ee761555c9ef53e03795\\9eaf59024743ee761555c9ef53e03795_2025-09-01.md",
+      "docx": "actas_gemini\\versiones\\9eaf59024743ee761555c9ef53e03795\\9eaf59024743ee761555c9ef53e03795_acta_completa.docx"
+    },
+    "meta": {
+      "nombre": "ficha4.mp3",
+      "fecha": 1756767460338
+    }
   }
 }

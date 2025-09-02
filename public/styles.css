@@ -139,6 +139,7 @@ body {
   background: var(--color_header);
   color: var(--color_header_text);
   padding: 1rem;
+  gap: 0.5rem;
   font-weight: 600;
   font-size: 1.1rem;
 }
