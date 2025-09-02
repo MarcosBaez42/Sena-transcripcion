@@ -1,37 +1,4 @@
 {
-  "ee80980d-db30-4293-9c48-b84789799d13": {
-    "rutas": {
-      "txt": "transcripciones\\32926c9abba5c622033b8b786cb18ae7\\32926c9abba5c622033b8b786cb18ae7_transcripcion.txt",
-      "md": "actas_gemini\\versiones\\32926c9abba5c622033b8b786cb18ae7\\32926c9abba5c622033b8b786cb18ae7_2025-09-01.md",
-      "docx": "actas_gemini\\versiones\\32926c9abba5c622033b8b786cb18ae7\\32926c9abba5c622033b8b786cb18ae7_acta_completa.docx"
-    },
-    "meta": {
-      "nombre": "",
-      "fecha": 0
-    }
-  },
-  "e57900d7-7272-436e-8422-4c065a825d18": {
-    "rutas": {
-      "txt": "transcripciones\\7c6528c4b642e80495d7fd3087b6dced\\7c6528c4b642e80495d7fd3087b6dced_transcripcion.txt",
-      "md": "actas_gemini\\versiones\\7c6528c4b642e80495d7fd3087b6dced\\7c6528c4b642e80495d7fd3087b6dced_2025-09-01.md",
-      "docx": "actas_gemini\\versiones\\7c6528c4b642e80495d7fd3087b6dced\\7c6528c4b642e80495d7fd3087b6dced_acta_completa.docx"
-    },
-    "meta": {
-      "nombre": "",
-      "fecha": 0
-    }
-  },
-  "96f9a3f5-8f0e-436d-b453-beda792cb6f3": {
-    "rutas": {
-      "txt": "transcripciones\\84c94dd8c4b6244d3dfaf95ddd256ae8\\84c94dd8c4b6244d3dfaf95ddd256ae8_transcripcion.txt",
-      "md": "actas_gemini\\versiones\\84c94dd8c4b6244d3dfaf95ddd256ae8\\84c94dd8c4b6244d3dfaf95ddd256ae8_2025-09-01.md",
-      "docx": "actas_gemini\\versiones\\84c94dd8c4b6244d3dfaf95ddd256ae8\\84c94dd8c4b6244d3dfaf95ddd256ae8_acta_completa.docx"
-    },
-    "meta": {
-      "nombre": "",
-      "fecha": 0
-    }
-  },
   "2be427f8-730a-447b-b8cd-f2aa4c617a9c": {
     "rutas": {
       "txt": "transcripciones\\cf1c2e4fc5fcab84c5800ecbb585b99f\\cf1c2e4fc5fcab84c5800ecbb585b99f_transcripcion.txt",
@@ -52,6 +19,17 @@
     "meta": {
       "nombre": "ficha4.mp3",
       "fecha": 1756767460338
+    }
+  },
+  "a624b9d6-276f-433e-ad59-1852541926e9": {
+    "rutas": {
+      "txt": "transcripciones\\db6bbcf1226f9dd3477c03ccfcf40644\\db6bbcf1226f9dd3477c03ccfcf40644_transcripcion.txt",
+      "md": "actas_gemini\\versiones\\db6bbcf1226f9dd3477c03ccfcf40644\\db6bbcf1226f9dd3477c03ccfcf40644_2025-09-02.md",
+      "docx": "actas_gemini\\versiones\\db6bbcf1226f9dd3477c03ccfcf40644\\db6bbcf1226f9dd3477c03ccfcf40644_acta_completa.docx"
+    },
+    "meta": {
+      "nombre": "sebastian.mp3",
+      "fecha": 1756846741464
     }
   }
 }

@@ -9,7 +9,7 @@ const downloadBtn = document.getElementById('download-btn');
 const checkboxes = downloadSection.querySelectorAll('input[type="checkbox"]');
 const previewContainer = document.getElementById('preview-container');
 const sidebar = document.getElementById('sidebar');
-const sidebarToggle = document.getElementById('sidebar-toggle');
+const sidebarToggles = document.querySelectorAll('.sidebar-toggle');
 const historyList = document.getElementById('history-list');
 const dropArea = document.getElementById('drop-area');
 const toastContainer = document.getElementById('toast-container');
@@ -371,9 +371,11 @@ downloadBtn.addEventListener('click', () => {
     });
 });
 
-sidebarToggle.addEventListener('click', () => {
-  sidebar.classList.toggle('visible');
-  sidebar.classList.toggle('hidden');
+sidebarToggles.forEach((btn) => {
+  btn.addEventListener('click', () => {
+    sidebar.classList.toggle('visible');
+    sidebar.classList.toggle('hidden');
+  });
 });
 
 document.addEventListener('DOMContentLoaded', renderHistory);
