@@ -1,15 +1,4 @@
 {
-  "2be427f8-730a-447b-b8cd-f2aa4c617a9c": {
-    "rutas": {
-      "txt": "transcripciones\\cf1c2e4fc5fcab84c5800ecbb585b99f\\cf1c2e4fc5fcab84c5800ecbb585b99f_transcripcion.txt",
-      "md": "actas_gemini\\versiones\\cf1c2e4fc5fcab84c5800ecbb585b99f\\cf1c2e4fc5fcab84c5800ecbb585b99f_2025-09-01.md",
-      "docx": "actas_gemini\\versiones\\cf1c2e4fc5fcab84c5800ecbb585b99f\\cf1c2e4fc5fcab84c5800ecbb585b99f_acta_completa.docx"
-    },
-    "meta": {
-      "nombre": "ejemplo.mp3",
-      "fecha": 1756760863621
-    }
-  },
   "be913be2-41b1-4164-970c-30150793d550": {
     "rutas": {
       "txt": "transcripciones\\9eaf59024743ee761555c9ef53e03795\\9eaf59024743ee761555c9ef53e03795_transcripcion.txt",
@@ -30,6 +19,28 @@
     "meta": {
       "nombre": "sebastian.mp3",
       "fecha": 1756846741464
+    }
+  },
+  "5577b404-90fc-4453-86d7-031db7b2bb43": {
+    "rutas": {
+      "txt": "transcripciones\\1c45e78f7a9d4ed0c33b3261d0b3d37c\\1c45e78f7a9d4ed0c33b3261d0b3d37c_transcripcion.txt",
+      "md": "actas_gemini\\versiones\\1c45e78f7a9d4ed0c33b3261d0b3d37c\\1c45e78f7a9d4ed0c33b3261d0b3d37c_2025-09-02.md",
+      "docx": "actas_gemini\\versiones\\1c45e78f7a9d4ed0c33b3261d0b3d37c\\1c45e78f7a9d4ed0c33b3261d0b3d37c_acta_completa.docx"
+    },
+    "meta": {
+      "nombre": "ejemplo.mp3",
+      "fecha": 1756851957242
+    }
+  },
+  "ffb752e1-3a1e-49b9-8daf-186d8a86ab0e": {
+    "rutas": {
+      "txt": "transcripciones\\74974a2f467798cff53b9d732905632e\\74974a2f467798cff53b9d732905632e_transcripcion.txt",
+      "md": "actas_gemini\\versiones\\74974a2f467798cff53b9d732905632e\\74974a2f467798cff53b9d732905632e_2025-09-02.md",
+      "docx": "actas_gemini\\versiones\\74974a2f467798cff53b9d732905632e\\74974a2f467798cff53b9d732905632e_acta_completa.docx"
+    },
+    "meta": {
+      "nombre": "ejemplo2.mp3",
+      "fecha": 1756852386659
     }
   }
 }

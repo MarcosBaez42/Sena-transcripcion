@@ -143,7 +143,7 @@ Por lo anterior y respetando el debido proceso, se cita al aprendiz [Nombre del 
 El coordinador JOHON FREDY SANABRIA MUÑOZ da un saludo de bienvenida a los presentes en el comité. El Comité de Evaluación y Seguimiento es una instancia académica fundamental en nuestra institución. Su propósito principal es orientar y apoyar de manera integral el proceso de formación de nuestros aprendices, asegurando que se lleve a cabo con los más altos estándares de calidad. Este comité desempeña un papel fundamental al analizar y evaluar de manera constante los programas de estudio, los métodos pedagógicos y los resultados obtenidos. Además, se encarga de proponer mejoras, ajustes y estrategias que contribuyan a optimizar la experiencia educativa de nuestros aprendices. Nuestro objetivo común es formar profesionales competentes, éticos y comprometidos con su desarrollo personal y con la sociedad. A través del trabajo conjunto del Comité de Evaluación y Seguimiento, podremos garantizar que estamos cumpliendo con nuestra misión de ofrecer una educación de calidad.
 
 ### 5. DESARROLLO DEL COMITÉ / ANALISIS DEL CASO, DESCARGOS DEL APRENDIZ Y PRÁCTICA DE PRUEBAS A QUE HAYA LUGAR
-[Intervenciones de los participantes comieza con Interviene [Cargo y nombre]:, extrae y resume lo mas relevante dicho por los participantes en primera persona, extrae los puntos tratados análisis del caso, descargos del aprendiz, pruebas realizadas y cualquier otro detalle relevante.]
+[Intervenciones de los participantes. El formato debe ser: **Interviene [Cargo y nombre]:** y lo que dicen con colocalo en el renglon siguiente. Extrae y resume lo más relevante dicho por los participantes en primera persona, extrae los puntos tratados análisis del caso, descargos del aprendiz, pruebas realizadas y cualquier otro detalle relevante.]
 
 ### 6. CONCLUSIONES
 [Resume lo mas que se pueda el tipo de falta, gravedad, medidas, planes de mejoramiento.]
@@ -178,12 +178,12 @@ Ahora redacta el acta en formato Markdown con base en la siguiente transcripció
         const carpetaPrincipal = esVersionFinal ? 'actas_gemini/finales' : 'actas_gemini/versiones';
         const nombreLimpio = nombreDelProyecto.replace(/_transcripcion.*$/, '').replace(/[^a-zA-Z0-9_]/g, '_');
         const rutaCarpetaCompleta = path.join(carpetaPrincipal, nombreLimpio);
-        
+
         if (!fs.existsSync(rutaCarpetaCompleta)) {
             fs.mkdirSync(rutaCarpetaCompleta, { recursive: true });
             console.log(`📁 Creé la carpeta: ${rutaCarpetaCompleta}`);
         }
-        
+
         return rutaCarpetaCompleta;
     }
 
@@ -249,9 +249,10 @@ Ahora redacta el acta en formato Markdown con base en la siguiente transcripció
             if (partes.length < 4) continue;
             if (/^-{3,}$/.test(partes[1])) continue; // salto separadores
             filas.push({
-                actividad: partes[1],
-                fecha: partes[2],
-                responsable: partes[3]
+                actividad: partes[1] || '',
+                fecha: partes[2] || '',
+                responsable: partes[3] || '',
+                firma: ''   // evita "undefined" en la columna FIRMA/PARTICIPACIÓN
             });
         }
         return filas;
@@ -266,8 +267,8 @@ Ahora redacta el acta en formato Markdown con base en la siguiente transcripció
         console.log("🤖 Generando acta con mi sistema de IA...");
 
         const textoReducido = textoTranscripcion.length > 5000
-    ? textoTranscripcion.slice(0, 5000) + "\n[...transcripción truncada por longitud...]"
-    : textoTranscripcion;
+            ? textoTranscripcion.slice(0, 5000) + "\n[...transcripción truncada por longitud...]"
+            : textoTranscripcion;
 
         let articulosSeleccionados = informacionExtra.articulosReglamento;
         if (!Array.isArray(articulosSeleccionados) || articulosSeleccionados.length === 0) {
@@ -291,30 +292,30 @@ Por favor ayúdame a generar el acta formal completa siguiendo exactamente el fo
         try {
             const resultadoDeGemini = await this.modeloIA.generateContent(promptCompleto);
             const respuestaObtenida = await resultadoDeGemini.response;
-            
+
             if (!respuestaObtenida) {
                 throw new Error("Gemini no me respondió nada");
             }
 
             const actaGenerada = respuestaObtenida.text();
-            
+
             // Creo la carpeta específica para este proyecto
             const nombreProyecto = informacionExtra.nombreDelProyecto || 'acta_comite';
             const carpetaDelProyecto = this.crearCarpetaParaElProyecto(nombreProyecto, informacionExtra.esVersionFinal);
-            
+
             // Genero el nombre del archivo
             const fechaHoy = new Date().toISOString().split('T')[0];
-            const nombreDelArchivo = informacionExtra.esVersionFinal ? 
-                `${nombreProyecto}_final.md` : 
+            const nombreDelArchivo = informacionExtra.esVersionFinal ?
+                `${nombreProyecto}_final.md` :
                 `${nombreProyecto}_${fechaHoy}.md`;
-            
+
             const rutaCompletaDelActa = path.join(carpetaDelProyecto, nombreDelArchivo);
-            
+
             fs.writeFileSync(rutaCompletaDelActa, actaGenerada, 'utf-8');
-            
+
             console.log(`✅ ¡Logré generar el acta! Se guardó en: ${rutaCompletaDelActa}`);
             console.log(`📄 Tamaño del acta: ${actaGenerada.length} caracteres`);
-            
+
             const metadatos = this.extraerMetadatosDelActa(actaGenerada);
 
             return {
@@ -326,7 +327,7 @@ Por favor ayúdame a generar el acta formal completa siguiendo exactamente el fo
 
         } catch (error) {
             console.error("❌ Tuve un problema generando el acta:", error.message);
-            
+
             // Diagnostico qué pudo haber pasado (esto me ayuda a aprender)
             if (error.message.includes('API_KEY')) {
                 console.log("💡 Parece que hay un problema con mi API Key de Gemini.");
@@ -335,11 +336,11 @@ Por favor ayúdame a generar el acta formal completa siguiendo exactamente el fo
             } else if (error.message.includes('model')) {
                 console.log("💡 Hay un problema con el modelo que estoy usando.");
             }
-            
+
             return null;
         }
     }
-    
+
     async generarActaEnDosPartes(textoTranscripcion, informacionExtra = {}) {
         if (!this.modeloIA) {
             console.error("❌ No tengo Gemini configurado. Necesito verificar mi API key.");
@@ -388,7 +389,7 @@ Por favor escribe la primera mitad del acta. Finaliza con la etiqueta <<CONTINUA
 
             console.log(`✅ ¡Acta generada en dos partes! Se guardó en: ${rutaCompletaDelActa}`);
             console.log(`📄 Tamaño del acta final: ${actaFinal.length} caracteres`);
-            
+
             const metadatos = this.extraerMetadatosDelActa(actaFinal);
 
             return {
@@ -405,20 +406,20 @@ Por favor escribe la primera mitad del acta. Finaliza con la etiqueta <<CONTINUA
 
     async generarVariasVersionesDelActa(textoTranscripcion, informacionExtra = {}, numeroDeVersiones = 2) {
         console.log(`🔄 Voy a generar ${numeroDeVersiones} versiones diferentes del acta para elegir la mejor...`);
-        
+
         const versionesGeneradas = [];
-        
+
         for (let i = 1; i <= numeroDeVersiones; i++) {
             console.log(`📝 Generando versión ${i} de ${numeroDeVersiones}...`);
-            
+
             const informacionParaEstaVersion = {
                 ...informacionExtra,
                 nombreDelProyecto: `${informacionExtra.nombreDelProyecto || 'acta'}_version_${i}`,
                 esVersionFinal: false
             };
-            
+
             const resultadoDeEstaVersion = await this.generarMiActa(textoTranscripcion, informacionParaEstaVersion);
-            
+
             if (resultadoDeEstaVersion) {
                 versionesGeneradas.push({
                     numeroVersion: i,
@@ -426,23 +427,23 @@ Por favor escribe la primera mitad del acta. Finaliza con la etiqueta <<CONTINUA
                     textoCompleto: resultadoDeEstaVersion.textoDelActa
                 });
             }
-            
+
             // Pauso un poco entre versiones para no saturar la API
             if (i < numeroDeVersiones) {
                 await new Promise(resolve => setTimeout(resolve, 2000));
             }
         }
-        
+
         console.log(`✅ Logré generar ${versionesGeneradas.length} versiones del acta`);
         return versionesGeneradas;
     }
 
     analizarCalidadDeLasVersiones(listaDeVersiones) {
         console.log("🔍 Analizando qué versión quedó mejor...");
-        
+
         const analisisDeVersiones = listaDeVersiones.map(version => {
             const texto = version.textoCompleto;
-            
+
             return {
                 numeroVersion: version.numeroVersion,
                 archivoGenerado: version.archivoGenerado,
@@ -456,7 +457,7 @@ Por favor escribe la primera mitad del acta. Finaliza con la etiqueta <<CONTINUA
                 }
             };
         });
-        
+
         console.log("📊 Estadísticas de cada versión:");
         analisisDeVersiones.forEach(analisis => {
             console.log(`   Versión ${analisis.numeroVersion}:`);
@@ -466,19 +467,19 @@ Por favor escribe la primera mitad del acta. Finaliza con la etiqueta <<CONTINUA
             console.log(`     - Fechas: ${analisis.estadisticas.fechasEncontradas}`);
             console.log(`     - Está completa: ${analisis.estadisticas.tieneConclusiones && analisis.estadisticas.tieneCompromisos ? '✅' : '❌'}`);
         });
-        
+
         // Elijo la mejor versión basándome en completitud
         const mejorVersion = analisisDeVersiones.reduce((mejor, actual) => {
-            const puntajeMejor = mejor.estadisticas.numeroSecciones + mejor.estadisticas.participantesEncontrados + 
-                               mejor.estadisticas.tieneConclusiones + mejor.estadisticas.tieneCompromisos;
-            const puntajeActual = actual.estadisticas.numeroSecciones + actual.estadisticas.participantesEncontrados + 
-                                actual.estadisticas.tieneConclusiones + actual.estadisticas.tieneCompromisos;
-            
+            const puntajeMejor = mejor.estadisticas.numeroSecciones + mejor.estadisticas.participantesEncontrados +
+                mejor.estadisticas.tieneConclusiones + mejor.estadisticas.tieneCompromisos;
+            const puntajeActual = actual.estadisticas.numeroSecciones + actual.estadisticas.participantesEncontrados +
+                actual.estadisticas.tieneConclusiones + actual.estadisticas.tieneCompromisos;
+
             return puntajeActual > puntajeMejor ? actual : mejor;
         });
-        
+
         console.log(`🏆 La mejor versión es: Versión ${mejorVersion.numeroVersion} (${path.basename(mejorVersion.archivoGenerado)})`);
-        
+
         return mejorVersion;
     }
 
@@ -486,14 +487,14 @@ Por favor escribe la primera mitad del acta. Finaliza con la etiqueta <<CONTINUA
         try {
             const nombreProyecto = informacionExtra.nombreDelProyecto || 'acta';
             const carpetaFinales = this.crearCarpetaParaElProyecto(nombreProyecto, true);
-            
+
             const nombreArchivoFinal = `${nombreProyecto}_final.md`;
             const rutaArchivoFinal = path.join(carpetaFinales, nombreArchivoFinal);
-            
+
             fs.copyFileSync(mejorVersion.archivoGenerado, rutaArchivoFinal);
-            
+
             console.log(`🎯 ¡Creé la versión final! Se guardó en: ${rutaArchivoFinal}`);
-            
+
             return rutaArchivoFinal;
         } catch (error) {
             console.log(`❌ Tuve problemas creando la versión final: ${error.message}`);
@@ -513,7 +514,7 @@ async function procesarTranscripcionParaGenerarActa(archivoDeTranscripcion, info
 
         // Leo la transcripción
         const textoTranscrito = fs.readFileSync(archivoDeTranscripcion, 'utf-8');
-        
+
         if (textoTranscrito.length < 100) {
             console.error("❌ La transcripción está muy corta para generar un acta decente");
             return false;
@@ -524,7 +525,7 @@ async function procesarTranscripcionParaGenerarActa(archivoDeTranscripcion, info
 
         // Creo mi generador de actas
         const miGenerador = new GeneradorDeActasSENA();
-        
+
         // Inicializo la conexión con Gemini
         await miGenerador.init();
 
@@ -547,22 +548,22 @@ async function procesarTranscripcionParaGenerarActa(archivoDeTranscripcion, info
 
         // Genero varias versiones del acta
         const versionesGeneradas = await miGenerador.generarVariasVersionesDelActa(
-            textoTranscrito, 
-            informacionCompleta, 
+            textoTranscrito,
+            informacionCompleta,
             2  // Genero 2 versiones para comparar
         );
 
         if (versionesGeneradas.length > 0) {
             // Analizo cuál versión quedó mejor
             const mejorVersion = miGenerador.analizarCalidadDeLasVersiones(versionesGeneradas);
-            
+
             // Creo la versión final
             const archivoFinal = await miGenerador.crearVersionFinalDelActa(mejorVersion, informacionCompleta);
-            
+
             console.log(`\n🎉 ¡PROCESO DE GENERACIÓN DE ACTAS COMPLETADO!`);
             console.log(`📄 Acta final: ${archivoFinal}`);
             console.log(`📁 Versiones generadas: ${versionesGeneradas.length}`);
-            
+
             return {
                 archivoFinal: archivoFinal,
                 versiones: versionesGeneradas,
@@ -582,7 +583,7 @@ async function procesarTranscripcionParaGenerarActa(archivoDeTranscripcion, info
 // Función para buscar transcripciones automáticamente en mi directorio
 async function buscarYProcesarTodasLasTranscripciones() {
     console.log("🔗 Buscando transcripciones que pueda procesar...");
-    
+
     // Busco archivos de transcripción en mi directorio
     const archivosDeTranscripcion = fs.readdirSync('.')
         .filter(archivo => archivo.includes('_transcripcion.txt'))
@@ -603,15 +604,15 @@ async function buscarYProcesarTodasLasTranscripciones() {
         console.log(`\n${'='.repeat(60)}`);
         console.log(`🎯 PROCESANDO: ${archivo}`);
         console.log(`${'='.repeat(60)}`);
-        
+
         const resultado = await procesarTranscripcionParaGenerarActa(archivo);
-        
+
         if (resultado) {
             console.log(`✅ ${archivo} → ${path.basename(resultado.archivoFinal)}`);
         } else {
             console.log(`❌ Tuve problemas procesando ${archivo}`);
         }
-        
+
         // Pauso entre archivos para no saturar la API
         await new Promise(resolve => setTimeout(resolve, 3000));
     }

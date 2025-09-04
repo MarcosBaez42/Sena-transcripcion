@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const TTL = parseInt(process.env.FILE_TTL_MS, 10) || 86400000; // 24 horas por defecto
+const TTL = parseInt(process.env.FILE_TTL_MS, 10) || 86400000; // borrar despues de 24 horas
 
 function scheduleDeletion(targetPath, onDelete) {
   setTimeout(() => {

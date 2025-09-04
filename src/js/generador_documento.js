@@ -37,7 +37,12 @@ function generarDocumentoWord(textoCompleto, nombreDelArchivo, datosExtras = {},
         );
 
         const compromisosArray = Array.isArray(datosExtras.compromisos)
-            ? datosExtras.compromisos : [];
+            ? datosExtras.compromisos.map(c => ({
+                actividad: limpiarMarkdown(c.actividad || ''),
+                fecha: c.fecha || '',
+                responsable: c.responsable || ''
+            }))
+            : [];
 
         documentoWord.render({
             DESARROLLO: textoLimpio,
