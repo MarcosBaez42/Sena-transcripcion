@@ -139,14 +139,16 @@ Se indica la preocupación acerca del tema, el cual radica en que se evidencia i
 
 Por lo anterior y respetando el debido proceso, se cita al aprendiz [Nombre del aprendiz] del programa [extraer programa y numero de la ficha. Por ejemplo: "TECNICO DE ASISTECIA ADMINISTRATIVA FICHA 3065626"]. para la presentación de sus descargos ante el Comité de Evaluación y Seguimiento, respetando el derecho que le asiste a controvertir las pruebas allegadas o que se alleguen en su contra y a aportar y/o solicitar la práctica de las pruebas que considere pertinentes.
 
-### 4. INSTALACIÓN DEL COMITÉ POR PARTE DEL COORDINADOR
-El coordinador JOHON FREDY SANABRIA MUÑOZ da un saludo de bienvenida a los presentes en el comité. El Comité de Evaluación y Seguimiento es una instancia académica fundamental en nuestra institución. Su propósito principal es orientar y apoyar de manera integral el proceso de formación de nuestros aprendices, asegurando que se lleve a cabo con los más altos estándares de calidad. Este comité desempeña un papel fundamental al analizar y evaluar de manera constante los programas de estudio, los métodos pedagógicos y los resultados obtenidos. Además, se encarga de proponer mejoras, ajustes y estrategias que contribuyan a optimizar la experiencia educativa de nuestros aprendices. Nuestro objetivo común es formar profesionales competentes, éticos y comprometidos con su desarrollo personal y con la sociedad. A través del trabajo conjunto del Comité de Evaluación y Seguimiento, podremos garantizar que estamos cumpliendo con nuestra misión de ofrecer una educación de calidad.
-
 ### 5. DESARROLLO DEL COMITÉ / ANALISIS DEL CASO, DESCARGOS DEL APRENDIZ Y PRÁCTICA DE PRUEBAS A QUE HAYA LUGAR
-[Intervenciones de los participantes. El formato debe ser: **Interviene [Cargo y nombre]:** y lo que dicen con colocalo en el renglon siguiente. Extrae y resume lo más relevante dicho por los participantes en primera persona, extrae los puntos tratados análisis del caso, descargos del aprendiz, pruebas realizadas y cualquier otro detalle relevante.]
+[Intervenciones de los participantes. El formato debe ser: **Interviene [Cargo y nombre]:** debe ser en primera persona y lo que dicen colocalo en el renglon siguiente
+ejemplo
+"INTERVIENE VOCERO LUIS ALFREDO LLANOS: 
+Ingeniero, una pregunta, ¿y no va a ser una afectaría eso el traslado?"
+
+Recuerda siempre comenzar por la intervencion del ING. JOHON FREDY SANABRIA MUÑOZ, Extrae y resume lo más relevante dicho por los participantes, extrae los puntos tratados análisis del caso, descargos del aprendiz, pruebas realizadas y cualquier otro detalle relevante.]
 
 ### 6. CONCLUSIONES
-[Resume lo mas que se pueda el tipo de falta, gravedad, medidas, planes de mejoramiento.]
+[Resume lo mas que se pueda del tipo de falta, gravedad, medidas, planes de mejoramiento.]
 
 ---
 
@@ -159,13 +161,16 @@ El coordinador JOHON FREDY SANABRIA MUÑOZ da un saludo de bienvenida a los pres
 
 
 ## INSTRUCCIONES ADICIONALES:
+- primero revisa la transcripción para sacar los nombres a todos los participantes.
+- segundo revisa la transcripción para sacar los hechos
+- tercero revisa la transcripción para sacar las Intervenciones
 - Usa **primera persona** y lenguaje formal.
-- recuerda mirar la transcripción para sacar a los participantes.
 - **No inventes contenido** si no está en la transcripción.
 - la que da el saludo de bienvenida es la apoyo a novedades Susana Mayorga
 - Si falta algún dato, realiza la mejor inferencia posible o deja el campo vacío.
 - Respeta **el orden y títulos exactos** del formato.
 - Usa Markdown correctamente (títulos con #, negritas con **).
+- No agregues la intevenciones pequeñas por ejemplo "**INTERVIENE APRENDIZ JUAN MARTÍN DÍAZ VEGA:** Sí, con la Dra. Erika." etc. 
 - si en las intervenciones no reconoces el nombre de un participante, elije de la sección de participantes y utiliza el nombre que creas que corresponde teniendo en cuenta lo que esta dicendo el texto.
 - resume lo maximo posible las intervenciones de los participantes, no copies textualmente lo que dicen, extrae lo mas relevante de cada intervención.
 - resume lo mas que se pueda las conclusiones, no copies textualmente lo que dicen los participantes.
@@ -266,8 +271,8 @@ Ahora redacta el acta en formato Markdown con base en la siguiente transcripció
 
         console.log("🤖 Generando acta con mi sistema de IA...");
 
-        const textoReducido = textoTranscripcion.length > 5000
-            ? textoTranscripcion.slice(0, 5000) + "\n[...transcripción truncada por longitud...]"
+        const textoReducido = textoTranscripcion.length > 4500
+            ? textoTranscripcion.slice(0, 4500) + "\n[...transcripción truncada por longitud...]"
             : textoTranscripcion;
 
         let articulosSeleccionados = informacionExtra.articulosReglamento;
