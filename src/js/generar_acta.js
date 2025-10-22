@@ -140,10 +140,12 @@ Se indica la preocupación acerca del tema, el cual radica en que se evidencia i
 Por lo anterior y respetando el debido proceso, se cita al aprendiz [Nombre del aprendiz] del programa [extraer programa y numero de la ficha. Por ejemplo: "TECNICO DE ASISTECIA ADMINISTRATIVA FICHA 3065626"]. para la presentación de sus descargos ante el Comité de Evaluación y Seguimiento, respetando el derecho que le asiste a controvertir las pruebas allegadas o que se alleguen en su contra y a aportar y/o solicitar la práctica de las pruebas que considere pertinentes.
 
 ### 5. DESARROLLO DEL COMITÉ / ANALISIS DEL CASO, DESCARGOS DEL APRENDIZ Y PRÁCTICA DE PRUEBAS A QUE HAYA LUGAR
-[Intervenciones de los participantes. El formato debe ser: **Interviene [Cargo y nombre]:** debe ser en primera persona y lo que dicen colocalo en el renglon siguiente
+[Intervenciones de los participantes. El formato debe ser: **Interviene [Cargo y nombre]:** debe ser en tercera persona y lo que dicen colocalo en el renglon siguiente
 ejemplo
 "INTERVIENE VOCERO LUIS ALFREDO LLANOS: 
 Ingeniero, una pregunta, ¿y no va a ser una afectaría eso el traslado?"
+
+Arregla los párrafos de manera que los corrijas y que tengan coherencia porque estas son transcripciones que hice de un audio de una reunión pero como lo grave en celular hay cosas que no se escucharon bien y al transcribirlas no se entienden recuerda que sea acorde a lo que están hablando.
 
 Recuerda siempre comenzar por la intervencion del ING. JOHON FREDY SANABRIA MUÑOZ, Extrae y resume lo más relevante dicho por los participantes, extrae los puntos tratados análisis del caso, descargos del aprendiz, pruebas realizadas y cualquier otro detalle relevante.]
 
@@ -164,15 +166,14 @@ Recuerda siempre comenzar por la intervencion del ING. JOHON FREDY SANABRIA MUÑ
 - primero revisa la transcripción para sacar los nombres a todos los participantes.
 - segundo revisa la transcripción para sacar los hechos
 - tercero revisa la transcripción para sacar las Intervenciones
-- Usa **primera persona** y lenguaje formal.
+- Importantisimo Usa **tercera persona** y lenguaje formal.
 - **No inventes contenido** si no está en la transcripción.
-- la que da el saludo de bienvenida es la apoyo a novedades Susana Mayorga
+- la que da el saludo de bienvenida es la apoyo a novedades Susana Mayorga no lo olvides.
 - Si falta algún dato, realiza la mejor inferencia posible o deja el campo vacío.
 - Respeta **el orden y títulos exactos** del formato.
 - Usa Markdown correctamente (títulos con #, negritas con **).
 - No agregues la intevenciones pequeñas por ejemplo "**INTERVIENE APRENDIZ JUAN MARTÍN DÍAZ VEGA:** Sí, con la Dra. Erika." etc. 
 - si en las intervenciones no reconoces el nombre de un participante, elije de la sección de participantes y utiliza el nombre que creas que corresponde teniendo en cuenta lo que esta dicendo el texto.
-- resume lo maximo posible las intervenciones de los participantes, no copies textualmente lo que dicen, extrae lo mas relevante de cada intervención.
 - resume lo mas que se pueda las conclusiones, no copies textualmente lo que dicen los participantes.
 
 Ahora redacta el acta en formato Markdown con base en la siguiente transcripción.`;
