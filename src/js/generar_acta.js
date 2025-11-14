@@ -152,7 +152,6 @@ Recuerda siempre comenzar por la intervencion del ING. JOHON FREDY SANABRIA MUÑ
 ### 6. CONCLUSIONES
 [Resume lo mas que se pueda del tipo de falta, gravedad, medidas, planes de mejoramiento.]
 
----
 
 ## COMPROMISOS Y SEGUIMIENTO
 

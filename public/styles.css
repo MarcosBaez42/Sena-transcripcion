@@ -103,15 +103,16 @@ body {
 .sidebar {
   position: fixed;
   top: 0;
-  right: 0;
-  width: 280px;
-  height: 100%;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
   background: #dfe4e8;
-  overflow-y: auto;
   transition: transform 0.3s ease;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
   z-index: 1100;
-  
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 1rem;
 }
 
 .sidebar.hidden {
@@ -129,14 +130,31 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 2rem;
+  position: relative;
+  text-align: center;
   font-weight: 600;
-  font-size: 1.1rem;
+  font-size: 2.2rem;
+}
+
+.sidebar-title span {
+  margin: 0 auto;
+}
+
+.sidebar-title .sidebar-toggle {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 .list-group{
   padding: 0.5rem;
   border-radius: 14px;
+}
+
+#history-list {
+  flex: 1;
+  overflow-y: auto;
 }
 
 .text-sena {

@@ -272,6 +272,9 @@ function renderHistory() {
 
         li.addEventListener('click', () => {
           currentId = item.id;
+          progress.style.display = 'none';
+          progressBar.style.width = '0%';
+          progressBar.textContent = '';
           fetch(
             `${window.API_BASE}/descargar?id=${encodeURIComponent(item.id)}&tipo=docx`
           )
