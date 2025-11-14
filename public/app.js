@@ -17,6 +17,7 @@ const historyList = document.getElementById('history-list');
 const dropArea = document.getElementById('drop-area');
 const toastContainer = document.getElementById('toast-container');
 let currentId = null;
+let isProcessing = false;
 
 function fitPreview() {
   const wrapper = previewContent.querySelector('.docx-wrapper');
@@ -74,6 +75,7 @@ form.addEventListener('submit', (e) => {
   if (!file) return;
 
   currentId = null;
+  isProcessing = true;
   downloadBtn.disabled = true;
   checkboxes.forEach((cb) => {
     cb.checked = false;
@@ -120,6 +122,7 @@ form.addEventListener('submit', (e) => {
               }
             }
             if (data.final) {
+              isProcessing = false;
               if (data.id) currentId = data.id;
               renderHistory();
               sse.close();
@@ -145,6 +148,7 @@ form.addEventListener('submit', (e) => {
                 });
             }
             if (data.error) {
+              isProcessing = false;
               addMessage('Error: ' + data.error, 'bot');
               showToast('Error: ' + data.error, 'error');
               sse.close();
@@ -157,10 +161,12 @@ form.addEventListener('submit', (e) => {
           }
         };
       } catch (err) {
+        isProcessing = false;
         addMessage('Error: ' + err.message, 'bot');
         showToast('Error: ' + err.message, 'error');
       }
     } else {
+      isProcessing = false;
       addMessage(
         'Error del servidor: ' + xhr.status + ' ' + xhr.statusText,
         'bot'
@@ -169,12 +175,17 @@ form.addEventListener('submit', (e) => {
         'Error del servidor: ' + xhr.status + ' ' + xhr.statusText,
         'error'
       );
+      progress.style.display = 'none';
+      progressBar.textContent = '';
     }
   };
 
   xhr.onerror = () => {
+    isProcessing = false;
     addMessage('Error de red', 'bot');
     showToast('Error de red', 'error');
+    progress.style.display = 'none';
+    progressBar.textContent = '';
   };
 
   xhr.onloadend = () => {};
@@ -227,6 +238,9 @@ function hidePreview() {
     previewContent.innerHTML = '';
   }
   messages.style.display = 'block';
+  if (isProcessing) {
+    progress.style.display = 'block';
+  }
 }
 
 function removeHistory(id) {
@@ -302,7 +316,9 @@ function renderHistory() {
 
         li.addEventListener('click', () => {
           currentId = item.id;
-          progress.style.display = 'none';
+          if (!isProcessing) {
+            progress.style.display = 'none';
+          }
           progressBar.style.width = '0%';
           progressBar.textContent = '';
           fetch(

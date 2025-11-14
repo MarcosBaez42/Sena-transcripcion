@@ -1,15 +1,4 @@
 {
-  "0255d1ad-99f1-4725-9293-fb216c947a5b": {
-    "rutas": {
-      "txt": "transcripciones\\4e9731c814fb8eeb3187678c16893cc6\\4e9731c814fb8eeb3187678c16893cc6_transcripcion.txt",
-      "md": "actas_gemini\\versiones\\4e9731c814fb8eeb3187678c16893cc6\\4e9731c814fb8eeb3187678c16893cc6_2025-11-04.md",
-      "docx": "actas_gemini\\versiones\\4e9731c814fb8eeb3187678c16893cc6\\4e9731c814fb8eeb3187678c16893cc6_acta_completa.docx"
-    },
-    "meta": {
-      "nombre": "ficha3145920.mp3",
-      "fecha": 1762288093454
-    }
-  },
   "924b167f-7ec5-49f0-85e2-10b8c20a3b62": {
     "rutas": {
       "txt": "transcripciones\\0d627d5db1d950cd8ac1b39dab01dd8e\\0d627d5db1d950cd8ac1b39dab01dd8e_transcripcion.txt",
