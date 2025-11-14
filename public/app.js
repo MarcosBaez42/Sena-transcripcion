@@ -33,6 +33,12 @@ window.addEventListener('resize', fitPreview);
 
 if (backToLoaderBtn) {
   backToLoaderBtn.addEventListener('click', () => {
+    currentId = null;
+    downloadBtn.disabled = true;
+    checkboxes.forEach((cb) => {
+      cb.checked = false;
+      cb.disabled = true;
+    });
     hidePreview();
   });
 }
