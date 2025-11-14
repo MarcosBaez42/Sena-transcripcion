@@ -8,6 +8,9 @@ const downloadSection = document.getElementById('download-section');
 const downloadBtn = document.getElementById('download-btn');
 const checkboxes = downloadSection.querySelectorAll('input[type="checkbox"]');
 const previewContainer = document.getElementById('preview-container');
+const previewContent = document.getElementById('preview-content');
+const previewTitle = document.getElementById('preview-title');
+const backToLoaderBtn = document.getElementById('back-to-loader');
 const sidebar = document.getElementById('sidebar');
 const sidebarToggles = document.querySelectorAll('.sidebar-toggle');
 const historyList = document.getElementById('history-list');
@@ -16,7 +19,7 @@ const toastContainer = document.getElementById('toast-container');
 let currentId = null;
 
 function fitPreview() {
-  const wrapper = previewContainer.querySelector('.docx-wrapper');
+  const wrapper = previewContent.querySelector('.docx-wrapper');
   if (!wrapper) return;
   const containerWidth = previewContainer.clientWidth;
   const docWidth = wrapper.offsetWidth;
@@ -26,6 +29,12 @@ function fitPreview() {
 }
 
 window.addEventListener('resize', fitPreview);
+
+if (backToLoaderBtn) {
+  backToLoaderBtn.addEventListener('click', () => {
+    hidePreview();
+  });
+}
 
 downloadBtn.disabled = true;
 checkboxes.forEach((cb) => (cb.disabled = true));
@@ -75,8 +84,8 @@ form.addEventListener('submit', (e) => {
 
   messages.style.display = 'block';
   messages.innerHTML = '';
-  previewContainer.style.display = 'none';
-  previewContainer.innerHTML = '';
+  hidePreview();
+  previewTitle.textContent = 'Vista previa del documento';
 
   const data = new FormData();
   data.append('audio', file);
@@ -126,15 +135,9 @@ form.addEventListener('submit', (e) => {
                     throw new Error('No se pudo obtener el documento');
                   return res.blob();
                 })
-                .then((blob) => {
-                  previewContainer.innerHTML = '';
-                  return window.docx.renderAsync(blob, previewContainer);
-                })
-                .then(() => {
-                  previewContainer.style.display = 'block';
-                  messages.style.display = 'none';
-                  fitPreview();
-                })
+                .then((blob) =>
+                  showPreviewDocument(blob, 'Vista previa del documento')
+                )
                 .catch((err) => {
                   messages.style.display = 'block';
                   addMessage('Error: ' + err.message, 'bot');
@@ -197,6 +200,33 @@ function showToast(text, type = 'success') {
     div.classList.remove('toast-show');
     setTimeout(() => div.remove(), 300);
   }, 3000);
+}
+
+function showPreviewDocument(blob, titleText = 'Vista previa del documento') {
+  if (previewTitle) {
+    previewTitle.textContent = titleText;
+  }
+  if (!previewContent) {
+    return Promise.reject(new Error('Contenedor de vista previa no disponible'));
+  }
+  previewContent.innerHTML = '';
+  return window.docx.renderAsync(blob, previewContent).then(() => {
+    if (previewContainer) {
+      previewContainer.style.display = 'flex';
+    }
+    messages.style.display = 'none';
+    fitPreview();
+  });
+}
+
+function hidePreview() {
+  if (previewContainer) {
+    previewContainer.style.display = 'none';
+  }
+  if (previewContent) {
+    previewContent.innerHTML = '';
+  }
+  messages.style.display = 'block';
 }
 
 function removeHistory(id) {
@@ -287,15 +317,14 @@ function renderHistory() {
               if (!res.ok) throw new Error('No se pudo obtener el documento');
               return res.blob();
             })
-            .then((blob) => {
-              previewContainer.innerHTML = '';
-              return window.docx.renderAsync(blob, previewContainer);
-            })
+            .then((blob) =>
+              showPreviewDocument(
+                blob,
+                item.nombre || `Transcripción ${item.id}`
+              )
+            )
             .then(() => {
-              previewContainer.style.display = 'block';
-              messages.style.display = 'none';
               downloadBtn.disabled = false;
-              fitPreview();
               checkboxes.forEach((cb) => (cb.disabled = false));
               sidebar.classList.add('hidden');
               sidebar.classList.remove('visible');
