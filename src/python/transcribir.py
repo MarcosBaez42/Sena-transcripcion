@@ -101,6 +101,20 @@ def setup_environment(args: argparse.Namespace) -> Tuple[Optional[str], str]:
     return token_hf, device
 
 
+def _ajustar_tipo_computo(device: str, compute_type: str) -> str:
+    """Ajusta el compute_type cuando el dispositivo no soporta float16.
+
+    En CPU, `float16` suele provocar errores como:
+    ``ValueError: Requested float16 compute type, but the target device or backend do not support efficient float16 computation.``
+    En ese caso forzamos a `float32` para que el modelo cargue correctamente.
+    """
+
+    if device == "cpu" and "float16" in compute_type:
+        print("⚠️  El dispositivo CPU no soporta float16; usando float32.")
+        return "float32"
+    return compute_type
+
+
 def ejecutar_transcripcion(
     audio_file: str,
     device: str,
@@ -117,7 +131,17 @@ def ejecutar_transcripcion(
         torch.backends.cudnn.benchmark = True
         torch.set_float32_matmul_precision("high")
 
-    modelo_whisper = whisperx.load_model("large", device, compute_type=compute_type)
+    compute_type_ajustado = _ajustar_tipo_computo(device, compute_type)
+
+    try:
+        modelo_whisper = whisperx.load_model("large", device, compute_type=compute_type_ajustado)
+    except ValueError as exc:
+        if "float16" in compute_type_ajustado and device != "cuda":
+            print(f"⚠️  {exc}")
+            print("🔄 Reintentando con compute_type=float32...")
+            modelo_whisper = whisperx.load_model("medium", device, compute_type="float32")
+        else:
+            raise
     print("✅ Modelo cargado correctamente")
     avanzar(10)
 
