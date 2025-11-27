@@ -223,6 +223,13 @@ function showPreviewDocument(blob, titleText = 'Vista previa del documento') {
   if (previewTitle) {
     previewTitle.textContent = titleText;
   }
+  if (progress) {
+    progress.style.display = 'none';
+  }
+  if (progressBar) {
+    progressBar.style.width = '0%';
+    progressBar.textContent = '';
+  }
   if (!previewContent) {
     return Promise.reject(new Error('Contenedor de vista previa no disponible'));
   }
