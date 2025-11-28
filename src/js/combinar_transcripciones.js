@@ -71,9 +71,6 @@ function verificarSiHablantesEstanRegistrados(hablantesDetectados, archivoHablan
     const hablantesNoRegistrados = hablantesDetectados.filter(h => !mapeoExistente[`HABLANTE_${h}`] && !mapeoExistente[`HABLANTE ${h}`]);
 
     if (hablantesNoRegistrados.length > 0) {
-        console.warn('\n⚠️ ¡Atención! Hay hablantes que no están en mi archivo \"hablantes.json\":');
-        hablantesNoRegistrados.forEach(h => console.warn(`  - HABLANTE ${h}`));
-        console.warn("✏️  Necesito editar 'hablantes.json' y volver a ejecutar para generar el acta final.");
         return false;
     }
 
